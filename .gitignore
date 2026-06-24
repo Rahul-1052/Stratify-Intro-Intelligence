@@ -1,0 +1,7 @@
+temp_videos/
+temp_clips/
+temp_frames/
+__pycache__/
+*.pyc
+.env
+.streamlit/secrets.toml
