@@ -1,23 +1,17 @@
 from core.youtube_client import get_full_youtube_context
-
 from core.content_dna import generate_content_dna
 from core.growth_snapshot import generate_growth_snapshot
-
 from core.vision_analyzer import analyze_intro_frames
 from core.scene_understanding import understand_scene
-
 from core.context_intelligence import get_context_intelligence
 from core.emotional_center import detect_emotional_center
-
 from core.stratify_brain import generate_creator_insights
 from core.big_insight import generate_big_insight
 from core.meaning_engine import generate_content_meaning
-
 from core.feature_extractor import extract_video_features
-from core.category_intelligence import understand_category
+from core.category_detector import detect_video_category
 from core.benchmark_collector import collect_benchmark_videos
-from core.benchmark_feature_extractor import extract_benchmark_features
-from core.pattern_discovery import discover_patterns
+from core.intro_acquisition import acquire_intro_evidence
 
 from utils.video_downloader import download_video
 from utils.video_utils import extract_intro_clip
@@ -32,7 +26,7 @@ def run_stratify_report(url, intro_seconds=8, frame_fps=1, progress_callback=Non
             progress_callback(message)
 
     try:
-        progress("🧠 Understanding video context...")
+        progress("🧠 Understanding your creative identity...")
         data = get_full_youtube_context(url)
 
         if data is None:
@@ -44,27 +38,27 @@ def run_stratify_report(url, intro_seconds=8, frame_fps=1, progress_callback=Non
         video = data["video"]
         channel = data["channel"]
         recent_videos = data["recent_videos"]
+	
+	category = detect_video_category(video)
+	benchmark = collect_benchmark_videos(
+    		category,
+    		user_video_id=video.get("video_id"),
+    		max_results=15,
+	)
 
-        progress("🔎 Discovering benchmark context...")
-        category = understand_category(video)
-
-        benchmark = collect_benchmark_videos(
-            category,
-            user_video_id=video.get("video_id"),
-            max_results=15,
-        )
+        dna = generate_content_dna(video, channel, recent_videos)
+        snapshot = generate_growth_snapshot(video, channel, recent_videos)
 
         vision = {}
+        scene = {}
+        context = {}
+        emotion = {}
+        brain = {}
+        big = {}
+        meaning = {}
+	category = {}
+	benchmark = {}
         feature_report = {}
-        benchmark_features = {
-            "top_performers": [],
-            "lower_performers": [],
-        }
-        patterns = {}
-
-        # -------------------------------------------------
-        # USER INTRO EVIDENCE
-        # -------------------------------------------------
 
         progress("🎬 Watching your intro...")
         download_result = download_video(url)
@@ -84,50 +78,28 @@ def run_stratify_report(url, intro_seconds=8, frame_fps=1, progress_callback=Non
                 if frame_result.get("status") == "success":
                     progress("👀 Extracting intro evidence...")
                     frames = frame_result["frames"]
-
                     vision = analyze_intro_frames(frames)
+                    feature_report = extract_video_features(video, vision, frames)
 
-                    feature_report = extract_video_features(
-                        video,
-                        vision,
-                        frames,
-                    )
+                    progress("🎭 Understanding the scene...")
+                    scene = understand_scene(vision)
+
+                    progress("🌎 Understanding the world around your content...")
+                    context = get_context_intelligence(video, channel)
+
+                    progress("❤️ Discovering why audiences care...")
+                    emotion = detect_emotional_center(video, context, vision)
+
+                    progress("🚀 Building your growth report...")
+                    brain = generate_creator_insights(vision, context, emotion)
+                    big = generate_big_insight(emotion, context, scene)
+                    meaning = generate_content_meaning(video, emotion, context)
                 else:
-                    warnings.append("Frame extraction failed for the user video.")
+                    warnings.append(f"Frame extraction failed: {frame_result.get('message', 'Unknown error')}")
             else:
-                warnings.append("Intro extraction failed for the user video.")
+                warnings.append(f"Intro clip extraction failed: {clip_result.get('message', 'Unknown error')}")
         else:
-            warnings.append(
-                "Video download failed for the user video: "
-                f"{download_result.get('message', 'Unknown downloader error.')}"
-            )
-
-        # -------------------------------------------------
-        # BENCHMARK INTRO EVIDENCE
-        # This must run even if the user intro fails.
-        # -------------------------------------------------
-
-        progress("🏆 Watching benchmark intros...")
-        benchmark_features = {
-            "top_performers": extract_benchmark_features(
-                benchmark.get("top_performers", [])[:3]
-            ),
-            "lower_performers": extract_benchmark_features(
-                benchmark.get("lower_performers", [])[:3]
-            ),
-        }
-
-        # -------------------------------------------------
-        # PATTERN DISCOVERY
-        # Only compare user position if user evidence exists.
-        # -------------------------------------------------
-
-        progress("🧩 Discovering evidence-based patterns...")
-        patterns = discover_patterns(
-            benchmark_features.get("top_performers", []),
-            benchmark_features.get("lower_performers", []),
-            feature_report,
-        )
+            warnings.append(f"Video download failed: {download_result.get('message', 'Unknown error')}")
 
         return {
             "status": "partial" if warnings else "success",
@@ -135,26 +107,22 @@ def run_stratify_report(url, intro_seconds=8, frame_fps=1, progress_callback=Non
             "video": video,
             "channel": channel,
             "recent_videos": recent_videos,
-            "category": category,
-            "benchmark": benchmark,
-            "benchmark_features": benchmark_features,
-            "patterns": patterns,
-            "feature_report": feature_report,
+            "content_dna": dna,
+            "growth_snapshot": snapshot,
             "vision": vision,
-
-            # Old narrative sections kept disabled in UI for Stratify 2.0 evidence-first mode
-            "scene": {},
-            "context": {},
-            "emotion": {},
-            "brain": {},
-            "big_insight": {},
-            "meaning": {},
-            "content_dna": {},
-            "growth_snapshot": {},
+            "scene": scene,
+            "context": context,
+            "emotion": emotion,
+	"category": category,
+	"benchmark": benchmark,
+            "brain": brain,
+            "big_insight": big,
+            "meaning": meaning,
+            "feature_report": feature_report,
         }
 
     except Exception as e:
         return {
             "status": "failed",
-            "warnings": [f"Unexpected Stratify error: {str(e)}"],
+            "warnings": [str(e)],
         }
