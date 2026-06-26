@@ -15,6 +15,7 @@ from core.benchmark_feature_extractor import extract_benchmark_features
 from core.pattern_discovery import discover_patterns
 from core.intro_acquisition import acquire_intro_evidence
 from core.intro_observer import observe_intro
+from core.semantic_comparison import compare_intro_observations
 
 
 def run_stratify_report(url, intro_seconds=15, frame_fps=1, progress_callback=None):
@@ -66,6 +67,7 @@ def run_stratify_report(url, intro_seconds=15, frame_fps=1, progress_callback=No
         }
 
         patterns = {}
+        semantic_comparison = {}
 
         progress("Watching your intro...")
         intro_evidence = acquire_intro_evidence(
@@ -123,6 +125,14 @@ def run_stratify_report(url, intro_seconds=15, frame_fps=1, progress_callback=No
             feature_report,
         )
 
+        progress("Comparing semantic observations...")
+
+        semantic_comparison = compare_intro_observations(
+                intro_observation,
+                top_observations=[],
+                lower_observations=[],
+        )
+
         return {
             "status": "partial" if warnings else "success",
             "warnings": warnings,
@@ -144,6 +154,7 @@ def run_stratify_report(url, intro_seconds=15, frame_fps=1, progress_callback=No
             "meaning": meaning,
             "feature_report": feature_report,
             "intro_observation": intro_observation,
+            "semantic_comparison": semantic_comparison,
         }
 
     except Exception as e:
