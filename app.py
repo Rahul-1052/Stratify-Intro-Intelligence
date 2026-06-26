@@ -230,6 +230,26 @@ if analyze_clicked:
 
     st.divider()
 
+        # =====================================================
+    # RECOMMENDATIONS
+    # =====================================================
+
+    st.header("Recommendations")
+
+    recommendations = patterns.get("recommendations", [])
+
+    if recommendations:
+        for recommendation in recommendations:
+            st.write(f"**{recommendation.get('title', 'Recommendation')}**")
+            st.write(f"Evidence: {recommendation.get('evidence', 'No evidence available.')}")
+            st.write(f"Why it matters: {recommendation.get('why_it_matters', 'No explanation available.')}")
+            st.write(f"Suggested test: {recommendation.get('suggested_test', 'No suggested test available.')}")
+            st.caption(f"Confidence: {recommendation.get('confidence', 'unknown')}")
+    else:
+        st.write("No recommendation met the current evidence threshold.")
+
+    st.divider()
+
     # =====================================================
     # FINAL VERDICT
     # =====================================================
