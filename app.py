@@ -172,6 +172,28 @@ if analyze_clicked:
 
     st.divider()
 
+        # =====================================================
+    # INTRO OBSERVATION
+    # =====================================================
+
+    st.header("Intro Observation (Beta)")
+
+    intro_observation = report.get("intro_observation", {})
+    observations = intro_observation.get("observations", {})
+
+    if observations:
+        st.write(f"**Opening Type:** {observations.get('opening_type', 'Not observed')}")
+        st.write(f"**Attention Focus:** {observations.get('attention_focus', 'Not observed')}")
+        st.write(f"**First Meaningful Action:** {observations.get('first_meaningful_action', 'Not observed')}")
+        st.write(f"**Movement Progression:** {observations.get('movement_progression', 'Not observed')}")
+        st.write(f"**Emotional Impression:** {observations.get('emotional_impression', 'Not observed')}")
+        st.write(f"**Visual Focus:** {observations.get('visual_focus', 'Not observed')}")
+        st.caption(f"VLM confidence: {intro_observation.get('confidence', 'unknown')}")
+    else:
+        st.write("No VLM intro observation available yet.")
+
+    st.divider()
+
     # =====================================================
     # INTRO FEATURE EVIDENCE
     # =====================================================
