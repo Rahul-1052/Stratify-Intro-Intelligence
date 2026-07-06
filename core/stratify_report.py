@@ -1,29 +1,52 @@
-from core.youtube_client import get_full_youtube_context
-from core.content_dna import generate_content_dna
-from core.growth_snapshot import generate_growth_snapshot
-from core.vision_analyzer import analyze_intro_frames
-from core.scene_understanding import understand_scene
-from core.context_intelligence import get_context_intelligence
-from core.emotional_center import detect_emotional_center
-from core.stratify_brain import generate_creator_insights
-from core.big_insight import generate_big_insight
-from core.meaning_engine import generate_content_meaning
-from core.feature_extractor import extract_video_features
-from core.category_detector import detect_video_category
 from core.benchmark_collector import collect_benchmark_videos
 from core.benchmark_feature_extractor import extract_benchmark_features
-from core.pattern_discovery import discover_patterns
+from core.content_understanding import understand_content
+from core.evidence_engine import build_evidence
+from core.experiment_engine import generate_experiment_board
+from core.feature_extractor import extract_video_features
 from core.intro_acquisition import acquire_intro_evidence
 from core.intro_observer import observe_intro
-from core.semantic_comparison import compare_intro_observations
+from core.pattern_discovery import discover_patterns
+from core.vision_analyzer import analyze_intro_frames
+from core.youtube_client import get_full_youtube_context
+from core.brain import build_stratify_brain
 
 
-def run_stratify_report(url, intro_seconds=15, frame_fps=1, progress_callback=None):
+def _empty_benchmark():
+    return {
+        "query": "",
+        "benchmark_anchor": "",
+        "query_scores": {},
+        "search_queries_used": [],
+        "top_performers": [],
+        "lower_performers": [],
+        "all_candidates": [],
+    }
+
+
+def _successful_feature_count(items):
+    return sum(
+        bool(item.get("features", {}).get("feature_summary"))
+        for item in items or []
+        if isinstance(item, dict)
+    )
+
+
+def run_stratify_report(
+    url,
+    intro_seconds=15,
+    frame_fps=1,
+    progress_callback=None,
+):
     warnings = []
 
     def progress(message):
-        if progress_callback:
+        if not progress_callback:
+            return
+        try:
             progress_callback(message)
+        except Exception:
+            pass
 
     try:
         progress("Understanding video context...")
@@ -35,39 +58,20 @@ def run_stratify_report(url, intro_seconds=15, frame_fps=1, progress_callback=No
                 "warnings": ["Could not fetch video data from YouTube."],
             }
 
-        video = data["video"]
-        channel = data["channel"]
-        recent_videos = data["recent_videos"]
-
-        progress("Discovering benchmark context...")
-        category = detect_video_category(video)
-
-        benchmark = collect_benchmark_videos(
-            category,
-            user_video_id=video.get("video_id"),
-            max_results=15,
-        )
-
-        dna = generate_content_dna(video, channel, recent_videos)
-        snapshot = generate_growth_snapshot(video, channel, recent_videos)
+        video = data.get("video", {})
+        channel = data.get("channel", {})
+        recent_videos = data.get("recent_videos", [])
 
         vision = {}
-        scene = {}
-        context = {}
-        emotion = {}
-        brain = {}
-        big = {}
-        meaning = {}
         feature_report = {}
-        intro_observation = {}
+        category = {}
 
-        benchmark_features = {
-            "top_performers": [],
-            "lower_performers": [],
+        intro_observation = {
+            "status": "unavailable",
+            "observation": {},
+            "provider": "",
+            "warnings": ["Intro frames were not available for observation."],
         }
-
-        patterns = {}
-        semantic_comparison = {}
 
         progress("Watching your intro...")
         intro_evidence = acquire_intro_evidence(
@@ -80,85 +84,136 @@ def run_stratify_report(url, intro_seconds=15, frame_fps=1, progress_callback=No
             progress("Extracting intro evidence...")
             frames = intro_evidence["frames"]
 
-            progress("Observing intro with local VLM...")
-            intro_observation = observe_intro(frames)
-
             vision = analyze_intro_frames(frames)
-            feature_report = extract_video_features(video, vision, frames)
 
-            progress("Understanding the scene...")
-            scene = understand_scene(vision)
+            feature_report = extract_video_features(
+                video,
+                vision,
+                frames,
+            )
 
-            progress("Understanding the world around your content...")
-            context = get_context_intelligence(video, channel)
+            intro_observation = observe_intro(
+                frames,
+                video=video,
+                timeout_seconds=20,
+            )
 
-            progress("Discovering why audiences care...")
-            emotion = detect_emotional_center(video, context, vision)
+            for warning in intro_observation.get("warnings", []):
+                warnings.append(f"Intro observation: {warning}")
 
-            progress("Building your growth report...")
-            brain = generate_creator_insights(vision, context, emotion)
-            big = generate_big_insight(emotion, context, scene)
-            meaning = generate_content_meaning(video, emotion, context)
+            progress("Understanding content...")
+            try:
+                category = understand_content(
+                    video=video,
+                    intro_observation=intro_observation.get("observation", {}),
+                    timeout_seconds=20,
+                )
+            except Exception as exc:
+                category = {}
+                warnings.append(f"Content understanding failed: {str(exc)}")
+
         else:
             warnings.extend(intro_evidence.get("warnings", []))
 
+            progress("Understanding content from metadata...")
+            try:
+                category = understand_content(
+                    video=video,
+                    intro_observation={},
+                    timeout_seconds=20,
+                )
+            except Exception as exc:
+                category = {}
+                warnings.append(f"Content understanding failed: {str(exc)}")
+
+        progress("Discovering benchmark context...")
+        try:
+            benchmark = collect_benchmark_videos(
+                category,
+                user_video_id=video.get("video_id"),
+                max_results=30,
+            )
+        except Exception as exc:
+            benchmark = _empty_benchmark()
+            warnings.append(f"Benchmark discovery failed: {str(exc)}")
+
         progress("Watching benchmark intros...")
-        benchmark_features = {
-            "top_performers": extract_benchmark_features(
-                benchmark.get("top_performers", [])[:3]
-            ),
-            "lower_performers": extract_benchmark_features(
-                benchmark.get("lower_performers", [])[:3]
-            ),
-        }
+        benchmark_features = {"top_performers": [], "lower_performers": []}
 
-        if not benchmark_features["top_performers"]:
-            warnings.append("No top performers intros could be analyzed.")
+        for group_name in ("top_performers", "lower_performers"):
+            requested = benchmark.get(group_name, [])[:3]
 
-        if not benchmark_features["lower_performers"]:
-            warnings.append("No lower performers intros could be analyzed.")
+            try:
+                extracted = extract_benchmark_features(
+                    requested,
+                    intro_seconds=intro_seconds,
+                    frame_fps=frame_fps,
+                )
+            except Exception as exc:
+                extracted = []
+                warnings.append(
+                    f"{group_name.replace('_', ' ').title()} extraction failed: "
+                    f"{str(exc)}"
+                )
 
-        progress("Comparing observed intro patterns...")
+            benchmark_features[group_name] = extracted
+
+            if requested and _successful_feature_count(extracted) == 0:
+                warnings.append(
+                    f"No {group_name.replace('_', ' ')} intros could be analyzed."
+                )
+
+        evidence = build_evidence(
+            video=video,
+            channel=channel,
+            recent_videos=recent_videos,
+            intro_feature_report=feature_report,
+            intro_observation=intro_observation,
+            benchmark=benchmark,
+            benchmark_features=benchmark_features,
+            category=category,
+            transcript=data.get("transcript"),
+            context=data.get("context"),
+            warnings=warnings,
+        )
+
+        progress("Comparing stronger and weaker intros...")
         patterns = discover_patterns(
-            benchmark_features.get("top_performers", []),
-            benchmark_features.get("lower_performers", []),
+            benchmark_features["top_performers"],
+            benchmark_features["lower_performers"],
             feature_report,
         )
 
-        progress("Comparing semantic observations...")
-
-        semantic_comparison = compare_intro_observations(
-                intro_observation,
-                top_observations=[],
-                lower_observations=[],
+        brain_report = build_stratify_brain(
+            patterns=patterns,
+            category=category,
+            benchmark=benchmark,
         )
+
+        progress("Building experiment board...")
+        experiment_board = generate_experiment_board(patterns)
 
         return {
             "status": "partial" if warnings else "success",
             "warnings": warnings,
+            "intro_seconds": intro_seconds,
             "video": video,
             "channel": channel,
             "recent_videos": recent_videos,
-            "content_dna": dna,
-            "growth_snapshot": snapshot,
-            "vision": vision,
-            "scene": scene,
-            "context": context,
-            "emotion": emotion,
             "category": category,
             "benchmark": benchmark,
             "benchmark_features": benchmark_features,
+            "evidence": evidence,
             "patterns": patterns,
-            "brain": brain,
-            "big_insight": big,
-            "meaning": meaning,
+            "experiment_board": experiment_board,
             "feature_report": feature_report,
+            "vision": vision,
             "intro_observation": intro_observation,
-            "semantic_comparison": semantic_comparison,
         }
 
-    except Exception as e:
+    except Exception as exc:
         return {
             "status": "failed",
-            "warnings": [f"Unexpected Stratify error: {str(e)}"],
+            "warnings": [f"Unexpected Stratify error: {str(exc)}"],
+            "brain_report": brain_report,
         }

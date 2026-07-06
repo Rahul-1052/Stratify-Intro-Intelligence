@@ -1,144 +1,87 @@
-import json
-import torch
-from transformers import AutoProcessor, Qwen2_5_VLForConditionalGeneration
-from qwen_vl_utils import process_vision_info
+import base64
+from io import BytesIO
+
+from PIL import Image
+
+from core.observers.visual_observer import observe_visual_intro
+from core.observers.story_observer import observe_story
+from core.observers.audience_observer import observe_audience
+from core.observers.observation_schema import build_intro_observation_response
 
 
-MODEL_ID = "Qwen/Qwen2.5-VL-3B-Instruct"
+MAX_AI_OBSERVER_FRAMES = 2
+MAX_IMAGE_SIZE = 448
+JPEG_QUALITY = 70
 
-_processor = None
-_model = None
+
+def _sample_frames(frame_paths, max_frames=MAX_AI_OBSERVER_FRAMES):
+    paths = list(frame_paths or [])
+
+    if len(paths) <= max_frames:
+        return paths
+
+    if max_frames <= 1:
+        return [paths[0]]
+
+    step = (len(paths) - 1) / (max_frames - 1)
+    indexes = [round(i * step) for i in range(max_frames)]
+
+    return [paths[index] for index in indexes]
 
 
-def _get_model():
-    global _processor, _model
+def _frame_to_data_url(frame_path):
+    with Image.open(frame_path) as image:
+        image = image.convert("RGB")
+        image.thumbnail((MAX_IMAGE_SIZE, MAX_IMAGE_SIZE))
 
-    if _processor is None:
-        _processor = AutoProcessor.from_pretrained(MODEL_ID)
+        buffer = BytesIO()
+        image.save(buffer, format="JPEG", quality=JPEG_QUALITY, optimize=True)
 
-    if _model is None:
-        _model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
-            MODEL_ID,
-            torch_dtype=torch.float16,
-            device_map="auto",
+    encoded = base64.b64encode(buffer.getvalue()).decode("utf-8")
+    return f"data:image/jpeg;base64,{encoded}"
+
+
+def observe_intro(frame_paths, video=None, timeout_seconds=30):
+    if not frame_paths:
+        return build_intro_observation_response(
+            status="unavailable",
+            observation={},
+            provider="",
+            warnings=["No intro frames supplied."],
         )
 
-    return _processor, _model
-
-
-def _clean_json_output(text):
-    cleaned = text.strip()
-
-    if cleaned.startswith("```json"):
-        cleaned = cleaned.replace("```json", "", 1).strip()
-
-    if cleaned.startswith("```"):
-        cleaned = cleaned.replace("```", "", 1).strip()
-
-    if cleaned.endswith("```"):
-        cleaned = cleaned[:-3].strip()
-
-    return cleaned
-
-
-def observe_intro(frame_paths, vision=None, video=None):
-    """
-    VLM observation layer.
-
-    Responsibility:
-    Observe what happens in the intro.
-    Do not recommend.
-    Do not compare.
-    Do not claim causation.
-    """
-
-    if not frame_paths:
-        return {
-            "status": "failed",
-            "observations": {},
-            "confidence": "low",
-            "warnings": ["No intro frames available for VLM observation."],
-        }
-
-    selected_frames = frame_paths[:4]
-
-    prompt = """
-You are Stratify's intro observation engine.
-
-Observe these frames as a sequence from a video intro.
-
-Return JSON only.
-Do not give advice.
-Do not explain performance.
-Do not claim causation.
-
-Schema:
-{
-  "opening_type": "",
-  "attention_focus": "",
-  "first_meaningful_action": "",
-  "movement_progression": "",
-  "emotional_impression": "",
-  "visual_focus": "",
-  "confidence": "low|moderate|high"
-}
-"""
+    sampled_paths = _sample_frames(frame_paths)
 
     try:
-        processor, model = _get_model()
-
-        messages = [
-            {
-                "role": "user",
-                "content": [{"type": "image", "image": path} for path in selected_frames]
-                + [{"type": "text", "text": prompt}],
-            }
-        ]
-
-        text = processor.apply_chat_template(
-            messages,
-            tokenize=False,
-            add_generation_prompt=True,
+        frame_data_urls = [_frame_to_data_url(path) for path in sampled_paths]
+    except Exception as exc:
+        return build_intro_observation_response(
+            status="failed",
+            observation={},
+            provider="",
+            warnings=[f"Unable to read intro frames: {exc}"],
         )
 
-        image_inputs, video_inputs = process_vision_info(messages)
+    visual = observe_visual_intro(
+        frame_data_urls=frame_data_urls,
+        video=video,
+        timeout_seconds=timeout_seconds,
+    )
 
-        inputs = processor(
-            text=[text],
-            images=image_inputs,
-            videos=video_inputs,
-            padding=True,
-            return_tensors="pt",
-        ).to("cuda")
+    if visual.get("status") != "success":
+        return visual
 
-        with torch.no_grad():
-            output_ids = model.generate(**inputs, max_new_tokens=220)
+    observation = visual.get("observation", {})
 
-        generated_ids = [
-            output_ids[len(input_ids):]
-            for input_ids, output_ids in zip(inputs.input_ids, output_ids)
-        ]
+    story = observe_story(observation)
+    observation.update(story)
 
-        output_text = processor.batch_decode(
-            generated_ids,
-            skip_special_tokens=True,
-            clean_up_tokenization_spaces=False,
-        )[0]
+    audience = observe_audience(observation)
+    observation.update(audience)
 
-        cleaned = _clean_json_output(output_text)
-        parsed = json.loads(cleaned)
-
-        return {
-            "status": "success",
-            "observations": parsed,
-            "confidence": parsed.get("confidence", "low"),
-            "warnings": [],
-        }
-
-    except Exception as e:
-        return {
-            "status": "failed",
-            "observations": {},
-            "confidence": "low",
-            "warnings": [f"VLM observation failed: {str(e)}"],
-        }
+    return build_intro_observation_response(
+        status="success",
+        observation=observation,
+        provider=visual.get("provider", ""),
+        warnings=visual.get("warnings", []),
+    )
