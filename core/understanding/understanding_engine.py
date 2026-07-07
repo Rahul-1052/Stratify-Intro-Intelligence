@@ -33,7 +33,9 @@ def build_intro_understanding(
 
     events_result = understand_intro_events(frame_observations)
 
-    temporal_result = understand_temporal_flow(frame_observations)
+    temporal_result = understand_temporal_flow(
+        events_result.get("events", [])
+    )
 
     return {
         "status": "success" if frame_observations else "unavailable",

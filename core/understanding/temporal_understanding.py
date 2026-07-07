@@ -1,152 +1,82 @@
 from typing import Any, Dict, List
 
 
-def understand_temporal_flow(frame_observations: List[Dict[str, Any]]) -> Dict[str, Any]:
+def understand_temporal_flow(events: List[Dict[str, Any]]) -> Dict[str, Any]:
     """
-    Converts frame-level observations into temporal intro events.
+    Converts canonical intro events into temporal flow understanding.
 
     This module does not recommend or score.
-    It only explains how the first seconds evolve over time.
+    It explains how the intro evolves over time.
     """
 
-    observations = sorted(
-        frame_observations or [],
+    sorted_events = sorted(
+        events or [],
         key=lambda item: float(item.get("timestamp", 0.0)),
     )
 
-    if not observations:
+    if not sorted_events:
         return {
             "status": "unavailable",
-            "events": [],
-            "summary": "No frame observations were available for temporal understanding.",
+            "phases": [],
+            "summary": "No canonical events were available for temporal understanding.",
         }
 
-    events = []
-
-    previous = None
-
-    for current in observations:
-        if previous is None:
-            events.append(_opening_event(current))
-        else:
-            events.extend(_change_events(previous, current))
-
-        previous = current
+    phases = _build_temporal_phases(sorted_events)
 
     return {
         "status": "success",
+        "event_count": len(sorted_events),
+        "phases": phases,
+        "summary": _summarize_temporal_flow(sorted_events, phases),
+    }
+
+
+def _build_temporal_phases(events: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    early = [event for event in events if float(event.get("timestamp", 0.0)) <= 3]
+    middle = [event for event in events if 3 < float(event.get("timestamp", 0.0)) <= 8]
+    late = [event for event in events if float(event.get("timestamp", 0.0)) > 8]
+
+    return [
+        _phase("opening", "0–3s", early),
+        _phase("development", "3–8s", middle),
+        _phase("continuation_setup", "8s+", late),
+    ]
+
+
+def _phase(name: str, window: str, events: List[Dict[str, Any]]) -> Dict[str, Any]:
+    return {
+        "phase": name,
+        "time_window": window,
         "events": events,
         "event_count": len(events),
-        "summary": _summarize_events(events),
+        "description": _describe_phase(name, events),
     }
 
 
-def _opening_event(frame: Dict[str, Any]) -> Dict[str, Any]:
-    timestamp = float(frame.get("timestamp", 0.0))
-
-    return {
-        "timestamp": timestamp,
-        "event_type": "intro_start",
-        "description": _describe_opening(frame),
-        "evidence": frame,
-    }
-
-
-def _describe_opening(frame: Dict[str, Any]) -> str:
-    subject = (
-        "a visible human subject"
-        if frame.get("human_presence")
-        else "no clearly visible human subject"
-    )
-
-    text = (
-        "with visible text or graphic overlay"
-        if frame.get("text_overlay")
-        else "without visible text or graphic overlay"
-    )
-
-    lighting = frame.get("dominant_lighting", "unknown")
-    energy = frame.get("visual_energy", "unknown")
-    scene = frame.get("scene_type", "unknown")
-
-    return (
-        f"The intro begins with {subject}, {text}, "
-        f"{lighting} lighting, {energy} visual energy, "
-        f"and a {scene} scene structure."
-    )
-
-
-def _change_events(
-    previous: Dict[str, Any],
-    current: Dict[str, Any],
-) -> List[Dict[str, Any]]:
-    events = []
-    timestamp = float(current.get("timestamp", 0.0))
-
-    if previous.get("human_presence") is False and current.get("human_presence") is True:
-        events.append({
-            "timestamp": timestamp,
-            "event_type": "subject_appears",
-            "description": "A human subject becomes visible after not being clearly present.",
-            "evidence": current,
-        })
-
-    if previous.get("human_presence") is True and current.get("human_presence") is False:
-        events.append({
-            "timestamp": timestamp,
-            "event_type": "subject_disappears",
-            "description": "The visible human subject is no longer clearly present.",
-            "evidence": current,
-        })
-
-    if previous.get("text_overlay") is False and current.get("text_overlay") is True:
-        events.append({
-            "timestamp": timestamp,
-            "event_type": "text_appears",
-            "description": "Text or graphic overlay appears in the intro.",
-            "evidence": current,
-        })
-
-    if previous.get("text_overlay") is True and current.get("text_overlay") is False:
-        events.append({
-            "timestamp": timestamp,
-            "event_type": "text_disappears",
-            "description": "Text or graphic overlay disappears from the intro.",
-            "evidence": current,
-        })
-
-    if previous.get("visual_energy") != current.get("visual_energy"):
-        events.append({
-            "timestamp": timestamp,
-            "event_type": "energy_shift",
-            "description": (
-                f"Visual energy changes from {previous.get('visual_energy')} "
-                f"to {current.get('visual_energy')}."
-            ),
-            "evidence": current,
-        })
-
-    if previous.get("scene_type") != current.get("scene_type"):
-        events.append({
-            "timestamp": timestamp,
-            "event_type": "scene_shift",
-            "description": (
-                f"Scene structure changes from {previous.get('scene_type')} "
-                f"to {current.get('scene_type')}."
-            ),
-            "evidence": current,
-        })
-
-    return events
-
-
-def _summarize_events(events: List[Dict[str, Any]]) -> str:
+def _describe_phase(name: str, events: List[Dict[str, Any]]) -> str:
     if not events:
-        return "No meaningful temporal events were detected."
+        return f"No major observable events were detected during the {name} phase."
 
     event_types = [event.get("event_type", "unknown") for event in events]
 
     return (
-        f"Detected {len(events)} temporal events in the intro, including "
-        f"{', '.join(event_types[:6])}."
+        f"The {name} phase contains {len(events)} observable events: "
+        f"{', '.join(event_types)}."
+    )
+
+
+def _summarize_temporal_flow(
+    events: List[Dict[str, Any]],
+    phases: List[Dict[str, Any]],
+) -> str:
+    active_phases = [
+        phase["phase"]
+        for phase in phases
+        if phase.get("event_count", 0) > 0
+    ]
+
+    return (
+        f"The intro contains {len(events)} canonical events across "
+        f"{len(active_phases)} active temporal phases: "
+        f"{', '.join(active_phases)}."
     )
