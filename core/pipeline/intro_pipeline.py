@@ -1,4 +1,3 @@
-from dataclasses import asdict, is_dataclass
 from typing import Any, Dict
 
 from core.feature_extractor import extract_video_features
@@ -54,9 +53,9 @@ def analyze_intro_pipeline(
     vision = analyze_intro_frames(frame_paths)
 
     understanding = build_intro_understanding(
-    video=video,
-    vision=vision,
-    intro_duration=float(intro_seconds),
+        video=video,
+        vision=vision,
+        intro_duration=float(intro_seconds),
     )
 
     features = extract_video_features(
@@ -84,9 +83,3 @@ def _failure(stage: str, message: str | None) -> Dict[str, Any]:
         "error": message or "Unknown intro analysis error.",
         "warnings": [message or "Unknown intro analysis error."],
     }
-
-
-def _to_dict(value):
-    if is_dataclass(value):
-        return asdict(value)
-    return value
