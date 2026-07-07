@@ -6,14 +6,10 @@ from urllib.parse import parse_qs, urlparse
 TEMP_VIDEO_DIR = Path("temp_videos")
 TEMP_VIDEO_DIR.mkdir(exist_ok=True)
 
-
 YOUTUBE_ID_PATTERN = re.compile(r"^[A-Za-z0-9_-]{11}$")
 
 
 def extract_youtube_video_id(url_or_id):
-    """
-    Extract a YouTube video id from common desktop, mobile, short, and embed URLs.
-    """
     if not url_or_id:
         return None
 
@@ -62,10 +58,6 @@ def extract_youtube_video_id(url_or_id):
 
 
 def normalize_youtube_url(url_or_id):
-    """
-    Convert supported YouTube URL shapes into the canonical watch URL used by
-    benchmark downloads.
-    """
     video_id = extract_youtube_video_id(url_or_id)
 
     if not video_id:
@@ -110,21 +102,74 @@ def _error_response(message, **details):
     return response
 
 
-def download_video(url):
-    """
-    Downloads a YouTube video locally for intro extraction.
-
-    Returns:
-    {
-        "status": "success",
-        "video_path": "temp_videos/video_id.mp4",
-        "video_id": "VIDEO_ID",
-        "title": "Video title",
-        "normalized_url": "https://www.youtube.com/watch?v=VIDEO_ID"
+def _base_ydl_opts(video_id):
+    return {
+        "format": "bv*[height<=720]+ba/b[height<=720]/best",
+        "merge_output_format": "mp4",
+        "outtmpl": str(TEMP_VIDEO_DIR / f"{video_id}.%(ext)s"),
+        "quiet": True,
+        "no_warnings": True,
+        "noplaylist": True,
+        "windowsfilenames": True,
+        "retries": 10,
+        "fragment_retries": 10,
+        "socket_timeout": 30,
+        "concurrent_fragment_downloads": 3,
+        "extractor_args": {
+            "youtube": {
+                "player_client": ["android", "web"],
+            }
+        },
     }
 
-    On failure, returns status="error" with a detailed message and context.
-    """
+
+def _download_with_opts(normalized_url, ydl_opts):
+    from yt_dlp import YoutubeDL
+
+    with YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(normalized_url, download=True)
+        video_path = _downloaded_file_path(info, ydl)
+
+    return info, video_path
+
+
+def _strategy_plain(video_id):
+    return _base_ydl_opts(video_id)
+
+
+def _strategy_android_only(video_id):
+    opts = _base_ydl_opts(video_id)
+    opts["extractor_args"] = {
+        "youtube": {
+            "player_client": ["android"],
+        }
+    }
+    return opts
+
+
+def _strategy_web_only(video_id):
+    opts = _base_ydl_opts(video_id)
+    opts["extractor_args"] = {
+        "youtube": {
+            "player_client": ["web"],
+        }
+    }
+    return opts
+
+
+def _strategy_chrome_cookies(video_id):
+    opts = _base_ydl_opts(video_id)
+    opts["cookiesfrombrowser"] = ("chrome",)
+    return opts
+
+
+def _strategy_edge_cookies(video_id):
+    opts = _base_ydl_opts(video_id)
+    opts["cookiesfrombrowser"] = ("edge",)
+    return opts
+
+
+def download_video(url):
     original_url = str(url or "").strip()
 
     try:
@@ -138,7 +183,6 @@ def download_video(url):
         )
 
     try:
-        from yt_dlp import YoutubeDL
         from yt_dlp.utils import DownloadError
     except ImportError as e:
         return _error_response(
@@ -149,53 +193,48 @@ def download_video(url):
             error_type="missing_dependency",
         )
 
-    ydl_opts = {
-        "format": "mp4[height<=720]/bestvideo[height<=720]+bestaudio/best[height<=720]/best",
-        "merge_output_format": "mp4",
-        "outtmpl": str(TEMP_VIDEO_DIR / "%(id)s.%(ext)s"),
-        "quiet": True,
-        "no_warnings": True,
-        "noplaylist": True,
-        "windowsfilenames": True,
-    }
+    strategies = [
+        ("plain_android_web", _strategy_plain),
+        ("android_only", _strategy_android_only),
+        ("web_only", _strategy_web_only),
+        ("chrome_cookies", _strategy_chrome_cookies),
+        ("edge_cookies", _strategy_edge_cookies),
+    ]
 
-    try:
-        with YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(normalized_url, download=True)
-            video_path = _downloaded_file_path(info, ydl)
+    errors = []
 
-        if not video_path:
-            return _error_response(
-                "Video download completed, but Stratify could not locate the downloaded file.",
-                original_url=original_url,
-                normalized_url=normalized_url,
-                video_id=video_id,
-                error_type="downloaded_file_missing",
-            )
+    for strategy_name, strategy_builder in strategies:
+        try:
+            ydl_opts = strategy_builder(video_id)
+            info, video_path = _download_with_opts(normalized_url, ydl_opts)
 
-        return {
-            "status": "success",
-            "video_path": str(video_path),
-            "video_id": info.get("id") or video_id,
-            "title": info.get("title", ""),
-            "normalized_url": normalized_url,
-            "original_url": original_url,
-        }
+            if not video_path:
+                errors.append(
+                    f"{strategy_name}: download completed but file was not found."
+                )
+                continue
 
-    except DownloadError as e:
-        return _error_response(
-            f"yt-dlp could not download this video: {str(e)}",
-            original_url=original_url,
-            normalized_url=normalized_url,
-            video_id=video_id,
-            error_type="download_error",
-        )
+            return {
+                "status": "success",
+                "video_path": str(video_path),
+                "video_id": info.get("id") or video_id,
+                "title": info.get("title", ""),
+                "normalized_url": normalized_url,
+                "original_url": original_url,
+                "download_strategy": strategy_name,
+            }
 
-    except Exception as e:
-        return _error_response(
-            f"Unexpected downloader error: {str(e)}",
-            original_url=original_url,
-            normalized_url=normalized_url,
-            video_id=video_id,
-            error_type=type(e).__name__,
-        )
+        except DownloadError as e:
+            errors.append(f"{strategy_name}: {str(e)}")
+
+        except Exception as e:
+            errors.append(f"{strategy_name}: {type(e).__name__}: {str(e)}")
+
+    return _error_response(
+        "yt-dlp could not download this video after multiple strategies.",
+        original_url=original_url,
+        normalized_url=normalized_url,
+        video_id=video_id,
+        error_type="download_error",
+        attempts=" | ".join(errors[-5:]),
+    )
