@@ -2,7 +2,7 @@ from dataclasses import asdict, is_dataclass
 from typing import Any, Dict
 
 from core.feature_extractor import extract_video_features
-from core.understanding import understand_video_intro
+from core.understanding import build_intro_understanding
 from core.vision_analyzer import analyze_intro_frames
 from utils.frame_extractor import extract_frames_from_clip
 from utils.video_downloader import download_video
@@ -53,14 +53,11 @@ def analyze_intro_pipeline(
 
     vision = analyze_intro_frames(frame_paths)
 
-    understanding_result = understand_video_intro(
-        video_id=video_id or "",
-        frame_observations=vision.get("frame_observations", []),
-        intro_duration=float(intro_seconds),
-        metadata=video,
+    understanding = build_intro_understanding(
+    video=video,
+    vision=vision,
+    intro_duration=float(intro_seconds),
     )
-
-    understanding = _to_dict(understanding_result)
 
     features = extract_video_features(
         video,
