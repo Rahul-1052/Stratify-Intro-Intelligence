@@ -1,3 +1,5 @@
+from dataclasses import asdict, is_dataclass
+
 from core.benchmark_collector import collect_benchmark_videos
 from core.benchmark_feature_extractor import extract_benchmark_features
 from core.content_understanding import understand_content
@@ -10,6 +12,7 @@ from core.pattern_discovery import discover_patterns
 from core.vision_analyzer import analyze_intro_frames
 from core.youtube_client import get_full_youtube_context
 from core.brain import build_stratify_brain
+from core.understanding import understand_video_intro
 
 
 def _empty_benchmark():
@@ -32,6 +35,12 @@ def _successful_feature_count(items):
     )
 
 
+def _to_dict(value):
+    if is_dataclass(value):
+        return asdict(value)
+    return value
+
+
 def run_stratify_report(
     url,
     intro_seconds=15,
@@ -39,6 +48,12 @@ def run_stratify_report(
     progress_callback=None,
 ):
     warnings = []
+    brain_report = {}
+    video_understanding = {
+        "status": "unavailable",
+        "understanding": {},
+        "warnings": [],
+    }
 
     def progress(message):
         if not progress_callback:
@@ -56,6 +71,8 @@ def run_stratify_report(
             return {
                 "status": "failed",
                 "warnings": ["Could not fetch video data from YouTube."],
+                "brain_report": brain_report,
+                "video_understanding": video_understanding,
             }
 
         video = data.get("video", {})
@@ -86,6 +103,20 @@ def run_stratify_report(
 
             vision = analyze_intro_frames(frames)
 
+            progress("Understanding video sequence...")
+            understanding_result = understand_video_intro(
+                video_id=video.get("video_id", ""),
+                frame_observations=vision.get("frame_observations", []),
+                intro_duration=intro_seconds,
+                metadata=video,
+            )
+
+            video_understanding = {
+                "status": "success",
+                "understanding": _to_dict(understanding_result),
+                "warnings": [],
+            }
+
             feature_report = extract_video_features(
                 video,
                 vision,
@@ -101,11 +132,14 @@ def run_stratify_report(
             for warning in intro_observation.get("warnings", []):
                 warnings.append(f"Intro observation: {warning}")
 
+            for warning in video_understanding.get("warnings", []):
+                warnings.append(f"Video understanding: {warning}")
+
             progress("Understanding content...")
             try:
                 category = understand_content(
                     video=video,
-                    intro_observation=intro_observation.get("observation", {}),
+                    intro_observation=video_understanding.get("understanding", {}),
                     timeout_seconds=20,
                 )
             except Exception as exc:
@@ -205,9 +239,11 @@ def run_stratify_report(
             "benchmark_features": benchmark_features,
             "evidence": evidence,
             "patterns": patterns,
+            "brain_report": brain_report,
             "experiment_board": experiment_board,
             "feature_report": feature_report,
             "vision": vision,
+            "video_understanding": video_understanding,
             "intro_observation": intro_observation,
         }
 
@@ -216,4 +252,5 @@ def run_stratify_report(
             "status": "failed",
             "warnings": [f"Unexpected Stratify error: {str(exc)}"],
             "brain_report": brain_report,
+            "video_understanding": video_understanding,
         }
