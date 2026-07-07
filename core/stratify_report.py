@@ -1,18 +1,13 @@
-from dataclasses import asdict, is_dataclass
-
 from core.benchmark_collector import collect_benchmark_videos
 from core.benchmark_feature_extractor import extract_benchmark_features
 from core.content_understanding import understand_content
 from core.evidence_engine import build_evidence
 from core.experiment_engine import generate_experiment_board
-from core.feature_extractor import extract_video_features
-from core.intro_acquisition import acquire_intro_evidence
 from core.intro_observer import observe_intro
 from core.pattern_discovery import discover_patterns
-from core.vision_analyzer import analyze_intro_frames
+from core.pipeline import analyze_intro_pipeline
 from core.youtube_client import get_full_youtube_context
 from core.brain import build_stratify_brain
-from core.understanding import understand_video_intro
 
 
 def _empty_benchmark():
@@ -35,12 +30,6 @@ def _successful_feature_count(items):
     )
 
 
-def _to_dict(value):
-    if is_dataclass(value):
-        return asdict(value)
-    return value
-
-
 def run_stratify_report(
     url,
     intro_seconds=15,
@@ -49,6 +38,7 @@ def run_stratify_report(
 ):
     warnings = []
     brain_report = {}
+
     video_understanding = {
         "status": "unavailable",
         "understanding": {},
@@ -82,6 +72,7 @@ def run_stratify_report(
         vision = {}
         feature_report = {}
         category = {}
+        frames = []
 
         intro_observation = {
             "status": "unavailable",
@@ -90,38 +81,24 @@ def run_stratify_report(
             "warnings": ["Intro frames were not available for observation."],
         }
 
-        progress("Watching your intro...")
-        intro_evidence = acquire_intro_evidence(
-            url,
+        progress("Watching and analyzing your intro...")
+        intro_result = analyze_intro_pipeline(
+            video=video,
+            url=url,
             intro_seconds=intro_seconds,
             frame_fps=frame_fps,
         )
 
-        if intro_evidence.get("status") == "success" and intro_evidence.get("frames"):
-            progress("Extracting intro evidence...")
-            frames = intro_evidence["frames"]
-
-            vision = analyze_intro_frames(frames)
-
-            progress("Understanding video sequence...")
-            understanding_result = understand_video_intro(
-                video_id=video.get("video_id", ""),
-                frame_observations=vision.get("frame_observations", []),
-                intro_duration=intro_seconds,
-                metadata=video,
-            )
+        if intro_result.get("status") == "success":
+            frames = intro_result.get("frames", [])
+            vision = intro_result.get("vision", {})
+            feature_report = intro_result.get("features", {})
 
             video_understanding = {
                 "status": "success",
-                "understanding": _to_dict(understanding_result),
-                "warnings": [],
+                "understanding": intro_result.get("understanding", {}),
+                "warnings": intro_result.get("warnings", []),
             }
-
-            feature_report = extract_video_features(
-                video,
-                vision,
-                frames,
-            )
 
             intro_observation = observe_intro(
                 frames,
@@ -147,7 +124,11 @@ def run_stratify_report(
                 warnings.append(f"Content understanding failed: {str(exc)}")
 
         else:
-            warnings.extend(intro_evidence.get("warnings", []))
+            warning = (
+                f"Intro pipeline failed at {intro_result.get('stage', 'unknown')}: "
+                f"{intro_result.get('error', 'Unknown error.')}"
+            )
+            warnings.append(warning)
 
             progress("Understanding content from metadata...")
             try:
@@ -245,6 +226,7 @@ def run_stratify_report(
             "vision": vision,
             "video_understanding": video_understanding,
             "intro_observation": intro_observation,
+            "frames": frames,
         }
 
     except Exception as exc:
