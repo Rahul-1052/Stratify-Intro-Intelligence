@@ -6,6 +6,12 @@ from core.experiment_engine import generate_experiment_board
 from core.intro_observer import observe_intro
 from core.pattern_discovery import discover_patterns
 from core.pipeline import analyze_intro_pipeline
+from core.reasoning import (
+    build_evidence_graph,
+    compare_creator_decisions,
+    infer_benchmark_decisions,
+    infer_creator_decisions,
+)
 from core.youtube_client import get_full_youtube_context
 from core.brain import build_stratify_brain
 
@@ -45,6 +51,13 @@ def run_stratify_report(
         "warnings": [],
     }
 
+    reasoning = {
+        "user_decisions": {},
+        "benchmark_decisions": {},
+        "decision_comparison": {},
+        "evidence_graph": {},
+    }
+
     def progress(message):
         if not progress_callback:
             return
@@ -63,6 +76,7 @@ def run_stratify_report(
                 "warnings": ["Could not fetch video data from YouTube."],
                 "brain_report": brain_report,
                 "video_understanding": video_understanding,
+                "reasoning": reasoning,
             }
 
         video = data.get("video", {})
@@ -99,6 +113,11 @@ def run_stratify_report(
                 "understanding": intro_result.get("understanding", {}),
                 "warnings": intro_result.get("warnings", []),
             }
+
+            progress("Inferring creator decisions...")
+            reasoning["user_decisions"] = infer_creator_decisions(
+                video_understanding.get("understanding", {})
+            )
 
             intro_observation = observe_intro(
                 frames,
@@ -178,6 +197,23 @@ def run_stratify_report(
                     f"No {group_name.replace('_', ' ')} intros could be analyzed."
                 )
 
+        progress("Reasoning over creator decisions...")
+        reasoning["benchmark_decisions"] = infer_benchmark_decisions(
+            benchmark_features
+        )
+
+        reasoning["decision_comparison"] = compare_creator_decisions(
+            user_decisions=reasoning.get("user_decisions", {}),
+            benchmark_decisions=reasoning.get("benchmark_decisions", {}),
+        )
+
+        reasoning["evidence_graph"] = build_evidence_graph(
+            intro_understanding=video_understanding.get("understanding", {}),
+            user_decisions=reasoning.get("user_decisions", {}),
+            benchmark_decisions=reasoning.get("benchmark_decisions", {}),
+            decision_comparison=reasoning.get("decision_comparison", {}),
+        )
+
         evidence = build_evidence(
             video=video,
             channel=channel,
@@ -226,6 +262,7 @@ def run_stratify_report(
             "vision": vision,
             "video_understanding": video_understanding,
             "intro_observation": intro_observation,
+            "reasoning": reasoning,
             "frames": frames,
         }
 
@@ -235,4 +272,5 @@ def run_stratify_report(
             "warnings": [f"Unexpected Stratify error: {str(exc)}"],
             "brain_report": brain_report,
             "video_understanding": video_understanding,
+            "reasoning": reasoning,
         }
