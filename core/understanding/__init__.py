@@ -9,4 +9,5 @@ __all__ = [
     "understand_temporal_flow",
     "understand_intro_events",
     "build_intro_understanding",
+    "understand_narrative_intent",
 ]

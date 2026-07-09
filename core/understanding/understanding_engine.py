@@ -1,6 +1,7 @@
 from typing import Any, Dict
 
 from core.understanding.event_understanding import understand_intro_events
+from core.understanding.narrative_understanding import understand_narrative_intent
 from core.understanding.temporal_understanding import understand_temporal_flow
 from core.understanding.video_understanding import understand_video_intro
 
@@ -17,6 +18,7 @@ def build_intro_understanding(
     - visual/video understanding
     - canonical event understanding
     - temporal flow understanding
+    - narrative draft understanding
 
     It does not compare, score, recommend, or generate final reports.
     """
@@ -37,15 +39,30 @@ def build_intro_understanding(
         events_result.get("events", [])
     )
 
-    return {
-        "status": "success" if frame_observations else "unavailable",
+    partial_understanding = {
         "video": _to_dict(video_result),
         "events": events_result,
         "temporal": temporal_result,
+    }
+
+    narrative_result = understand_narrative_intent(
+        video=video,
+        vision=vision,
+        intro_understanding=partial_understanding,
+        transcript=None,
+    )
+
+    return {
+        "status": "success" if frame_observations else "unavailable",
+        "video": partial_understanding["video"],
+        "events": events_result,
+        "temporal": temporal_result,
+        "narrative_draft": narrative_result,
         "summary": _build_unified_summary(
-            video_result=_to_dict(video_result),
+            video_result=partial_understanding["video"],
             events_result=events_result,
             temporal_result=temporal_result,
+            narrative_result=narrative_result,
         ),
     }
 
@@ -54,11 +71,13 @@ def _build_unified_summary(
     video_result: Dict[str, Any],
     events_result: Dict[str, Any],
     temporal_result: Dict[str, Any],
+    narrative_result: Dict[str, Any],
 ) -> str:
     return (
         f"{video_result.get('summary', '')} "
         f"{events_result.get('summary', '')} "
-        f"{temporal_result.get('summary', '')}"
+        f"{temporal_result.get('summary', '')} "
+        f"Narrative draft confidence: {narrative_result.get('confidence', 'unknown')}."
     ).strip()
 
 
