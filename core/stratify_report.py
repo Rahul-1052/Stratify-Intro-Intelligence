@@ -11,6 +11,7 @@ from core.reasoning import (
     compare_creator_decisions,
     infer_benchmark_decisions,
     infer_creator_decisions,
+    learn_benchmark_patterns,
 )
 from core.youtube_client import get_full_youtube_context
 from core.brain import build_stratify_brain
@@ -56,6 +57,7 @@ def run_stratify_report(
         "benchmark_decisions": {},
         "decision_comparison": {},
         "evidence_graph": {},
+        "pattern_learning": {},
     }
 
     def progress(message):
@@ -196,6 +198,11 @@ def run_stratify_report(
                 warnings.append(
                     f"No {group_name.replace('_', ' ')} intros could be analyzed."
                 )
+
+        progress("Learning benchmark patterns...")
+        reasoning["pattern_learning"] = learn_benchmark_patterns(
+            benchmark_features
+        )
 
         progress("Reasoning over creator decisions...")
         reasoning["benchmark_decisions"] = infer_benchmark_decisions(
