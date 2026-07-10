@@ -334,6 +334,71 @@ def render_creator_experiments(items):
         )
 
 
+
+def render_reasoning_details(report):
+    reasoning = report.get("reasoning", {})
+
+    user_decisions = reasoning.get("user_decisions", {})
+    decision_comparison = reasoning.get("decision_comparison", {})
+    evidence_graph = reasoning.get("evidence_graph", {})
+
+    st.subheader("Creator Decisions")
+    decisions = user_decisions.get("decisions", [])
+
+    if not decisions:
+        render_empty("No creator decisions were inferred from the current evidence.")
+    else:
+        for decision in decisions[:5]:
+            st.write(f"**{decision.get('decision_type', 'unknown')}**")
+            st.write(decision.get("explanation", "No explanation available."))
+            st.caption(f"Confidence: {decision.get('confidence', 'unknown').title()}")
+
+    st.subheader("Decision Comparison")
+    st.write(decision_comparison.get("summary", "No decision comparison available."))
+
+    stronger_only = decision_comparison.get("stronger_only_decisions", [])
+    weaker_only = decision_comparison.get("weaker_only_decisions", [])
+
+    if stronger_only:
+        st.write("**Decisions more associated with stronger benchmark intros:**")
+        for item in stronger_only[:5]:
+            st.write(f"- {item}")
+
+    if weaker_only:
+        st.write("**Decisions more associated with lower benchmark intros:**")
+        for item in weaker_only[:5]:
+            st.write(f"- {item}")
+
+    st.subheader("Evidence Graph")
+    chains = evidence_graph.get("chains", [])
+
+    if not chains:
+        render_empty("No evidence chains were built yet.")
+        return
+
+    for chain in chains[:5]:
+        st.write(f"**{chain.get('decision_type', 'unknown')}**")
+        st.write(chain.get("decision_explanation", "No decision explanation available."))
+
+        evidence_chain = chain.get("evidence_chain", {})
+        observed_events = evidence_chain.get("observed_events", [])
+
+        if observed_events:
+            st.write("Supporting observed events:")
+            for event in observed_events[:4]:
+                st.write(
+                    f"- {event.get('event_type', 'unknown')} "
+                    f"at {event.get('timestamp', 'unknown')}s"
+                )
+
+        alignment = evidence_chain.get("benchmark_alignment", {})
+        st.caption(
+            "Benchmark alignment — "
+            f"top count: {alignment.get('top_count', 0)}, "
+            f"lower count: {alignment.get('lower_count', 0)}"
+        )
+        st.caption(f"Evidence confidence: {chain.get('confidence', 'unknown').title()}")
+
 def render_builder_details(report):
     patterns = report.get("patterns", {})
     benchmark = report.get("benchmark", {})
@@ -363,6 +428,8 @@ def render_builder_details(report):
         )
         st.subheader("Evidence Details")
         render_feature_rows(patterns.get("feature_comparison", []))
+        st.subheader("Reasoning Details")
+        render_reasoning_details(report)
         st.subheader("Raw Backend Evidence")
         st.write(
             {
