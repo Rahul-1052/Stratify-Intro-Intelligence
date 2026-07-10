@@ -1,7 +1,8 @@
-import os
-import uuid
 import subprocess
+import sys
+import uuid
 from pathlib import Path
+from typing import Any, Dict, List
 
 
 CLIP_DIR = Path("temp_clips")
@@ -10,7 +11,7 @@ CLIP_DIR.mkdir(exist_ok=True)
 DEFAULT_INTRO_SECONDS = 15
 
 
-def _run_command(command):
+def _run_command(command: List[str]) -> Dict[str, Any]:
     try:
         result = subprocess.run(
             command,
@@ -21,29 +22,39 @@ def _run_command(command):
 
         return {
             "success": result.returncode == 0,
+            "returncode": result.returncode,
             "stdout": result.stdout,
             "stderr": result.stderr,
+            "command": command,
         }
 
     except Exception as exc:
         return {
             "success": False,
+            "returncode": None,
             "stdout": "",
             "stderr": str(exc),
+            "command": command,
         }
 
 
-def _build_output_path():
+def _build_output_path() -> Path:
     return CLIP_DIR / f"intro_{uuid.uuid4().hex}.mp4"
 
 
-def _yt_dlp_base_command(url, output_path):
+def _yt_dlp_base_command(
+    url: str,
+    output_path: Path,
+    intro_seconds: int,
+) -> List[str]:
     return [
-        "yt-dlp",
+        sys.executable,
+        "-m",
+        "yt_dlp",
         "--force-overwrites",
         "--no-playlist",
         "--download-sections",
-        f"*00:00-{DEFAULT_INTRO_SECONDS}",
+        f"*00:00-{intro_seconds}",
         "-f",
         "bv*[height<=720]+ba/b[height<=720]/best",
         "--merge-output-format",
@@ -54,41 +65,103 @@ def _yt_dlp_base_command(url, output_path):
     ]
 
 
-def _try_plain_yt_dlp(url, output_path):
-    command = _yt_dlp_base_command(url, output_path)
+def _try_plain_yt_dlp(
+    url: str,
+    output_path: Path,
+    intro_seconds: int,
+) -> Dict[str, Any]:
+    command = _yt_dlp_base_command(
+        url=url,
+        output_path=output_path,
+        intro_seconds=intro_seconds,
+    )
     return _run_command(command)
 
 
-def _try_browser_cookies(url, output_path, browser):
-    command = _yt_dlp_base_command(url, output_path)
-    command.insert(1, "--cookies-from-browser")
-    command.insert(2, browser)
+def _try_browser_cookies(
+    url: str,
+    output_path: Path,
+    browser: str,
+    intro_seconds: int,
+) -> Dict[str, Any]:
+    command = _yt_dlp_base_command(
+        url=url,
+        output_path=output_path,
+        intro_seconds=intro_seconds,
+    )
+
+    command[3:3] = [
+        "--cookies-from-browser",
+        browser,
+    ]
+
     return _run_command(command)
 
 
-def acquire_intro_clip(url, intro_seconds=DEFAULT_INTRO_SECONDS):
+def _valid_output(path: Path) -> bool:
+    return path.exists() and path.is_file() and path.stat().st_size > 0
+
+
+def _attempt_summary(
+    strategy: str,
+    result: Dict[str, Any],
+) -> Dict[str, Any]:
+    return {
+        "strategy": strategy,
+        "success": bool(result.get("success")),
+        "returncode": result.get("returncode"),
+        "stderr": str(result.get("stderr", "")).strip(),
+        "stdout": str(result.get("stdout", "")).strip(),
+    }
+
+
+def acquire_intro_clip(
+    url: str,
+    intro_seconds: int = DEFAULT_INTRO_SECONDS,
+) -> Dict[str, Any]:
     """
-    Reliable intro acquisition.
+    Acquire only the requested opening section of a YouTube video.
 
-    Tries:
-    1. plain yt-dlp
-    2. Chrome cookies
-    3. Edge cookies
+    Strategies:
+    1. Plain yt-dlp using the current Python interpreter.
+    2. Edge browser cookies.
+    3. Chrome browser cookies.
 
-    Returns a stable object.
+    The function returns a stable dictionary and never raises downloader
+    exceptions to callers.
     """
 
-    global DEFAULT_INTRO_SECONDS
-    DEFAULT_INTRO_SECONDS = intro_seconds
+    normalized_url = str(url or "").strip()
 
-    output_path = _build_output_path()
+    if not normalized_url:
+        return {
+            "status": "failed",
+            "clip_path": "",
+            "method": "",
+            "warnings": ["A YouTube URL is required."],
+            "attempts": [],
+        }
+
+    if intro_seconds <= 0:
+        return {
+            "status": "failed",
+            "clip_path": "",
+            "method": "",
+            "warnings": ["intro_seconds must be greater than zero."],
+            "attempts": [],
+        }
 
     attempts = []
 
-    plain = _try_plain_yt_dlp(url, output_path)
-    attempts.append(("plain_yt_dlp", plain))
+    output_path = _build_output_path()
+    plain_result = _try_plain_yt_dlp(
+        url=normalized_url,
+        output_path=output_path,
+        intro_seconds=intro_seconds,
+    )
+    attempts.append(_attempt_summary("plain_yt_dlp", plain_result))
 
-    if output_path.exists() and output_path.stat().st_size > 0:
+    if _valid_output(output_path):
         return {
             "status": "success",
             "clip_path": str(output_path),
@@ -97,13 +170,20 @@ def acquire_intro_clip(url, intro_seconds=DEFAULT_INTRO_SECONDS):
             "attempts": attempts,
         }
 
-    for browser in ["chrome", "edge"]:
+    for browser in ("edge", "chrome"):
         output_path = _build_output_path()
 
-        result = _try_browser_cookies(url, output_path, browser)
-        attempts.append((f"{browser}_cookies", result))
+        browser_result = _try_browser_cookies(
+            url=normalized_url,
+            output_path=output_path,
+            browser=browser,
+            intro_seconds=intro_seconds,
+        )
+        attempts.append(
+            _attempt_summary(f"{browser}_cookies", browser_result)
+        )
 
-        if output_path.exists() and output_path.stat().st_size > 0:
+        if _valid_output(output_path):
             return {
                 "status": "success",
                 "clip_path": str(output_path),
@@ -112,7 +192,14 @@ def acquire_intro_clip(url, intro_seconds=DEFAULT_INTRO_SECONDS):
                 "attempts": attempts,
             }
 
-    warning = attempts[-1][1].get("stderr", "Unknown download failure.")
+    final_error = next(
+        (
+            attempt.get("stderr")
+            for attempt in reversed(attempts)
+            if attempt.get("stderr")
+        ),
+        "Unknown download failure.",
+    )
 
     return {
         "status": "failed",
@@ -120,7 +207,7 @@ def acquire_intro_clip(url, intro_seconds=DEFAULT_INTRO_SECONDS):
         "method": "",
         "warnings": [
             "Could not acquire intro clip from YouTube.",
-            warning,
+            final_error,
         ],
         "attempts": attempts,
     }
