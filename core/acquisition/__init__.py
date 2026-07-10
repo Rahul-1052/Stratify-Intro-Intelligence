@@ -1,3 +1,3 @@
-from core.acquisition.youtube_acquisition import acquire_intro_clip
+from core.acquisition.acquisition_service import acquire_video_intro
 
-__all__ = ["acquire_intro_clip"]
+__all__ = ["acquire_video_intro"]
