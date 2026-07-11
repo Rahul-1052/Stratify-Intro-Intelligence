@@ -19,6 +19,8 @@ observation fields are added elsewhere in Stratify.
 """
 
 from collections import Counter
+import json
+import math
 from typing import Any, Dict, Iterable, List, Mapping, Sequence
 
 
@@ -62,8 +64,25 @@ def _normalize_value(value: Any) -> Any:
 
         return cleaned
 
-    if value in UNKNOWN_VALUES:
+    if isinstance(value, float) and not math.isfinite(value):
         return None
+
+    # Keep structured provider evidence deterministic and hashable so a single
+    # malformed field cannot abort learning from every other valid field.
+    if isinstance(value, Mapping):
+        return json.dumps(value, sort_keys=True, ensure_ascii=False, default=str)
+
+    if isinstance(value, (list, tuple, set)):
+        sequence = list(value)
+        if isinstance(value, set):
+            sequence = sorted(sequence, key=repr)
+        return json.dumps(sequence, ensure_ascii=False, default=str)
+
+    try:
+        if value in UNKNOWN_VALUES:
+            return None
+    except TypeError:
+        return str(value)
 
     return value
 

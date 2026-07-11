@@ -960,7 +960,15 @@ def _is_unknown(
             in UNKNOWN_VALUES
         )
 
-    return value in UNKNOWN_VALUES
+    # Provider payloads are not always scalar. Structured values must not make
+    # us discard the rest of an otherwise valid observation.
+    if isinstance(value, (Mapping, list, tuple, set)):
+        return False
+
+    try:
+        return value in UNKNOWN_VALUES
+    except TypeError:
+        return False
 
 
 def _nested_get(
