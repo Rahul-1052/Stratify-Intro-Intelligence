@@ -1,4 +1,5 @@
 from core.benchmark_collector import collect_benchmark_videos
+from core.benchmark_signature import build_benchmark_signature
 from core.benchmark_feature_extractor import extract_benchmark_features
 from core.content_understanding import understand_content
 from core.evidence_engine import build_evidence
@@ -42,6 +43,7 @@ def run_stratify_report(
     intro_seconds=15,
     frame_fps=1,
     progress_callback=None,
+    uploaded_video_path=None,
 ):
     warnings = []
     brain_report = {}
@@ -89,6 +91,7 @@ def run_stratify_report(
         feature_report = {}
         category = {}
         frames = []
+        acquisition = {}
 
         intro_observation = {
             "status": "unavailable",
@@ -97,18 +100,25 @@ def run_stratify_report(
             "warnings": ["Intro frames were not available for observation."],
         }
 
-        progress("Watching and analyzing your intro...")
+        progress(
+            "Analyzing your uploaded video intro..."
+            if uploaded_video_path
+            else "Watching and analyzing your intro..."
+        )
+
         intro_result = analyze_intro_pipeline(
             video=video,
             url=url,
             intro_seconds=intro_seconds,
             frame_fps=frame_fps,
+            local_video_path=uploaded_video_path,
         )
 
         if intro_result.get("status") == "success":
             frames = intro_result.get("frames", [])
             vision = intro_result.get("vision", {})
             feature_report = intro_result.get("features", {})
+            acquisition = intro_result.get("acquisition", {})
 
             video_understanding = {
                 "status": "success",
@@ -124,7 +134,12 @@ def run_stratify_report(
             intro_observation = observe_intro(
                 frames,
                 video=video,
-                timeout_seconds=20,
+                vision=vision,
+                understanding=video_understanding.get(
+                    "understanding",
+                    {},
+                ),
+                timeout_seconds=45,
             )
 
             for warning in intro_observation.get("warnings", []):
@@ -145,11 +160,15 @@ def run_stratify_report(
                 warnings.append(f"Content understanding failed: {str(exc)}")
 
         else:
-            warning = (
+            warnings.append(
                 f"Intro pipeline failed at {intro_result.get('stage', 'unknown')}: "
                 f"{intro_result.get('error', 'Unknown error.')}"
             )
-            warnings.append(warning)
+            acquisition = {
+                "source": "uploaded_video" if uploaded_video_path else "youtube",
+                "method": "",
+                "attempts": intro_result.get("attempts", []),
+            }
 
             progress("Understanding content from metadata...")
             try:
@@ -162,12 +181,35 @@ def run_stratify_report(
                 category = {}
                 warnings.append(f"Content understanding failed: {str(exc)}")
 
+        progress("Building benchmark evidence profile...")
+        try:
+            user_benchmark_signature = build_benchmark_signature(
+                video=video,
+                vision=vision,
+                understanding=video_understanding.get(
+                    "understanding",
+                    {},
+                ),
+            )
+        except Exception as exc:
+            user_benchmark_signature = None
+            warnings.append(
+                f"User benchmark signature failed: {str(exc)}"
+            )
+
         progress("Discovering benchmark context...")
         try:
             benchmark = collect_benchmark_videos(
                 category,
                 user_video_id=video.get("video_id"),
                 max_results=30,
+                user_video=video,
+                user_vision=vision,
+                user_understanding=video_understanding.get(
+                    "understanding",
+                    {},
+                ),
+                user_signature=user_benchmark_signature,
             )
         except Exception as exc:
             benchmark = _empty_benchmark()
@@ -178,7 +220,6 @@ def run_stratify_report(
 
         for group_name in ("top_performers", "lower_performers"):
             requested = benchmark.get(group_name, [])[:3]
-
             try:
                 extracted = extract_benchmark_features(
                     requested,
@@ -193,27 +234,22 @@ def run_stratify_report(
                 )
 
             benchmark_features[group_name] = extracted
-
             if requested and _successful_feature_count(extracted) == 0:
                 warnings.append(
                     f"No {group_name.replace('_', ' ')} intros could be analyzed."
                 )
 
         progress("Learning benchmark patterns...")
-        reasoning["pattern_learning"] = learn_benchmark_patterns(
-            benchmark_features
-        )
+        reasoning["pattern_learning"] = learn_benchmark_patterns(benchmark_features)
 
         progress("Reasoning over creator decisions...")
         reasoning["benchmark_decisions"] = infer_benchmark_decisions(
             benchmark_features
         )
-
         reasoning["decision_comparison"] = compare_creator_decisions(
             user_decisions=reasoning.get("user_decisions", {}),
             benchmark_decisions=reasoning.get("benchmark_decisions", {}),
         )
-
         reasoning["evidence_graph"] = build_evidence_graph(
             intro_understanding=video_understanding.get("understanding", {}),
             user_decisions=reasoning.get("user_decisions", {}),
@@ -270,6 +306,7 @@ def run_stratify_report(
             "video_understanding": video_understanding,
             "intro_observation": intro_observation,
             "reasoning": reasoning,
+            "acquisition": acquisition,
             "frames": frames,
         }
 

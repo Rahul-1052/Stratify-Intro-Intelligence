@@ -1,4 +1,6 @@
 import os
+import uuid
+from pathlib import Path
 
 import streamlit as st
 
@@ -22,10 +24,13 @@ DEBUG = (
     and os.getenv("STRATIFY_DEBUG", "false").strip().lower() == "true"
 )
 
+TEMP_UPLOAD_DIR = Path("temp_uploads")
+TEMP_UPLOAD_DIR.mkdir(exist_ok=True)
+
 YOUTUBE_BLOCK_FALLBACK = (
-    "YouTube blocked automated access before Stratify could analyze the intro. "
-    "Try this URL again later or use another publicly accessible YouTube video. "
-    "Stratify will still use any benchmark evidence that is available."
+    "YouTube blocked automatic intro access. Upload the video or its opening clip "
+    "above and rebuild the report for full visual analysis. Without an upload, "
+    "Stratify will continue in metadata-only mode."
 )
 
 STATUS_LABELS = {
@@ -46,11 +51,34 @@ st.caption(
 )
 
 url = st.text_input("Paste YouTube Video URL")
+uploaded_video = st.file_uploader(
+    "Optional fallback: upload the video or its opening clip",
+    type=["mp4", "mov", "mkv", "webm", "m4v"],
+    help=(
+        "Use this when YouTube blocks automatic intro access. "
+        "The upload is used only for visual intro analysis; the YouTube URL "
+        "still provides metadata and benchmark context."
+    ),
+)
 analyze_clicked = st.button("Build Stratify Report", width="stretch")
 
 
 def render_empty(message="No evidence available yet."):
     st.write(message)
+
+
+def save_uploaded_video(uploaded_file):
+    if uploaded_file is None:
+        return None
+
+    original_name = Path(uploaded_file.name or "uploaded_video.mp4")
+    suffix = original_name.suffix.lower() or ".mp4"
+    destination = TEMP_UPLOAD_DIR / f"upload_{uuid.uuid4().hex}{suffix}"
+
+    with destination.open("wb") as output_file:
+        output_file.write(uploaded_file.getbuffer())
+
+    return str(destination)
 
 
 def has_youtube_download_block(warnings):
@@ -139,46 +167,125 @@ def render_storytelling_values(feature_summary):
 
 
 def render_intro_observation(intro_observation):
-    if intro_observation.get("status") != "success":
+    if not isinstance(intro_observation, dict):
         st.write(
-            "Intro observation is not available yet. Stratify used visual evidence instead."
+            "Intro observation is not available yet. "
+            "Stratify used visual evidence instead."
         )
         return
 
-    observations = intro_observation.get("observations", {})
-    st.write(
-        f"Opening Summary: {observations.get('opening_summary', 'unknown') or 'unknown'}"
+    observation = intro_observation.get("observation", {})
+
+    # Backward compatibility with older response shapes.
+    if not observation:
+        observation = intro_observation.get(
+            "observations",
+            {},
+        )
+
+    if not isinstance(observation, dict):
+        observation = {}
+
+    status = intro_observation.get(
+        "status",
+        "unavailable",
     )
-    st.write(f"Hook Type: {observations.get('hook_type', 'unknown') or 'unknown'}")
+
+    if status != "success" and not observation:
+        st.write(
+            "Intro observation is not available yet. "
+            "Stratify used visual evidence instead."
+        )
+        return
+
+    def value(*keys, default="unknown"):
+        for key in keys:
+            candidate = observation.get(key)
+
+            if candidate is None:
+                continue
+
+            text_value = str(candidate).strip()
+
+            if text_value and text_value.lower() not in {
+                "none",
+                "null",
+                "unavailable",
+            }:
+                return text_value
+
+        return default
+
     st.write(
-        f"Main Subject: {observations.get('main_subject', 'unknown') or 'unknown'}"
+        "Opening Summary: "
+        f"{value('opening_summary')}"
     )
+
+    st.write(
+        "Hook Type: "
+        f"{value('hook_type')}"
+    )
+
+    st.write(
+        "Main Subject: "
+        f"{value('main_subject')}"
+    )
+
     st.write(
         "Central Conflict: "
-        f"{observations.get('central_conflict', 'unknown') or 'unknown'}"
+        f"{value('central_conflict')}"
     )
+
     st.write(
-        f"Viewer Question: {observations.get('viewer_question', 'unknown') or 'unknown'}"
+        "Viewer Question: "
+        f"{value('viewer_question')}"
     )
+
     st.write(
-        f"Story Promise: {observations.get('story_promise', 'unknown') or 'unknown'}"
+        "Story Promise: "
+        f"{value('story_promise')}"
     )
+
     st.write(
-        f"Emotional Tone: {observations.get('emotional_tone', 'unknown') or 'unknown'}"
+        "Emotional Tone: "
+        f"{value('emotion', 'emotional_tone')}"
     )
+
     st.write(
         "First-Time Viewer Reaction: "
-        f"{observations.get('first_time_viewer_reaction', 'unknown') or 'unknown'}"
+        f"{value('first_impression', 'first_time_viewer_reaction')}"
     )
+
     st.write(
         "What Might Be Confusing: "
-        f"{observations.get('what_might_be_confusing', 'unknown') or 'unknown'}"
+        f"{value('possible_confusion', 'what_might_be_confusing')}"
     )
+
     st.write(
-        f"First Impression: {observations.get('first_impression', 'unknown') or 'unknown'}"
+        "First Impression: "
+        f"{value('first_impression')}"
     )
-    st.write(f"Confidence: {intro_observation.get('confidence', 'low').title()}")
-    st.write(f"Provider: {intro_observation.get('provider', 'unknown') or 'unknown'}")
+
+    confidence = value(
+        "confidence",
+        default=intro_observation.get(
+            "confidence",
+            "low",
+        ),
+    )
+
+    provider = intro_observation.get(
+        "provider",
+        "unknown",
+    ) or "unknown"
+
+    st.write(
+        f"Confidence: {str(confidence).title()}"
+    )
+
+    st.write(
+        f"Provider: {provider}"
+    )
 
 
 def render_next_best_test(patterns):
@@ -430,6 +537,14 @@ def render_builder_details(report):
         render_feature_rows(patterns.get("feature_comparison", []))
         st.subheader("Reasoning Details")
         render_reasoning_details(report)
+        st.subheader("Acquisition")
+        acquisition = report.get("acquisition", {})
+        st.write(f"Source: {acquisition.get('source', 'unknown')}")
+        st.write(f"Method: {acquisition.get('method', 'unknown')}")
+        if acquisition.get("attempts"):
+            with st.expander("Acquisition attempts"):
+                st.write(acquisition.get("attempts", []))
+
         st.subheader("Raw Backend Evidence")
         st.write(
             {
@@ -621,6 +736,8 @@ if analyze_clicked:
         st.warning("Paste a YouTube URL.")
         st.stop()
 
+    uploaded_video_path = save_uploaded_video(uploaded_video)
+
     with st.status("Building your Stratify report...", expanded=True) as status:
         def show_progress(message):
             st.write(message)
@@ -630,6 +747,7 @@ if analyze_clicked:
             intro_seconds=15,
             frame_fps=1,
             progress_callback=show_progress,
+            uploaded_video_path=uploaded_video_path,
         )
 
         if report.get("status") == "failed":
