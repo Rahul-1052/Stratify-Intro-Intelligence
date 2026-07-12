@@ -1,6 +1,7 @@
 from core.benchmark_collector import collect_benchmark_videos
 from core.benchmark_signature import build_benchmark_signature
 from core.benchmark_feature_extractor import extract_benchmark_features
+from core.benchmark_qualification import qualify_observed_benchmarks
 from core.content_understanding import understand_content
 from core.evidence_engine import build_evidence
 from core.experiment_engine import generate_experiment_board
@@ -27,6 +28,9 @@ def _empty_benchmark():
         "top_performers": [],
         "lower_performers": [],
         "all_candidates": [],
+        "raw_candidates": [],
+        "shortlist": [],
+        "qualification_diagnostics": [],
     }
 
 
@@ -152,7 +156,12 @@ def run_stratify_report(
             try:
                 category = understand_content(
                     video=video,
-                    intro_observation=video_understanding.get("understanding", {}),
+                    intro_observation={
+                        "canonical_observation": intro_observation.get("observation", {}),
+                        "understanding": video_understanding.get("understanding", {}),
+                        "vision": vision,
+                        "features": feature_report,
+                    },
                     timeout_seconds=20,
                 )
             except Exception as exc:
@@ -215,29 +224,48 @@ def run_stratify_report(
             benchmark = _empty_benchmark()
             warnings.append(f"Benchmark discovery failed: {str(exc)}")
 
-        progress("Watching benchmark intros...")
-        benchmark_features = {"top_performers": [], "lower_performers": []}
+        progress("Watching benchmark shortlist intros...")
+        shortlist = benchmark.get("shortlist", [])
+        try:
+            observed_shortlist = extract_benchmark_features(
+                shortlist,
+                intro_seconds=intro_seconds,
+                frame_fps=frame_fps,
+            )
+        except Exception as exc:
+            observed_shortlist = []
+            warnings.append(f"Benchmark shortlist observation failed: {str(exc)}")
 
-        for group_name in ("top_performers", "lower_performers"):
-            requested = benchmark.get(group_name, [])[:3]
-            try:
-                extracted = extract_benchmark_features(
-                    requested,
-                    intro_seconds=intro_seconds,
-                    frame_fps=frame_fps,
-                )
-            except Exception as exc:
-                extracted = []
-                warnings.append(
-                    f"{group_name.replace('_', ' ').title()} extraction failed: "
-                    f"{str(exc)}"
-                )
-
-            benchmark_features[group_name] = extracted
-            if requested and _successful_feature_count(extracted) == 0:
-                warnings.append(
-                    f"No {group_name.replace('_', ' ')} intros could be analyzed."
-                )
+        progress("Qualifying observed benchmark viewer jobs...")
+        qualification = qualify_observed_benchmarks(
+            user_video=video,
+            user_vision=vision,
+            user_understanding=video_understanding.get("understanding", {}),
+            user_features=feature_report,
+            observed_candidates=observed_shortlist,
+            user_content_identity=category.get("content_understanding", {}),
+        )
+        benchmark["qualification"] = qualification
+        benchmark["qualification_diagnostics"] = (
+            benchmark.get("qualification_diagnostics", [])
+            + qualification.get("diagnostics", [])
+        )
+        benchmark["observed_candidates"] = observed_shortlist
+        benchmark_features = {
+            "top_performers": qualification.get("top_performers", []),
+            "lower_performers": qualification.get("lower_performers", []),
+        }
+        benchmark["top_performers"] = [
+            item.get("video", {}) for item in benchmark_features["top_performers"]
+        ]
+        benchmark["lower_performers"] = [
+            item.get("video", {}) for item in benchmark_features["lower_performers"]
+        ]
+        if qualification.get("status") != "success":
+            warnings.append(
+                "Benchmark qualification limited: "
+                + qualification.get("reason", "No coherent observed neighborhood was formed.")
+            )
 
         progress("Learning benchmark patterns...")
         reasoning["pattern_learning"] = learn_benchmark_patterns(benchmark_features)

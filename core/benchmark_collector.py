@@ -432,33 +432,32 @@ def collect_benchmark_videos(
         ),
     )
 
-    # Keep a larger evidence-ranked neighborhood
-    # before splitting top and lower performers.
-    neighborhood = evidence_ranked[:15]
-
-    top_performers = sorted(
-        neighborhood,
-        key=lambda video: (
-            video.get("views", 0)
-        ),
-        reverse=True,
-    )[:5]
-
-    sorted_by_views = sorted(
-        neighborhood,
-        key=lambda video: (
-            video.get("views", 0)
-        ),
-        reverse=True,
-    )
-
-    (
-        lower_performers,
-        lower_performer_reason,
-    ) = _select_lower_performers(
-        sorted_by_views,
-        top_performers,
-    )
+    # This is a metadata shortlist, not a benchmark group. Final stronger and
+    # lower groups are forbidden until these candidates have been acquired and
+    # observed against the same evidence identity as the user video.
+    shortlist = evidence_ranked[:8]
+    shortlist_ids = {video.get("video_id") for video in shortlist}
+    metadata_diagnostics = []
+    ranked_by_id = {video.get("video_id"): video for video in evidence_ranked}
+    for video in merged_candidates:
+        scored = ranked_by_id.get(video.get("video_id"), video)
+        comparison = scored.get("benchmark_compatibility", {})
+        shortlisted = video.get("video_id") in shortlist_ids
+        metadata_diagnostics.append(
+            {
+                "video_id": video.get("video_id", ""),
+                "title": video.get("title", ""),
+                "channel_title": video.get("channel_title", ""),
+                "metadata_compatibility": comparison.get(
+                    "metadata_compatibility",
+                    comparison.get("compatibility_score", 0.0),
+                ),
+                "evidence_coverage": comparison.get("evidence_coverage", 0.0),
+                "qualification_status": "shortlisted" if shortlisted else "rejected_before_observation",
+                "rejection_reason": "" if shortlisted else "Ranked outside the conservative metadata shortlist.",
+                "evidence_mode": "metadata_only",
+            }
+        )
 
     observed_candidate_count = sum(
         bool(
@@ -504,19 +503,18 @@ def collect_benchmark_videos(
         "benchmark_evidence_mode": (
             benchmark_evidence_mode
         ),
-        "lower_performer_reason": (
-            lower_performer_reason
-        ),
+        "lower_performer_reason": "Final groups await observed-intro qualification.",
         "search_queries_used": (
             candidate_queries
         ),
         "benchmark_signature": (
             user_signature
         ),
-        "top_performers": top_performers,
-        "lower_performers": (
-            lower_performers
-        ),
+        "raw_candidates": merged_candidates,
+        "shortlist": shortlist,
+        "qualification_diagnostics": metadata_diagnostics,
+        "top_performers": [],
+        "lower_performers": [],
         "all_candidates": evidence_ranked,
     }
 
@@ -541,5 +539,8 @@ def _empty_result(reason):
         "benchmark_signature": {},
         "top_performers": [],
         "lower_performers": [],
+        "raw_candidates": [],
+        "shortlist": [],
+        "qualification_diagnostics": [],
         "all_candidates": [],
     }

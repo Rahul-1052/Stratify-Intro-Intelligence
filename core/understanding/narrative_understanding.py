@@ -64,11 +64,6 @@ def _infer_opening_goal(title, events, feature_summary):
 
 
 def _infer_viewer_expectation(title, feature_summary):
-    scene_type = feature_summary.get("scene_type")
-
-    if scene_type == "movie_scene":
-        return "The viewer likely expects a scene payoff, confrontation, reveal, or memorable moment."
-
     if feature_summary.get("human_presence") is True:
         return "The viewer likely expects the visible subject to create meaning or momentum."
 

@@ -98,6 +98,12 @@ Important:
 - Do NOT simply copy the full title if it is a quote, clickbait phrase, or overly specific sentence.
 - Generate search queries that would find similar successful videos.
 - If the content source/topic is uncertain, be honest and use cautious queries.
+- Treat observed intro evidence as stronger than shared names in metadata.
+- Distinguish experiencing the depicted material from hearing someone discuss,
+  evaluate, summarize, teach, or report on that material. Describe the actual
+  relationship in free-form language; do not choose from a label list.
+- A shared person, title, object, event, or topic does not establish the same
+  viewer intent or storytelling job.
 - Return ONLY valid JSON.
 
 Video metadata:
@@ -111,22 +117,25 @@ Intro observation:
 Return this JSON shape:
 
 {{
-  "content_type": "",
-  "topic_or_source": "",
-  "primary_subject": "",
-  "format": "",
-  "audience_intent": "",
+  "subject": "",
+  "viewer_intent": "",
+  "presentation_style": "",
+  "storytelling_format": "",
+  "source_context": "",
   "benchmark_search_queries": [],
   "confidence": "low",
   "reason": ""
 }}
 
 Rules:
-- content_type: broad natural type of content.
-- topic_or_source: main source/topic if clear, otherwise "unknown".
-- primary_subject: main person, object, idea, game, film, creator, or topic if clear.
-- format: recap, trailer, scene, tutorial, review, montage, gameplay, podcast clip, reaction, vlog, explanation, etc.
-- audience_intent: what a viewer likely came to watch or understand.
+- Use short, free-form descriptions grounded in the supplied evidence.
+- subject: what is actually being shown or discussed.
+- viewer_intent: the experience or outcome a viewer came for, including whether
+  the viewer consumes the depicted events directly or consumes interpretation.
+- presentation_style: how the material is visibly or verbally presented.
+- storytelling_format: how the opening delivers or structures its promise.
+- source_context: the relationship between the uploader/presenter and the material, when evidence supports it.
+- Do not choose from a predefined taxonomy and do not infer missing evidence.
 - benchmark_search_queries: 3 to 5 useful YouTube search queries.
 - confidence: high, moderate, or low.
 """
@@ -148,14 +157,16 @@ def understand_content(video, intro_observation=None, timeout_seconds=30):
     if not queries:
         queries = _fallback_queries(video)
 
-    content_type = _clean_text(parsed.get("content_type", "")) or "Unknown"
-    content_format = _clean_text(parsed.get("format", "")) or "Unknown"
-    topic_or_source = _clean_text(parsed.get("topic_or_source", "")) or queries[0]
+    subject = _clean_text(parsed.get("subject") or parsed.get("primary_subject")) or "Unknown"
+    viewer_intent = _clean_text(parsed.get("viewer_intent") or parsed.get("audience_intent")) or "Unknown"
+    presentation_style = _clean_text(parsed.get("presentation_style")) or "Unknown"
+    storytelling_format = _clean_text(parsed.get("storytelling_format") or parsed.get("format")) or "Unknown"
+    source_context = _clean_text(parsed.get("source_context") or parsed.get("topic_or_source")) or "Unknown"
 
     return {
-        "category": content_type,
-        "subcategory": content_format,
-        "micro_niche": topic_or_source,
+        "category": presentation_style,
+        "subcategory": storytelling_format,
+        "micro_niche": subject,
         "search_query": queries[0],
         "search_queries": queries,
         "candidate_queries": queries,
@@ -164,11 +175,17 @@ def understand_content(video, intro_observation=None, timeout_seconds=30):
             "Generated benchmark queries from AI content understanding."
         ),
         "content_understanding": {
-            "content_type": content_type,
-            "topic_or_source": topic_or_source,
-            "primary_subject": _clean_text(parsed.get("primary_subject", "")),
-            "format": content_format,
-            "audience_intent": _clean_text(parsed.get("audience_intent", "")),
+            "subject": subject,
+            "viewer_intent": viewer_intent,
+            "presentation_style": presentation_style,
+            "storytelling_format": storytelling_format,
+            "source_context": source_context,
+            # Compatibility aliases for existing report surfaces.
+            "content_type": presentation_style,
+            "topic_or_source": source_context,
+            "primary_subject": subject,
+            "format": storytelling_format,
+            "audience_intent": viewer_intent,
             "benchmark_search_queries": queries,
             "provider": provider_result.get("provider", ""),
             "warnings": provider_result.get("warnings", []),

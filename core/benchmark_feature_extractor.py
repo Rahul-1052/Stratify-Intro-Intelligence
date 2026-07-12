@@ -1,4 +1,6 @@
 from core.pipeline import analyze_intro_pipeline
+from core.content_understanding import understand_content
+from core.intro_observer import observe_intro
 
 
 def _failure(video, stage, message):
@@ -39,6 +41,25 @@ def extract_benchmark_features(videos, intro_seconds=15, frame_fps=1):
                 )
                 continue
 
+            canonical_observation = observe_intro(
+                result.get("frames", []),
+                video=video,
+                vision=result.get("vision", {}),
+                understanding=result.get("understanding", {}),
+                timeout_seconds=35,
+            )
+
+            content_identity = understand_content(
+                video=video,
+                intro_observation={
+                    "canonical_observation": canonical_observation.get("observation", {}),
+                    "understanding": result.get("understanding", {}),
+                    "vision": result.get("vision", {}),
+                    "features": result.get("features", {}),
+                },
+                timeout_seconds=20,
+            ).get("content_understanding", {})
+
             results.append(
                 {
                     "video": video,
@@ -46,6 +67,8 @@ def extract_benchmark_features(videos, intro_seconds=15, frame_fps=1):
                     "features": result.get("features", {}),
                     "vision": result.get("vision", {}),
                     "understanding": result.get("understanding", {}),
+                    "content_identity": content_identity,
+                    "intro_observation": canonical_observation,
                     "frames": result.get("frames", []),
                 }
             )

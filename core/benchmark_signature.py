@@ -19,6 +19,8 @@ def build_benchmark_signature(
     video: Optional[Mapping[str, Any]] = None,
     vision: Optional[Mapping[str, Any]] = None,
     understanding: Optional[Mapping[str, Any]] = None,
+    features: Optional[Mapping[str, Any]] = None,
+    content_identity: Optional[Mapping[str, Any]] = None,
 ) -> Dict[str, Any]:
     """
     Build a neutral evidence signature for benchmark comparison.
@@ -40,6 +42,8 @@ def build_benchmark_signature(
     video = dict(video or {})
     vision = dict(vision or {})
     understanding = dict(understanding or {})
+    features = dict(features or {})
+    content_identity = dict(content_identity or {})
 
     title = _clean_text(video.get("title", ""))
     description = _clean_text(video.get("description", ""))
@@ -108,6 +112,16 @@ def build_benchmark_signature(
         if not _is_unknown(value)
     }
 
+    feature_summary = _as_dict(
+        features.get("feature_summary")
+        or features
+    )
+    observed_features = {
+        str(key): value
+        for key, value in feature_summary.items()
+        if not _is_unknown(value)
+    }
+
     narrative_evidence = {
         "main_subject": narrative.get("main_subject"),
         "opening_goal": narrative.get("opening_goal"),
@@ -143,6 +157,7 @@ def build_benchmark_signature(
     evidence_count += int(bool(events))
     evidence_count += len(narrative_evidence)
     evidence_count += int(bool(temporal_text))
+    evidence_count += len(observed_features)
 
     return {
         "version": "benchmark-signature-v1",
@@ -159,6 +174,18 @@ def build_benchmark_signature(
             ),
         },
         "observations": categorical_observations,
+        "observed_features": observed_features,
+        "content_identity": {
+            key: _clean_text(content_identity.get(key))
+            for key in (
+                "subject",
+                "viewer_intent",
+                "presentation_style",
+                "storytelling_format",
+                "source_context",
+            )
+            if not _is_unknown(content_identity.get(key))
+        },
         "behavior": {
             "frame_count": len(frame_observations),
             "event_count": len(events),
@@ -181,6 +208,7 @@ def build_benchmark_signature(
             "has_events": bool(events),
             "has_temporal": bool(temporal_text),
             "has_narrative": bool(narrative_evidence),
+            "has_observed_features": bool(observed_features),
             "evidence_count": evidence_count,
         },
     }
@@ -311,6 +339,23 @@ def compare_benchmark_signatures(
             evidence_keys=shared_observation_keys,
         )
 
+    reference_features = _as_dict(reference.get("observed_features"))
+    candidate_features = _as_dict(candidate.get("observed_features"))
+    shared_feature_keys = sorted(set(reference_features).intersection(candidate_features))
+    if shared_feature_keys:
+        feature_scores = [
+            _value_similarity(reference_features[key], candidate_features[key])
+            for key in shared_feature_keys
+        ]
+        _append_component(
+            components=components,
+            name="shared_observed_features",
+            score=sum(feature_scores) / len(feature_scores),
+            weight=1.5,
+            available=True,
+            evidence_keys=shared_feature_keys,
+        )
+
     reference_behavior = _as_dict(
         reference.get("behavior")
     )
@@ -378,6 +423,40 @@ def compare_benchmark_signatures(
         )
     )
 
+    reference_identity = _as_dict(reference.get("content_identity"))
+    candidate_identity = _as_dict(candidate.get("content_identity"))
+    viewer_job_keys = ("viewer_intent", "storytelling_format")
+    shared_job_keys = [
+        key for key in viewer_job_keys
+        if reference_identity.get(key) and candidate_identity.get(key)
+    ]
+    for key in shared_job_keys:
+        _append_component(
+            components=components,
+            name=f"{key}_identity",
+            score=_text_similarity(reference_identity[key], candidate_identity[key]),
+            weight=1.25,
+            available=True,
+            evidence_keys=[key],
+        )
+
+    context_keys = ("presentation_style", "source_context")
+    shared_context_keys = [
+        key for key in context_keys
+        if reference_identity.get(key) and candidate_identity.get(key)
+    ]
+    if shared_context_keys:
+        _append_component(
+            components=components,
+            name="presentation_source_context",
+            score=sum(
+                _text_similarity(reference_identity[key], candidate_identity[key])
+                for key in shared_context_keys
+            ) / len(shared_context_keys),
+            weight=1.4,
+            available=True,
+            evidence_keys=shared_context_keys,
+        )
     if shared_narrative_keys:
         narrative_scores = [
             _text_similarity(
@@ -418,7 +497,7 @@ def compare_benchmark_signatures(
             for item in comparable_components
         ) / total_weight
 
-    possible_evidence_weight = 8.0
+    possible_evidence_weight = 13.4
 
     evidence_coverage = min(
         total_weight / possible_evidence_weight,
@@ -445,6 +524,25 @@ def compare_benchmark_signatures(
         ),
     )
 
+    metadata_names = {
+        "title_language_overlap",
+        "retrieval_topic_overlap",
+        "duration_proximity",
+        "title_structure",
+    }
+    viewer_job_names = {
+        "viewer_intent_identity",
+        "storytelling_format_identity",
+        "shared_narrative",
+        "temporal_language",
+    }
+    metadata_score = _component_score(comparable_components, metadata_names)
+    observed_score = _component_score(
+        comparable_components,
+        {item["name"] for item in comparable_components} - metadata_names,
+    )
+    viewer_job_score = _component_score(comparable_components, viewer_job_names)
+
     strongest_components = sorted(
         comparable_components,
         key=lambda item: (
@@ -468,6 +566,9 @@ def compare_benchmark_signatures(
             4,
         ),
         "confidence": confidence,
+        "metadata_compatibility": round(metadata_score, 4),
+        "observed_intro_compatibility": round(observed_score, 4),
+        "viewer_job_compatibility": round(viewer_job_score, 4),
         "both_intros_observed": (
             both_have_observed_intro
         ),
@@ -487,6 +588,14 @@ def compare_benchmark_signatures(
             for item in weakest_components
         ],
     }
+
+
+def _component_score(components, names):
+    selected = [item for item in components if item["name"] in names]
+    total_weight = sum(item["weight"] for item in selected)
+    if total_weight <= 0:
+        return 0.0
+    return sum(item["score"] * item["weight"] for item in selected) / total_weight
 
 
 def minimum_signature_compatibility(
