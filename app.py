@@ -533,6 +533,36 @@ def render_builder_details(report):
             "Lower performer intros analyzed: "
             f"{count_analyzed_intros(benchmark_features.get('lower_performers', []))}"
         )
+        qualification = benchmark.get("qualification", {})
+        st.subheader("Benchmark Qualification")
+        st.write(
+            f"Status: {qualification.get('status', 'unavailable').title()} — "
+            f"{qualification.get('reason', 'No qualification reason available.')}"
+        )
+        st.write(
+            f"Observed: {qualification.get('observed_candidate_count', 0)} | "
+            f"Qualified: {qualification.get('qualified_candidate_count', 0)}"
+        )
+        diagnostics = qualification.get("diagnostics", [])
+        if diagnostics:
+            for item in diagnostics:
+                with st.expander(
+                    f"{item.get('qualification_status', 'unknown').replace('_', ' ').title()}: "
+                    f"{item.get('title', 'Untitled candidate')}"
+                ):
+                    st.write(
+                        {
+                            "evidence_mode": item.get("evidence_mode"),
+                            "metadata_compatibility": item.get("metadata_compatibility"),
+                            "observed_intro_compatibility": item.get("observed_intro_compatibility"),
+                            "viewer_job_compatibility": item.get("viewer_job_compatibility"),
+                            "evidence_coverage": item.get("evidence_coverage"),
+                            "compatibility_confidence": item.get("compatibility_confidence"),
+                            "rejection_reason": item.get("rejection_reason"),
+                            "viewer_job_assessment": item.get("viewer_job_assessment", {}),
+                            "performance": item.get("performance", {}),
+                        }
+                    )
         st.subheader("Evidence Details")
         render_feature_rows(patterns.get("feature_comparison", []))
         st.subheader("Reasoning Details")

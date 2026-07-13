@@ -20,6 +20,19 @@ an alternative for the same desired experience or outcome.
 Use only the supplied evidence. Shared subject names alone are insufficient.
 Do not use a predefined content taxonomy. Do not infer missing facts.
 
+Counterfactual test:
+- Mentally remove every shared proper noun, named person, product, event, place,
+  and topic from both identities.
+- Compare the remaining viewer outcome, relationship to the underlying
+  material, and narrative delivery mechanism.
+- If one lets the viewer consume the primary event or process as it unfolds and
+  the other reorganizes or interprets that material for a different outcome,
+  they are not substitutes.
+- Topical adjacency, visual similarity, or use of the same source material must
+  not raise viewer-intent or storytelling-job scores.
+- When the alternative relationship is ambiguous, return false rather than
+  forcing compatibility.
+
 Reference identity:
 {json.dumps(reference, ensure_ascii=False)}
 
@@ -37,10 +50,9 @@ Return only JSON:
   "reason": ""
 }}
 
-Scores must be between 0 and 1. same_viewing_job may be true only when both
-viewer intent and storytelling job are strongly supported. Presentation style
-may vary, but commentary about an event and direct presentation of that event
-are not automatically the same viewing job.
+Scores must be between 0 and 1. same_viewing_job may be true only when viewer
+intent, storytelling job, presentation relationship, and source relationship
+are all strongly supported after the counterfactual test.
 """
     from core.providers.provider_router import observe_text
 
@@ -54,13 +66,18 @@ are not automatically the same viewing job.
 
     viewer_intent = _score(parsed.get("viewer_intent_score"))
     storytelling = _score(parsed.get("storytelling_job_score"))
-    same_job = bool(parsed.get("same_viewing_job")) and min(viewer_intent, storytelling) >= 0.60
+    presentation = _score(parsed.get("presentation_compatibility"))
+    source_context = _score(parsed.get("source_context_compatibility"))
+    same_job = (
+        bool(parsed.get("same_viewing_job"))
+        and min(viewer_intent, storytelling, presentation, source_context) >= 0.60
+    )
     return {
         "status": "success",
         "viewer_intent_score": viewer_intent,
         "storytelling_job_score": storytelling,
-        "presentation_compatibility": _score(parsed.get("presentation_compatibility")),
-        "source_context_compatibility": _score(parsed.get("source_context_compatibility")),
+        "presentation_compatibility": presentation,
+        "source_context_compatibility": source_context,
         "same_viewing_job": same_job,
         "confidence": str(parsed.get("confidence") or "low").strip().lower(),
         "reason": " ".join(str(parsed.get("reason") or "").split()),

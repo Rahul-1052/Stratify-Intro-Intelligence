@@ -84,6 +84,11 @@ class BenchmarkQualificationTests(unittest.TestCase):
         semantic_compare.side_effect = lambda reference, candidate: {
             "status": "success",
             "same_viewing_job": candidate.get("viewer_intent") == reference.get("viewer_intent"),
+            "viewer_intent_score": 0.9,
+            "storytelling_job_score": 0.9,
+            "presentation_compatibility": 0.9,
+            "source_context_compatibility": 0.9,
+            "confidence": "high",
             "reason": "Viewer intent differs." if candidate.get("viewer_intent") != reference.get("viewer_intent") else "Compatible.",
         }
         compatible = [_observed(str(index), views) for index, views in enumerate([100, 300, 900, 2700], 1)]
@@ -122,7 +127,10 @@ class BenchmarkQualificationTests(unittest.TestCase):
     @patch("core.benchmark_qualification.compare_viewer_jobs")
     def test_incoherent_or_small_neighborhood_returns_limited(self, semantic_compare):
         semantic_compare.return_value = {
-            "status": "success", "same_viewing_job": True, "reason": "Compatible."
+            "status": "success", "same_viewing_job": True, "reason": "Compatible.",
+            "viewer_intent_score": 0.9, "storytelling_job_score": 0.9,
+            "presentation_compatibility": 0.9,
+            "source_context_compatibility": 0.9, "confidence": "high",
         }
         result = qualify_observed_benchmarks(
             self.user_video,

@@ -94,6 +94,7 @@ def _compact_report(case, source_video, report):
         ],
         "recommendations": report.get("patterns", {}).get("recommendations", []),
         "confidence": report.get("patterns", {}).get("confidence"),
+        "final_verdict": report.get("patterns", {}).get("final_verdict"),
     }
 
 
@@ -123,6 +124,8 @@ def _write_artifacts(results):
                 f"- Stronger group: {len(result.get('final_stronger_group', []))}",
                 f"- Lower group: {len(result.get('final_lower_group', []))}",
                 f"- Recommendations: {len(result.get('recommendations', []))}",
+                f"- Final verdict: {result.get('final_verdict')}",
+                f"- Runtime warnings: {len(result.get('warnings', []))}",
                 f"- Reason: {result.get('qualification_reason')}",
                 "",
                 "### Selected stronger",

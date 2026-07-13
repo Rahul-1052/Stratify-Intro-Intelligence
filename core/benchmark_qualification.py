@@ -129,6 +129,19 @@ def _qualification_decision(
         return False, viewer_job.get("reason") or "Viewer-job comparison was unavailable."
     if not viewer_job.get("same_viewing_job"):
         return False, viewer_job.get("reason") or "Semantic evidence does not support the same viewing job."
+    semantic_dimensions = (
+        viewer_job.get("viewer_intent_score", 0.0),
+        viewer_job.get("storytelling_job_score", 0.0),
+        viewer_job.get("presentation_compatibility", 0.0),
+        viewer_job.get("source_context_compatibility", 0.0),
+    )
+    if min(semantic_dimensions) < 0.70:
+        return False, (
+            viewer_job.get("reason")
+            or "One or more viewer-job compatibility dimensions remained ambiguous."
+        )
+    if viewer_job.get("confidence") not in {"high", "strong"}:
+        return False, "Viewer-job compatibility did not reach high confidence."
     if comparison.get("observed_intro_compatibility", 0.0) < 0.42:
         return False, "Observed intro behavior is not compatible enough with the user video."
     return True, ""
