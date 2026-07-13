@@ -88,7 +88,7 @@ def qualify_observed_benchmarks(
 
         diagnostics.append(diagnostic)
 
-    top_results, lower_results, group_reason = _form_performance_groups(qualified)
+    top_results, lower_results, group_reason = _form_coherent_performance_groups(qualified)
     coherent = bool(top_results and lower_results)
 
     selected_ids = {
@@ -110,7 +110,10 @@ def qualify_observed_benchmarks(
         "observed_candidate_count": sum(
             item["evidence_mode"] == "fully_observed" for item in diagnostics
         ),
-        "qualified_candidate_count": len(qualified),
+        "qualified_candidate_count": sum(
+            item["qualification_status"] in {"selected", "qualified_not_selected"}
+            for item in diagnostics
+        ),
         "top_performers": top_results,
         "lower_performers": lower_results,
         "diagnostics": diagnostics,
@@ -129,19 +132,21 @@ def _qualification_decision(
         return False, viewer_job.get("reason") or "Viewer-job comparison was unavailable."
     if not viewer_job.get("same_viewing_job"):
         return False, viewer_job.get("reason") or "Semantic evidence does not support the same viewing job."
-    semantic_dimensions = (
-        viewer_job.get("viewer_intent_score", 0.0),
+    viewer_intent_score = viewer_job.get("viewer_intent_score", 0.0)
+    core_dimensions = (
+        viewer_intent_score,
+        viewer_job.get("promised_outcome_score", viewer_intent_score),
         viewer_job.get("storytelling_job_score", 0.0),
-        viewer_job.get("presentation_compatibility", 0.0),
-        viewer_job.get("source_context_compatibility", 0.0),
     )
-    if min(semantic_dimensions) < 0.70:
+    if min(core_dimensions) < 0.70:
         return False, (
-            viewer_job.get("reason")
-            or "One or more viewer-job compatibility dimensions remained ambiguous."
+            "Core viewer-job dimension floor was not met "
+            f"(intent={core_dimensions[0]:.2f}, "
+            f"outcome={core_dimensions[1]:.2f}, "
+            f"storytelling={core_dimensions[2]:.2f}); all must be at least 0.70."
         )
-    if viewer_job.get("confidence") not in {"high", "strong"}:
-        return False, "Viewer-job compatibility did not reach high confidence."
+    if viewer_job.get("confidence") not in {"moderate", "high", "strong"}:
+        return False, "Core viewer-job compatibility did not reach usable confidence."
     if comparison.get("observed_intro_compatibility", 0.0) < 0.42:
         return False, "Observed intro behavior is not compatible enough with the user video."
     return True, ""
@@ -170,6 +175,63 @@ def _form_performance_groups(qualified):
         "Final groups were formed only after observed viewer-job qualification; "
         "raw views are retained as a separate, limited-confidence performance signal."
     )
+
+
+def _form_coherent_performance_groups(qualified):
+    """Form groups only when selected candidates are mutually viewer-job coherent."""
+    remaining = list(qualified)
+    pair_cache = {}
+    while True:
+        top, lower, reason = _form_performance_groups(remaining)
+        if not top or not lower:
+            return top, lower, reason
+
+        selected_ids = {
+            item.get("video", {}).get("video_id") for item in top + lower
+        }
+        selected = [
+            item for item in remaining
+            if item[0].get("video", {}).get("video_id") in selected_ids
+        ]
+        conflicts = {id(item): 0 for item in selected}
+        for index, left in enumerate(selected):
+            for right in selected[index + 1:]:
+                left_id = left[0].get("video", {}).get("video_id", "")
+                right_id = right[0].get("video", {}).get("video_id", "")
+                cache_key = tuple(sorted((left_id, right_id)))
+                assessment = pair_cache.get(cache_key)
+                if assessment is None:
+                    assessment = compare_viewer_jobs(
+                        left[0].get("content_identity", {}),
+                        right[0].get("content_identity", {}),
+                    )
+                    pair_cache[cache_key] = assessment
+                if assessment.get("status") != "success" or not assessment.get(
+                    "same_viewing_job"
+                ):
+                    conflicts[id(left)] += 1
+                    conflicts[id(right)] += 1
+
+        if not any(conflicts.values()):
+            return top, lower, reason
+
+        rejected = max(
+            selected,
+            key=lambda item: (
+                conflicts[id(item)],
+                -float(
+                    item[2].get("viewer_job_assessment", {}).get(
+                        "core_compatibility", 0.0
+                    )
+                ),
+            ),
+        )
+        rejected[2]["qualification_status"] = "rejected"
+        rejected[2]["rejection_reason"] = (
+            "Candidate was individually compatible with the user video but was "
+            "not mutually compatible with the selected viewer-job neighborhood."
+        )
+        remaining.remove(rejected)
 
 
 def _performance_evidence(video):
