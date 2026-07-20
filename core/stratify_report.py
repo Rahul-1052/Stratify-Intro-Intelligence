@@ -14,6 +14,7 @@ from core.reasoning import (
     infer_benchmark_decisions,
     infer_creator_decisions,
     learn_benchmark_patterns,
+    build_creative_reasoning,
 )
 from core.youtube_client import get_full_youtube_context
 from core.brain import build_stratify_brain
@@ -345,7 +346,12 @@ def run_stratify_report(
             "benchmark": benchmark,
             "patterns": patterns,
         }
-        creator_report = build_creator_report(partial_report)
+        progress("Translating evidence into creative reasoning...")
+        reasoning["creative_reasoning"] = build_creative_reasoning(partial_report)
+        creator_report = build_creator_report(
+            partial_report,
+            creative_reasoning=reasoning["creative_reasoning"],
+        )
 
         return {
             "status": "partial" if warnings else "success",

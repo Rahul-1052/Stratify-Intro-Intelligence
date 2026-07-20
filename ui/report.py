@@ -265,21 +265,22 @@ def render_report(report, product_mode, version_metadata):
     snapshot = creator.get("opening_snapshot", {})
     st.markdown(
         '<div class="stratify-hero-card">'
-        '<div class="stratify-eyebrow">Observed opening</div>'
+        '<div class="stratify-eyebrow">First viewer experience</div>'
         f'<h2>{escape(clean_value(snapshot.get("summary")) or "Intro observation was limited")}</h2>'
         '<p class="stratify-muted">This describes the intro; it does not infer retention.</p>'
         '</div>', unsafe_allow_html=True,
     )
-    signal_cards = [info_card(item.get("label", "Signal"), item.get("value", "")) for item in snapshot.get("signals", [])]
-    if signal_cards:
-        render_card_grid(signal_cards)
-
     section_heading("Intro Timeline", "The sequence Stratify observed across sampled opening frames.")
-    timeline_cards = [info_card(item.get("time", "Opening"), item.get("observation", "")) for item in creator.get("intro_timeline", [])]
+    timeline_cards = [info_card(item.get("time", "Opening"), item.get("moment") or item.get("observation", "")) for item in creator.get("intro_timeline", [])]
     render_card_grid(timeline_cards or [info_card("Opening", "No additional visual detail was inferred.")], columns=2)
 
     section_heading("What's Working", "Useful qualities already present in the observed intro.")
-    render_card_grid([info_card("Observed strength", item) for item in creator.get("whats_working", [])] or [info_card("Evidence discipline", "Unseen behavior was not inferred.")])
+    strength_cards = [
+        info_card(item.get("title", "Creative strength"), item.get("explanation", ""))
+        if isinstance(item, dict) else info_card("Creative strength", item)
+        for item in creator.get("whats_working", [])
+    ]
+    render_card_grid(strength_cards or [info_card("Evidence discipline", "Stratify leaves uncertain creative effects unstated rather than filling the report with generic praise.")])
 
     section_heading("Biggest Opportunity", "The most useful controlled change to test next.")
     opportunity = creator.get("biggest_opportunity", {})
@@ -287,20 +288,22 @@ def render_report(report, product_mode, version_metadata):
         '<div class="stratify-hero-card opportunity-card">'
         f'<h2>{escape(clean_value(opportunity.get("title")) or "Improve observable opening clarity")}</h2>'
         f'<p>{escape(clean_value(opportunity.get("summary")) or "Test one visible opening change at a time.")}</p>'
+        f'<p><strong>Why test it:</strong> {escape(clean_value(opportunity.get("why_test")) or "A controlled comparison can clarify which version communicates the idea more directly.")}</p>'
         '</div>', unsafe_allow_html=True,
     )
 
     section_heading("Three Observation-Backed Experiments", "Controlled creative tests grounded in visible intro evidence. Benchmark support is labeled separately.")
     experiment_cards = []
     for index, item in enumerate(creator.get("experiments", [])[:3], 1):
-        badge = "Benchmark validated" if item.get("benchmark_supported") else "Direct observation"
+        badge = clean_value(item.get("source")) or ("Benchmark-supported" if item.get("benchmark_supported") else "Observation-backed")
         experiment_cards.append(
             '<div class="stratify-card experiment-card">'
             f'<span class="stratify-badge">{escape(badge)}</span>'
             f'<h3>{index}. {escape(clean_value(item.get("title")) or "Controlled intro test")}</h3>'
-            f'<p><strong>Change:</strong> {escape(clean_value(item.get("suggested_test")) or clean_value(item.get("experiment")))}</p>'
-            f'<p><strong>Observed basis:</strong> {escape(clean_value(item.get("why_it_matters")) or clean_value(item.get("why")))}</p>'
-            f'<p><strong>Validate:</strong> {escape(clean_value(item.get("validation")) or "Compare the two cuts without claiming a performance outcome.")}</p>'
+            f'<p><strong>What to change:</strong> {escape(clean_value(item.get("recommendation")) or clean_value(item.get("suggested_test")) or clean_value(item.get("experiment")))}</p>'
+            f'<p><strong>Why test it:</strong> {escape(clean_value(item.get("reason")) or clean_value(item.get("why_it_matters")) or clean_value(item.get("why")))}</p>'
+            f'<p><strong>Keep constant:</strong> {escape(clean_value(item.get("what_stays_constant")) or "Keep the remaining intro decisions unchanged.")}</p>'
+            f'<p><strong>Compare:</strong> {escape(clean_value(item.get("how_to_compare")) or clean_value(item.get("validation")) or "Compare the two cuts without claiming a performance outcome.")}</p>'
             '</div>'
         )
     render_card_grid(experiment_cards, columns=3)

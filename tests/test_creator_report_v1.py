@@ -20,11 +20,12 @@ def observed_report():
 class CreatorReportV1Tests(unittest.TestCase):
     def test_observation_only_always_has_customer_value_sections(self):
         creator = build_creator_report(observed_report())
-        self.assertTrue(creator["opening_snapshot"]["signals"])
+        self.assertTrue(creator["opening_snapshot"]["summary"])
         self.assertTrue(creator["intro_timeline"])
         self.assertTrue(creator["whats_working"])
         self.assertEqual(len(creator["experiments"]), 3)
         self.assertTrue(all(not item["benchmark_supported"] for item in creator["experiments"]))
+        self.assertTrue(all(item["observation"] and item["interpretation"] and item["recommendation"] and item["reason"] for item in creator["experiments"]))
         self.assertEqual(creator["evidence_validation"]["status"], "observation_only")
 
     def test_qualified_benchmark_is_optional_enrichment(self):
@@ -34,6 +35,7 @@ class CreatorReportV1Tests(unittest.TestCase):
         creator = build_creator_report(report)
         self.assertEqual(len(creator["experiments"]), 3)
         self.assertTrue(creator["experiments"][0]["benchmark_supported"])
+        self.assertEqual(creator["experiments"][0]["source"], "Benchmark-supported")
         self.assertEqual(creator["evidence_validation"]["status"], "validated")
 
     def test_unavailable_benchmark_never_claims_support(self):
