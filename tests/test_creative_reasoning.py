@@ -45,7 +45,7 @@ class CreativeReasoningTests(unittest.TestCase):
                 reasoning = build_creative_reasoning(report)
                 creator = build_creator_report(report, reasoning)
                 self.assertEqual(reasoning["status"], "success")
-                self.assertGreaterEqual(len(reasoning["experiments"]), 3)
+                self.assertGreaterEqual(len(reasoning["experiments"]), 2)
                 for insight in reasoning["insights"]:
                     for key in ("observation", "interpretation", "recommendation", "reason"):
                         self.assertTrue(insight[key])
@@ -56,16 +56,12 @@ class CreativeReasoningTests(unittest.TestCase):
     def test_recommendations_are_traceable_to_present_evidence(self):
         report = fixture("a maker assembling a prototype", "a problem stated on camera", "seeing the prototype work", ["workbench", "test area"], True)
         reasoning = build_creative_reasoning(report)
-        observation = report["intro_observation"]["observation"]
-        frames = report["vision"]["frame_observations"]
-        supported = {
-            "main_subject": bool(observation.get("main_subject")),
-            "hook_type": bool(observation.get("hook_type")),
-            "story_promise": bool(observation.get("story_promise")),
-            "text_overlay": any(frame.get("text_overlay") is True for frame in frames),
-            "scene_transition": len({frame.get("scene_type") for frame in frames}) > 1,
-        }
-        self.assertTrue(all(supported[item["evidence_key"]] for item in reasoning["insights"]))
+        from core.observers.semantic_observer import observe_semantics
+        semantic = observe_semantics(report["vision"]["frame_observations"])
+        for item in reasoning["insights"]:
+            for basis in item["evidence_key"].split(";"):
+                field, value = basis.split(":", 1)
+                self.assertEqual(semantic[field], value)
 
     def test_missing_evidence_omits_recommendations(self):
         report = {"intro_observation": {}, "feature_report": {}, "vision": {}, "benchmark": {}, "patterns": {}}

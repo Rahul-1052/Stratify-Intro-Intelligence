@@ -59,7 +59,7 @@ def build_creator_report(report, creative_reasoning=None):
         "whats_working": creative["strengths"],
         "biggest_opportunity": opportunity,
         "experiments": experiments[:3],
-        "creative_reasoning": creative,
+        "creative_reasoning_status": creative.get("status", "limited"),
         "evidence_validation": {
             "status": "validated" if quality.get("eligible_for_directional_learning") else "observation_only",
             "label": "Benchmark-enriched" if quality.get("eligible_for_directional_learning") else "Creator guidance comes from the intro itself; benchmark validation was unavailable.",

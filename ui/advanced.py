@@ -65,6 +65,27 @@ def _render_intro_details(report):
     else:
         _empty("No structured intro observation was available.")
 
+    semantic = report.get("semantic_observation", {}) or {}
+    st.subheader("Semantic Observation V2")
+    if semantic:
+        st.caption("Opening-level aggregation")
+        st.write({
+            key: semantic.get(key)
+            for key in (
+                "version", "primary_visual_focus", "focus_clarity", "opening_mode",
+                "visual_progression", "information_mode", "text_role",
+                "subject_presence_pattern", "semantic_confidence", "unavailable_fields",
+            )
+        })
+        st.caption("Semantic beat boundaries and supporting timestamps")
+        st.write(semantic.get("beats", []))
+        st.caption("Direct visual evidence")
+        st.write(semantic.get("supporting_evidence", []))
+        st.caption("Metadata context — not treated as visual evidence")
+        st.write(semantic.get("metadata_context", {}))
+    else:
+        _empty("No semantic aggregation was available.")
+
 
 def _render_benchmark_discovery(report):
     category = report.get("category", {}) or {}

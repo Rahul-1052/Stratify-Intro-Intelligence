@@ -98,6 +98,7 @@ def run_stratify_report(
         category = {}
         frames = []
         acquisition = {}
+        semantic_observation = {}
 
         intro_observation = {
             "status": "unavailable",
@@ -125,6 +126,7 @@ def run_stratify_report(
             vision = intro_result.get("vision", {})
             feature_report = intro_result.get("features", {})
             acquisition = intro_result.get("acquisition", {})
+            semantic_observation = intro_result.get("semantic_observation", {})
 
             video_understanding = {
                 "status": "success",
@@ -342,6 +344,7 @@ def run_stratify_report(
             "intro_observation": intro_observation,
             "feature_report": feature_report,
             "vision": vision,
+            "semantic_observation": semantic_observation,
             "video_understanding": video_understanding,
             "benchmark": benchmark,
             "patterns": patterns,
@@ -370,6 +373,7 @@ def run_stratify_report(
             "creator_report": creator_report,
             "feature_report": feature_report,
             "vision": vision,
+            "semantic_observation": semantic_observation,
             "video_understanding": video_understanding,
             "intro_observation": intro_observation,
             "reasoning": reasoning,

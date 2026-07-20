@@ -5,6 +5,7 @@ from core.acquisition import acquire_video_intro
 from core.feature_extractor import extract_video_features
 from core.understanding import build_intro_understanding
 from core.vision_analyzer import analyze_intro_frames
+from core.observers.semantic_observer import observe_semantics
 from utils.frame_extractor import extract_frames_from_clip
 from utils.video_utils import extract_intro_clip
 
@@ -51,6 +52,14 @@ def analyze_intro_pipeline(
 
     frame_paths = frame_result["frames"]
     vision = analyze_intro_frames(frame_paths)
+    semantic_observation = observe_semantics(
+        vision.get("frame_observations", []),
+        metadata_context={
+            "title": video.get("title", ""),
+            "description": video.get("description", ""),
+            "channel_title": video.get("channel_title", ""),
+        },
+    )
 
     understanding = build_intro_understanding(
         video=video,
@@ -67,6 +76,7 @@ def analyze_intro_pipeline(
         "clip_path": clip_path,
         "frames": frame_paths,
         "vision": vision,
+        "semantic_observation": semantic_observation,
         "understanding": understanding,
         "features": features,
         "acquisition": {
