@@ -4,10 +4,18 @@ from pathlib import Path
 
 import streamlit as st
 
-from core.stratify_report import run_stratify_report
+from stratify_platform.module_registry import run_module
+from stratify_platform.projects import create_project, restore_project
 from ui.components import ProgressPresenter
 from ui.report import render_report
 from ui.theme import apply_theme
+from ui.workspace import (
+    render_module_cards,
+    render_platform_header,
+    render_project_header,
+    render_project_navigation,
+    render_workspace_intro,
+)
 from version import (
     BENCHMARK_ENGINE,
     INTRO_ENGINE,
@@ -72,17 +80,7 @@ def has_youtube_download_block(warnings):
 
 
 def render_landing():
-    st.markdown('<div class="stratify-brand">STRATIFY</div>', unsafe_allow_html=True)
-    st.markdown(
-        """
-        <section class="stratify-hero">
-            <h1>See your opening clearly. Know what to test next.</h1>
-            <p>Stratify turns direct intro observations into a practical creator report,
-            then adds benchmark validation when reliable comparisons are available.</p>
-        </section>
-        """,
-        unsafe_allow_html=True,
-    )
+    render_workspace_intro()
 
     left, center, right = st.columns([1, 6, 1])
     with center:
@@ -113,8 +111,9 @@ def build_report(url, uploaded_video):
     uploaded_video_path = save_uploaded_video(uploaded_video)
     with st.status("Analyzing the opening", expanded=True) as status:
         progress = ProgressPresenter()
-        report = run_stratify_report(
-            url.strip(),
+        report = run_module(
+            "intro_intelligence",
+            url=url.strip(),
             intro_seconds=15,
             frame_fps=1,
             progress_callback=progress.update,
@@ -156,20 +155,46 @@ def render_warnings(report):
 
 st.set_page_config(page_title="Stratify", page_icon="S", layout="wide")
 apply_theme()
-url, uploaded_video, analyze_clicked = render_landing()
+project = restore_project(st.session_state.get("stratify_project"))
+render_platform_header(project)
 
-if analyze_clicked:
-    if not url.strip():
-        st.warning("Paste a YouTube URL to begin.")
-        st.stop()
-
-    report = build_report(url, uploaded_video)
-    if report.get("status") == "failed":
-        for warning in report.get("warnings", []) or []:
-            st.error(warning)
-        if has_youtube_download_block(report.get("warnings", [])):
-            st.info(YOUTUBE_BLOCK_FALLBACK)
-        st.stop()
-
+if project and project.module_results.get("intro_intelligence"):
+    render_project_header(project)
+    render_project_navigation("intro_intelligence")
+    render_module_cards(compact=True)
+    report = project.module_results["intro_intelligence"]
     render_warnings(report)
     render_report(report, ACTIVE_PRODUCT_MODE, VERSION_METADATA)
+    if st.button("Start a new project", width="stretch"):
+        st.session_state.pop("stratify_project", None)
+        st.rerun()
+else:
+    url, uploaded_video, analyze_clicked = render_landing()
+    render_module_cards()
+
+    if analyze_clicked:
+        if not url.strip():
+            st.warning("Paste a YouTube URL to begin.")
+            st.stop()
+
+        project = create_project(
+            source_url=url,
+            upload_name=getattr(uploaded_video, "name", "") if uploaded_video else "",
+            title="Video project",
+        )
+        project.module_run_statuses["intro_intelligence"] = "running"
+        st.session_state["stratify_project"] = project.to_session()
+        report = build_report(url, uploaded_video)
+        if report.get("status") == "failed":
+            project.module_run_statuses["intro_intelligence"] = "failed"
+            st.session_state["stratify_project"] = project.to_session()
+            for warning in report.get("warnings", []) or []:
+                st.error(warning)
+            if has_youtube_download_block(report.get("warnings", [])):
+                st.info(YOUTUBE_BLOCK_FALLBACK)
+            st.stop()
+
+        project.title = report.get("video", {}).get("title") or project.title
+        project.record_result("intro_intelligence", report)
+        st.session_state["stratify_project"] = project.to_session()
+        st.rerun()

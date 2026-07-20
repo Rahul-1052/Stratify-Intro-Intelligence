@@ -60,6 +60,68 @@ h2 {
     text-align: center;
 }
 
+.platform-topbar {
+    align-items: center;
+    border-bottom: 1px solid var(--stratify-border);
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 3.2rem;
+    padding-bottom: 1rem;
+}
+
+.platform-mark {
+    color: #344054;
+    font-size: .76rem;
+    font-weight: 780;
+    letter-spacing: .18em;
+}
+
+.platform-context,
+.platform-version {
+    color: var(--stratify-muted);
+    font-size: .78rem;
+    margin-left: 1rem;
+}
+
+.platform-version {
+    background: #eff6ff;
+    border: 1px solid #dbeafe;
+    border-radius: 999px;
+    color: #1d4ed8;
+    padding: .35rem .65rem;
+}
+
+.platform-hero { margin-bottom: 2rem; }
+
+.module-grid {
+    display: grid;
+    gap: .9rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin: 2.25rem 0 3rem;
+}
+
+.module-grid.compact { margin-top: 1rem; }
+
+.module-card {
+    background: rgba(255,255,255,.82);
+    border: 1px solid var(--stratify-border);
+    border-radius: 16px;
+    min-height: 160px;
+    padding: 1.15rem;
+}
+
+.module-card h3 { font-size: 1rem; margin: .8rem 0 .45rem; }
+.module-card p { color: var(--stratify-muted); font-size: .88rem; line-height: 1.55; }
+.module-status { border-radius: 999px; display: inline-block; font-size: .7rem; font-weight: 720; padding: .25rem .52rem; }
+.module-status.available { background: #ecfdf3; color: #027a48; }
+.module-status.planned { background: #f2f4f7; color: #667085; }
+
+.project-header h1 { font-size: clamp(2rem, 4vw, 3.25rem); margin: .3rem 0; }
+.project-header p { color: var(--stratify-muted); }
+.project-nav { border-bottom: 1px solid var(--stratify-border); display: flex; gap: .5rem; margin: 1.5rem 0; }
+.project-nav span { color: var(--stratify-muted); font-size: .86rem; padding: .75rem .9rem; }
+.project-nav span.active { border-bottom: 2px solid var(--stratify-blue); color: var(--stratify-ink); font-weight: 680; }
+
 .stratify-hero {
     margin: 0 auto 2.25rem;
     max-width: 820px;
@@ -324,6 +386,8 @@ summary:focus-visible {
     .stratify-grid,
     .stratify-grid.two,
     .stratify-compare-grid { grid-template-columns: 1fr; }
+    .module-grid { grid-template-columns: 1fr; }
+    .platform-version { display: none; }
     .stratify-hero-card { border-radius: 16px; }
 }
 </style>
