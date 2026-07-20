@@ -76,9 +76,9 @@ def render_landing():
     st.markdown(
         """
         <section class="stratify-hero">
-            <h1>Understand why successful intros keep viewers watching.</h1>
-            <p>Stratify observes your opening, finds genuinely comparable videos,
-            and turns evidence-backed differences into practical experiments.</p>
+            <h1>See your opening clearly. Know what to test next.</h1>
+            <p>Stratify turns direct intro observations into a practical creator report,
+            then adds benchmark validation when reliable comparisons are available.</p>
         </section>
         """,
         unsafe_allow_html=True,

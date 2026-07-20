@@ -169,6 +169,19 @@ summary:focus-visible {
     box-shadow: 0 8px 26px rgba(16, 24, 40, 0.045);
 }
 
+.opportunity-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f4f7ff 100%);
+    border-color: #dbe5ff;
+}
+
+.experiment-card {
+    border-top: 3px solid #6d8ee8;
+}
+
+.experiment-card h3 {
+    margin-top: 1rem;
+}
+
 .stratify-hero-card {
     padding: clamp(1.5rem, 4vw, 2.6rem);
 }

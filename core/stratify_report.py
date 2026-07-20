@@ -17,6 +17,7 @@ from core.reasoning import (
 )
 from core.youtube_client import get_full_youtube_context
 from core.brain import build_stratify_brain
+from core.creator_report import build_creator_report
 
 
 def _empty_benchmark():
@@ -336,6 +337,16 @@ def run_stratify_report(
         progress("Building experiment board...")
         experiment_board = generate_experiment_board(patterns)
 
+        partial_report = {
+            "intro_observation": intro_observation,
+            "feature_report": feature_report,
+            "vision": vision,
+            "video_understanding": video_understanding,
+            "benchmark": benchmark,
+            "patterns": patterns,
+        }
+        creator_report = build_creator_report(partial_report)
+
         return {
             "status": "partial" if warnings else "success",
             "warnings": warnings,
@@ -350,6 +361,7 @@ def run_stratify_report(
             "patterns": patterns,
             "brain_report": brain_report,
             "experiment_board": experiment_board,
+            "creator_report": creator_report,
             "feature_report": feature_report,
             "vision": vision,
             "video_understanding": video_understanding,

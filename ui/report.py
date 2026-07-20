@@ -3,6 +3,7 @@ from html import escape
 import streamlit as st
 
 from ui.advanced import render_advanced_analysis
+from core.creator_report import build_creator_report
 from ui.components import (
     clean_value,
     confidence_badge,
@@ -69,9 +70,9 @@ def render_next_best_test(patterns):
             """
             <div class="stratify-hero-card">
                 <div class="stratify-eyebrow">Next best test</div>
-                <h2>No reliable improvement signal yet.</h2>
-                <p>Stratify is withholding advice until the comparison evidence is
-                strong enough to support a useful experiment.</p>
+                <h2>Your opening still supports a controlled creative test.</h2>
+                <p>Use direct intro observations for the next experiment; benchmark
+                validation can be added later when reliable comparisons exist.</p>
             </div>
             """,
             unsafe_allow_html=True,
@@ -187,8 +188,8 @@ def render_successful_patterns(patterns):
     )
     if not opportunities:
         empty_state(
-            "No reliable pattern difference yet",
-            "The available comparisons did not support a clear stronger-versus-lower signal.",
+            "Direct observations remain available",
+            "The comparison set did not add a directional pattern, so no benchmark claim is made.",
         )
         return
     for item in opportunities[:5]:
@@ -216,7 +217,7 @@ def render_experiments(patterns, featured_title):
             (
                 "The strongest supported experiment is shown above."
                 if featured_title
-                else "Stratify is withholding experiments until the evidence is reliable."
+                else "Use the observation-backed experiments in the creator report."
             ),
         )
         return
@@ -258,11 +259,60 @@ def render_confidence(patterns):
 
 
 def render_report(report, product_mode, version_metadata):
-    patterns = report.get("patterns", {}) or {}
-    featured_title = render_next_best_test(patterns)
-    render_final_verdict(patterns)
-    render_observations(report)
-    render_successful_patterns(patterns)
-    render_experiments(patterns, featured_title)
-    render_confidence(patterns)
+    creator = report.get("creator_report") or build_creator_report(report)
+
+    section_heading("Opening Snapshot", "A concise read of what is directly visible in the opening.")
+    snapshot = creator.get("opening_snapshot", {})
+    st.markdown(
+        '<div class="stratify-hero-card">'
+        '<div class="stratify-eyebrow">Observed opening</div>'
+        f'<h2>{escape(clean_value(snapshot.get("summary")) or "Intro observation was limited")}</h2>'
+        '<p class="stratify-muted">This describes the intro; it does not infer retention.</p>'
+        '</div>', unsafe_allow_html=True,
+    )
+    signal_cards = [info_card(item.get("label", "Signal"), item.get("value", "")) for item in snapshot.get("signals", [])]
+    if signal_cards:
+        render_card_grid(signal_cards)
+
+    section_heading("Intro Timeline", "The sequence Stratify observed across sampled opening frames.")
+    timeline_cards = [info_card(item.get("time", "Opening"), item.get("observation", "")) for item in creator.get("intro_timeline", [])]
+    render_card_grid(timeline_cards or [info_card("Opening", "No additional visual detail was inferred.")], columns=2)
+
+    section_heading("What's Working", "Useful qualities already present in the observed intro.")
+    render_card_grid([info_card("Observed strength", item) for item in creator.get("whats_working", [])] or [info_card("Evidence discipline", "Unseen behavior was not inferred.")])
+
+    section_heading("Biggest Opportunity", "The most useful controlled change to test next.")
+    opportunity = creator.get("biggest_opportunity", {})
+    st.markdown(
+        '<div class="stratify-hero-card opportunity-card">'
+        f'<h2>{escape(clean_value(opportunity.get("title")) or "Improve observable opening clarity")}</h2>'
+        f'<p>{escape(clean_value(opportunity.get("summary")) or "Test one visible opening change at a time.")}</p>'
+        '</div>', unsafe_allow_html=True,
+    )
+
+    section_heading("Three Observation-Backed Experiments", "Controlled creative tests grounded in visible intro evidence. Benchmark support is labeled separately.")
+    experiment_cards = []
+    for index, item in enumerate(creator.get("experiments", [])[:3], 1):
+        badge = "Benchmark validated" if item.get("benchmark_supported") else "Direct observation"
+        experiment_cards.append(
+            '<div class="stratify-card experiment-card">'
+            f'<span class="stratify-badge">{escape(badge)}</span>'
+            f'<h3>{index}. {escape(clean_value(item.get("title")) or "Controlled intro test")}</h3>'
+            f'<p><strong>Change:</strong> {escape(clean_value(item.get("suggested_test")) or clean_value(item.get("experiment")))}</p>'
+            f'<p><strong>Observed basis:</strong> {escape(clean_value(item.get("why_it_matters")) or clean_value(item.get("why")))}</p>'
+            f'<p><strong>Validate:</strong> {escape(clean_value(item.get("validation")) or "Compare the two cuts without claiming a performance outcome.")}</p>'
+            '</div>'
+        )
+    render_card_grid(experiment_cards, columns=3)
+
+    section_heading("Evidence Validation (Beta)", "Optional benchmark enrichment, kept separate from direct observation.")
+    validation = creator.get("evidence_validation", {})
+    st.markdown(
+        '<div class="stratify-card">'
+        f'{confidence_badge("Validated" if validation.get("benchmark_supported") else "Observation only")}'
+        f'<p style="margin-top:.9rem">{escape(clean_value(validation.get("label")) or "Observation-backed; benchmark validation unavailable")}</p>'
+        '</div>', unsafe_allow_html=True,
+    )
+
+    section_heading("Advanced Analysis", "Detailed evidence and diagnostics for deeper review.")
     render_advanced_analysis(report, product_mode, version_metadata)
