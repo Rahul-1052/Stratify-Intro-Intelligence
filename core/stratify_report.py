@@ -246,6 +246,8 @@ def run_stratify_report(
             user_content_identity=category.get("content_understanding", {}),
         )
         benchmark["qualification"] = qualification
+        benchmark["benchmark_quality"] = qualification.get("benchmark_quality", {})
+        benchmark["performance_diagnostics"] = qualification.get("performance_diagnostics", {})
         benchmark["qualification_diagnostics"] = (
             benchmark.get("qualification_diagnostics", [])
             + qualification.get("diagnostics", [])
@@ -268,7 +270,7 @@ def run_stratify_report(
             )
 
         progress("Learning benchmark patterns...")
-        reasoning["pattern_learning"] = learn_benchmark_patterns(benchmark_features)
+        reasoning["pattern_learning"] = learn_benchmark_patterns(benchmark_features, min_support=3)
 
         progress("Reasoning over creator decisions...")
         reasoning["benchmark_decisions"] = infer_benchmark_decisions(
@@ -304,6 +306,25 @@ def run_stratify_report(
             benchmark_features["top_performers"],
             benchmark_features["lower_performers"],
             feature_report,
+            min_support=3,
+        )
+        if not qualification.get("eligible_for_directional_learning"):
+            patterns["recommendations"] = []
+            patterns["top_creator_experiments"] = []
+            patterns["strongest_opportunities"] = []
+            patterns["confidence"] = "limited"
+            patterns["confidence_reason"] = (
+                "The benchmark set did not meet the independent quality floor for directional learning."
+            )
+        patterns["benchmark_quality"] = qualification.get("benchmark_quality", {})
+        patterns["abstention_reason"] = (
+            "insufficient benchmark quality"
+            if not qualification.get("eligible_for_directional_learning")
+            else (
+                "no meaningful feature difference"
+                if not patterns.get("recommendations")
+                else ""
+            )
         )
 
         brain_report = build_stratify_brain(

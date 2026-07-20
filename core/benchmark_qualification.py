@@ -9,6 +9,7 @@ from typing import Any, Dict, Mapping, Sequence, Tuple
 
 from core.benchmark_signature import build_benchmark_signature, compare_benchmark_signatures
 from core.viewer_job_comparison import compare_viewer_jobs
+from core.benchmark_intelligence_v2 import assess_benchmark_quality, select_performance_cohorts
 
 
 MIN_QUALIFIED_CANDIDATES = 4
@@ -88,8 +89,38 @@ def qualify_observed_benchmarks(
 
         diagnostics.append(diagnostic)
 
-    top_results, lower_results, group_reason = _form_coherent_performance_groups(qualified)
+    # Viewer-job qualification remains the hard evidence gate. V2 only changes
+    # how that coherent neighborhood is split by performance and diversity.
+    flat_videos = [dict(item[0].get("video") or {}) for item in qualified]
+    top_videos, lower_videos, performance = select_performance_cohorts(flat_videos)
+    if not top_videos and len(qualified) >= MIN_QUALIFIED_CANDIDATES:
+        legacy_top, legacy_lower, legacy_reason = _form_coherent_performance_groups(qualified)
+        top_videos = [dict(item.get("video") or {}) for item in legacy_top]
+        lower_videos = [dict(item.get("video") or {}) for item in legacy_lower]
+        performance.update({
+            "selection_method": "backward_compatible_small_group_fallback",
+            "fallback_reason": legacy_reason,
+        })
+    result_by_id = {item[0].get("video", {}).get("video_id"): item[0] for item in qualified}
+    top_results = [result_by_id[item.get("video_id")] for item in top_videos]
+    lower_results = [result_by_id[item.get("video_id")] for item in lower_videos]
+    group_reason = performance.get("fallback_reason") or (
+        "Final groups were formed after observed viewer-job qualification using a "
+        "log-view performance gap with channel diversity."
+    )
     coherent = bool(top_results and lower_results)
+    qualified_channels = {
+        item.get("channel_title") for item in flat_videos if item.get("channel_title")
+    }
+    performance.update({
+        "channel_coverage": len(qualified_channels),
+        "query_coverage": sorted({q for item in flat_videos for q in item.get("matched_queries", [])}),
+        "benchmark_quality_warnings": [],
+    })
+    quality = assess_benchmark_quality(
+        flat_videos, top_videos, lower_videos, performance,
+        observation_ratio=(len(flat_videos) / max(len(diagnostics), 1)),
+    )
 
     selected_ids = {
         item.get("video", {}).get("video_id")
@@ -117,6 +148,9 @@ def qualify_observed_benchmarks(
         "top_performers": top_results,
         "lower_performers": lower_results,
         "diagnostics": diagnostics,
+        "performance_diagnostics": performance,
+        "benchmark_quality": quality,
+        "eligible_for_directional_learning": quality["eligible_for_directional_learning"],
     }
 
 

@@ -224,7 +224,7 @@ def _distribution(values: Iterable[Any]) -> Dict[Any, int]:
     return dict(Counter(values))
 
 
-def _dominant_observation(values: Sequence[Any]) -> Dict[str, Any]:
+def _dominant_observation(values: Sequence[Any], min_support: int = 2) -> Dict[str, Any]:
     """
     Summarize the most frequent value in an observed group.
 
@@ -233,7 +233,7 @@ def _dominant_observation(values: Sequence[Any]) -> Dict[str, Any]:
     No feature-specific rule is used.
 
     A value is considered stable when:
-        - it occurs more than once, and
+        - it occurs at least three times, and
         - it is not tied with another value.
 
     The share is retained as evidence rather than being hidden behind
@@ -267,7 +267,7 @@ def _dominant_observation(values: Sequence[Any]) -> Dict[str, Any]:
         "count": dominant_count,
         "total": total,
         "share": round(dominant_count / total, 4),
-        "stable": dominant_count > 1 and not tied,
+        "stable": dominant_count >= max(int(min_support), 2) and not tied,
         "distribution": dict(ranked),
     }
 
@@ -643,6 +643,7 @@ def discover_patterns(
     top_features,
     lower_features,
     user_features,
+    min_support=2,
 ):
     """
     Main schema-agnostic pattern-discovery entry point.
@@ -683,8 +684,8 @@ def discover_patterns(
         )
 
         # Determine each group's dominant observation.
-        top = _dominant_observation(top_values)
-        lower = _dominant_observation(lower_values)
+        top = _dominant_observation(top_values, min_support=min_support)
+        lower = _dominant_observation(lower_values, min_support=min_support)
 
         # Position the user only from relationships in the current sample.
         status = _classify_position(

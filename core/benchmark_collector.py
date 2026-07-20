@@ -8,6 +8,8 @@ from core.benchmark_cleaner import (
 from core.benchmark_signature import (
     build_benchmark_signature,
 )
+from core import benchmark_cache
+from core.benchmark_intelligence_v2 import qualify_neighborhood
 
 
 MAX_QUERY_ATTEMPTS = 2
@@ -113,6 +115,19 @@ def _safe_search_videos(
                 )
 
     return [], last_error
+
+
+def _cached_search_videos(query, max_results):
+    """Search once; on failure use a valid cache and expose its provenance."""
+    try:
+        results = search_videos(query=query, max_results=max_results, order="relevance")
+        benchmark_cache.write(query, max_results, results)
+        return results, None, {"status": "fresh", "cached_evidence_used": False}
+    except Exception as exc:
+        cached, cache_info = benchmark_cache.read(query, max_results)
+        if cached is not None:
+            return cached, str(exc), cache_info
+        return [], str(exc), cache_info
 
 
 def _dedupe_videos(videos):
@@ -334,16 +349,18 @@ def collect_benchmark_videos(
     query_results = {}
     query_scores = {}
     query_errors = {}
+    query_cache = {}
     merged_candidates = []
 
     for query in candidate_queries:
-        results, error = _safe_search_videos(
+        results, error, cache_info = _cached_search_videos(
             query=query,
             max_results=max_results,
         )
 
         if error:
             query_errors[query] = error
+        query_cache[query] = cache_info
 
         filtered_results = []
 
@@ -360,6 +377,7 @@ def collect_benchmark_videos(
 
             item = dict(video)
             item["matched_query"] = query
+            item["matched_queries"] = [query]
 
             filtered_results.append(item)
 
@@ -378,9 +396,7 @@ def collect_benchmark_videos(
             filtered_results
         )
 
-    merged_candidates = _dedupe_videos(
-        merged_candidates
-    )
+    raw_candidate_count = len(merged_candidates)
 
     if not merged_candidates:
         result = _empty_result(
@@ -420,16 +436,12 @@ def collect_benchmark_videos(
         )
         title_parts.append(query)
 
-    evidence_ranked = clean_benchmark_videos(
-        merged_candidates,
-        source_terms=source_terms,
-        title_parts=title_parts,
-        user_video=resolved_user_video,
-        user_signature=user_signature,
-        user_vision=user_vision or {},
-        user_understanding=(
-            user_understanding or {}
-        ),
+    hypotheses = category.get("query_hypotheses") or [
+        {"query": query, "specificity": min(1.0, len(str(query).split()) / 6.0)}
+        for query in candidate_queries
+    ]
+    evidence_ranked, neighborhood = qualify_neighborhood(
+        merged_candidates, resolved_user_video, hypotheses
     )
 
     # This is a metadata shortlist, not a benchmark group. Final stronger and
@@ -482,10 +494,12 @@ def collect_benchmark_videos(
         "benchmark_anchor": best_query,
         "query_scores": query_scores,
         "query_errors": query_errors,
-        "candidate_count": len(best_results),
-        "merged_candidate_count": len(
-            merged_candidates
-        ),
+        "candidate_count": len(evidence_ranked),
+        "best_query_candidate_count": len(best_results),
+        "raw_candidate_count": raw_candidate_count,
+        "deduplicated_count": neighborhood["deduplicated_count"],
+        "qualified_candidate_count": neighborhood["qualified_candidate_count"],
+        "merged_candidate_count": neighborhood["deduplicated_count"],
         "cleaned_count": len(
             evidence_ranked
         ),
@@ -493,9 +507,7 @@ def collect_benchmark_videos(
             evidence_ranked
         ),
         "rejected_candidate_count": max(
-            len(merged_candidates)
-            - len(evidence_ranked),
-            0,
+            neighborhood["rejected_candidate_count"], 0,
         ),
         "observed_candidate_count": (
             observed_candidate_count
@@ -507,6 +519,15 @@ def collect_benchmark_videos(
         "search_queries_used": (
             candidate_queries
         ),
+        "query_hypotheses": hypotheses,
+        "query_cache": query_cache,
+        "cached_evidence_used": any(item.get("cached_evidence_used") for item in query_cache.values()),
+        "relevance_threshold_used": neighborhood["relevance_threshold_used"],
+        "relevance_threshold_reason": neighborhood["relevance_threshold_reason"],
+        "query_coverage": neighborhood["query_coverage"],
+        "channel_coverage": neighborhood["channel_coverage"],
+        "benchmark_quality_warnings": neighborhood["benchmark_quality_warnings"],
+        "rejection_reasons": neighborhood["rejection_reasons"],
         "benchmark_signature": (
             user_signature
         ),
@@ -526,6 +547,10 @@ def _empty_result(reason):
         "query_scores": {},
         "query_errors": {},
         "candidate_count": 0,
+        "best_query_candidate_count": 0,
+        "raw_candidate_count": 0,
+        "deduplicated_count": 0,
+        "qualified_candidate_count": 0,
         "merged_candidate_count": 0,
         "cleaned_count": 0,
         "compatible_candidate_count": 0,
@@ -536,6 +561,15 @@ def _empty_result(reason):
         ),
         "lower_performer_reason": reason,
         "search_queries_used": [],
+        "query_hypotheses": [],
+        "query_cache": {},
+        "cached_evidence_used": False,
+        "relevance_threshold_used": 65.0,
+        "relevance_threshold_reason": reason,
+        "query_coverage": [],
+        "channel_coverage": 0,
+        "benchmark_quality_warnings": [reason],
+        "rejection_reasons": {},
         "benchmark_signature": {},
         "top_performers": [],
         "lower_performers": [],

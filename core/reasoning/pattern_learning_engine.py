@@ -6,11 +6,12 @@ from core.pattern_discovery import _extract_summary, _normalize_value
 
 def learn_benchmark_patterns(
     benchmark_features: Dict[str, List[Dict[str, Any]]],
+    min_support: int = 2,
 ) -> Dict[str, Any]:
     """Summarize repeated observable evidence without recommending or scoring."""
     top_patterns = _learn_group_patterns(benchmark_features.get("top_performers", []))
     lower_patterns = _learn_group_patterns(benchmark_features.get("lower_performers", []))
-    discriminative_patterns = _find_discriminative_patterns(top_patterns, lower_patterns)
+    discriminative_patterns = _find_discriminative_patterns(top_patterns, lower_patterns, min_support)
 
     return {
         "status": "success" if top_patterns or lower_patterns else "limited",
@@ -53,7 +54,7 @@ def _learn_group_patterns(items):
     return learned
 
 
-def _find_discriminative_patterns(top_patterns, lower_patterns):
+def _find_discriminative_patterns(top_patterns, lower_patterns, min_support=2):
     results = []
     for feature, top in top_patterns.items():
         lower = lower_patterns.get(feature)
@@ -61,7 +62,7 @@ def _find_discriminative_patterns(top_patterns, lower_patterns):
             continue
 
         # One-off values are observations, not learned recurring patterns.
-        if top["count"] <= 1 or lower["count"] <= 1:
+        if top["count"] < max(int(min_support), 2) or lower["count"] < max(int(min_support), 2):
             continue
 
         lower_share_for_top = lower["distribution"].get(
