@@ -1,6 +1,7 @@
 import streamlit as st
 
 from ui.components import clean_value
+from ui.evaluation import render_evaluation_dashboard
 
 
 def _empty(message="No evidence available yet."):
@@ -273,3 +274,6 @@ def render_advanced_analysis(report, product_mode, version_metadata):
 
         st.subheader("Raw backend evidence")
         st.json(report, expanded=False)
+
+    if product_mode == "builder":
+        render_evaluation_dashboard()
