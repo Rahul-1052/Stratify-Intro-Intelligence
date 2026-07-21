@@ -99,6 +99,8 @@ def run_stratify_report(
         frames = []
         acquisition = {}
         semantic_observation = {}
+        creative_structure = {}
+        creative_understanding = {}
 
         intro_observation = {
             "status": "unavailable",
@@ -127,6 +129,8 @@ def run_stratify_report(
             feature_report = intro_result.get("features", {})
             acquisition = intro_result.get("acquisition", {})
             semantic_observation = intro_result.get("semantic_observation", {})
+            creative_structure = intro_result.get("creative_structure", {})
+            creative_understanding = intro_result.get("creative_understanding", {})
 
             video_understanding = {
                 "status": "success",
@@ -345,6 +349,8 @@ def run_stratify_report(
             "feature_report": feature_report,
             "vision": vision,
             "semantic_observation": semantic_observation,
+            "creative_structure": creative_structure,
+            "creative_understanding": creative_understanding,
             "video_understanding": video_understanding,
             "benchmark": benchmark,
             "patterns": patterns,
@@ -374,6 +380,8 @@ def run_stratify_report(
             "feature_report": feature_report,
             "vision": vision,
             "semantic_observation": semantic_observation,
+            "creative_structure": creative_structure,
+            "creative_understanding": creative_understanding,
             "video_understanding": video_understanding,
             "intro_observation": intro_observation,
             "reasoning": reasoning,

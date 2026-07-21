@@ -43,7 +43,12 @@ class EvaluationRunner:
                 report, cache_used, elapsed = self._load_or_run(video, force)
                 status = report.get("status", "unknown")
                 agreements = compare_manual_labels(video.expected_manual_labels, report)
-                result = EvaluationResult(video.video_id, video.video_title, video.category, status, round(elapsed, 4), report, agreements, cache_used)
+                result = EvaluationResult(
+                    video.video_id, video.video_title, video.category, status,
+                    round(elapsed, 4), report, agreements, cache_used,
+                    creative_structure=report.get("creative_structure", {}) or {},
+                    creative_understanding=report.get("creative_understanding", {}) or {},
+                )
             except Exception as exc:
                 result = EvaluationResult(video.video_id, video.video_title, video.category, "failed", 0.0, {}, [], False, str(exc))
             results.append(result)

@@ -58,6 +58,8 @@ class EvaluationResult:
     agreements: List[FieldAgreement] = field(default_factory=list)
     cache_used: bool = False
     error: Optional[str] = None
+    creative_structure: Dict[str, Any] = field(default_factory=dict)
+    creative_understanding: Dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self):
         value = asdict(self)

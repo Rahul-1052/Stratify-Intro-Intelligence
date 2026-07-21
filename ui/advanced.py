@@ -27,7 +27,7 @@ def _render_video_list(items, empty_message):
         st.markdown(f"- {title}{suffix}")
 
 
-def _render_intro_details(report):
+def _render_intro_details(report, show_creative_understanding=False):
     features = report.get("feature_report", {}).get("feature_summary", {}) or {}
     intro = report.get("intro_observation", {}) or {}
     observation = intro.get("observation") or intro.get("observations") or {}
@@ -88,6 +88,23 @@ def _render_intro_details(report):
         st.write(semantic.get("metadata_context", {}))
     else:
         _empty("No semantic aggregation was available.")
+
+    if show_creative_understanding:
+        st.subheader("Creative Structure")
+        structure = report.get("creative_structure", {}) or {}
+        if structure:
+            st.caption("Deterministic organization derived only from Semantic Observation")
+            st.write(structure)
+        else:
+            _empty("No creative structure was available.")
+
+        st.subheader("Creative Understanding")
+        creative_understanding = report.get("creative_understanding", {}) or {}
+        if creative_understanding:
+            st.caption("Recommendation-free interpretation of the opening's organization")
+            st.write(creative_understanding)
+        else:
+            _empty("No creative understanding was available.")
 
 
 def _render_benchmark_discovery(report):
@@ -260,7 +277,7 @@ def render_advanced_analysis(report, product_mode, version_metadata):
         st.divider()
         _render_qualification(report)
         st.divider()
-        _render_intro_details(report)
+        _render_intro_details(report, show_creative_understanding=product_mode == "builder")
         st.divider()
         _render_evidence_details(report)
         st.divider()

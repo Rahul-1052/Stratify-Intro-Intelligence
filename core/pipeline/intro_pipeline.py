@@ -3,7 +3,7 @@ from typing import Any, Dict
 
 from core.acquisition import acquire_video_intro
 from core.feature_extractor import extract_video_features
-from core.understanding import build_intro_understanding
+from core.understanding import build_intro_understanding, understand_creative_opening
 from core.vision_analyzer import analyze_intro_frames
 from core.observers.semantic_observer import observe_semantics
 from utils.frame_extractor import extract_frames_from_clip
@@ -60,6 +60,7 @@ def analyze_intro_pipeline(
             "channel_title": video.get("channel_title", ""),
         },
     )
+    creative_structure, creative_understanding = understand_creative_opening(semantic_observation)
 
     understanding = build_intro_understanding(
         video=video,
@@ -77,6 +78,8 @@ def analyze_intro_pipeline(
         "frames": frame_paths,
         "vision": vision,
         "semantic_observation": semantic_observation,
+        "creative_structure": creative_structure.to_dict(),
+        "creative_understanding": creative_understanding.to_dict(),
         "understanding": understanding,
         "features": features,
         "acquisition": {
