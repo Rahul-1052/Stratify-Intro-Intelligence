@@ -36,6 +36,17 @@ def _focus_insight(semantic):
     confidence = semantic["semantic_confidence"]
     if focus == "unavailable" or clarity == "unavailable":
         return None
+    if focus == "alternating_subjects":
+        return _insight(
+            "Establish one subject before the alternating sequence",
+            "The multi-subject phase alternates between related views without one figure consistently dominating.",
+            "The sequence maintains one visual purpose, but its priority moves between visible subjects.",
+            "Create an alternate opening that holds one subject-focused view before the existing alternation begins.",
+            "A stable first priority tests whether the later multi-subject sequence becomes easier to parse.",
+            "Keep the same footage, audio, written cues, total duration, and alternating sequence; change only the opening hold.",
+            "Compare which version establishes a singular starting priority before the multi-subject sequence begins.",
+            "primary_visual_focus:alternating_subjects", confidence,
+        )
     if clarity == "competing":
         return _insight(
             "Give the first frame one clear owner",
@@ -54,7 +65,7 @@ def _focus_insight(semantic):
             "The early frames provide context before they provide a singular point of focus.",
             "Move the first frame with a clear dominant subject to the start of the sequence.",
             "Changing only the order tests whether the opening hierarchy becomes legible sooner.",
-            "Keep every frame, the audio, total duration, and written message unchanged.",
+            "Keep the same footage, audio, total duration, and written message; change only the opening order.",
             "Compare the first two seconds and note which version reveals one dominant focus earlier.",
             f"focus_clarity:{clarity}", confidence,
         )
@@ -105,6 +116,11 @@ def _progression_insight(semantic):
     if progression == "unavailable":
         return None
     if progression == "mostly_held":
+        candidate_states = (semantic.get("temporal_diagnostics") or {}).get("candidate_visual_state_boundaries") or []
+        if len(candidate_states) > 1:
+            # Several edits may deliberately serve one continuing semantic purpose;
+            # that is not evidence that the opening needs another composition.
+            return None
         return _insight(
             "Create a deliberate second beat",
             "The sampled opening remains on one semantic setup.",
@@ -126,16 +142,9 @@ def _progression_insight(semantic):
             "Compare which version produces a clearer account of the opening sequence after one silent viewing.",
             "visual_progression:frequent_change", confidence,
         )
-    return _insight(
-        "Test where the first development begins",
-        "The opening contains more than one clearly separated semantic beat.",
-        "The transition between setup and development defines how long the first composition carries the opening alone.",
-        "Move the start of the second beat one second earlier in an alternate cut.",
-        "Changing only the transition timing tests whether the progression becomes clearer without adding new material.",
-        "Keep the frames, audio, message, order, and total intro duration unchanged.",
-        "Compare which cut makes the shift from setup to development easier to identify.",
-        f"visual_progression:{progression}", confidence,
-    )
+    # The existence of multiple calibrated beats is not itself a weakness. Timing
+    # guidance requires a stable issue such as delayed focus or excessive change.
+    return None
 
 
 def _subject_pattern_insight(semantic):
@@ -195,6 +204,12 @@ def build_creative_reasoning(report):
         _progression_insight(semantic), _subject_pattern_insight(semantic),
     ]
     insights = [item for item in insights if item]
+    beat_references = [
+        {"beat_index": index, "beat_purpose": beat.get("beat_purpose", "unavailable")}
+        for index, beat in enumerate(semantic.get("beats", []))
+    ]
+    for insight in insights:
+        insight["beat_references"] = beat_references
     timeline = [{
         "time": f"{float(beat['start_time']):.0f}-{float(beat['end_time']):.0f}s",
         "moment": beat["semantic_description"],

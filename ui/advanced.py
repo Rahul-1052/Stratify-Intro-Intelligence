@@ -79,6 +79,8 @@ def _render_intro_details(report):
         })
         st.caption("Semantic beat boundaries and supporting timestamps")
         st.write(semantic.get("beats", []))
+        st.caption("Temporal calibration diagnostics")
+        st.write(semantic.get("temporal_diagnostics", {}))
         st.caption("Direct visual evidence")
         st.write(semantic.get("supporting_evidence", []))
         st.caption("Metadata context — not treated as visual evidence")

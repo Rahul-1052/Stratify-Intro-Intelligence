@@ -45,7 +45,9 @@ class CreativeReasoningTests(unittest.TestCase):
                 reasoning = build_creative_reasoning(report)
                 creator = build_creator_report(report, reasoning)
                 self.assertEqual(reasoning["status"], "success")
-                self.assertGreaterEqual(len(reasoning["experiments"]), 2)
+                # Calibration intentionally returns fewer experiments when only
+                # one stable semantic finding supports a controlled edit.
+                self.assertGreaterEqual(len(reasoning["experiments"]), 1)
                 for insight in reasoning["insights"]:
                     for key in ("observation", "interpretation", "recommendation", "reason"):
                         self.assertTrue(insight[key])
