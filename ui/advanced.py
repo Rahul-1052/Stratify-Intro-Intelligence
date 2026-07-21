@@ -218,11 +218,12 @@ def _render_evidence_details(report):
         )
 
 
-def _render_reasoning_details(report):
+def _render_reasoning_details(report, show_creative_trace=False):
     reasoning = report.get("reasoning", {}) or {}
     user_decisions = reasoning.get("user_decisions", {}) or {}
     decision_comparison = reasoning.get("decision_comparison", {}) or {}
     evidence_graph = reasoning.get("evidence_graph", {}) or {}
+    creative = reasoning.get("creative_reasoning", {}) or {}
 
     st.subheader("Reasoning Details")
     decisions = user_decisions.get("decisions", []) or []
@@ -251,6 +252,22 @@ def _render_reasoning_details(report):
             st.write(chain)
     else:
         _empty("No evidence chains were built.")
+
+    if show_creative_trace:
+        st.caption("Creative reasoning traceability")
+        trace = creative.get("traceability", {}) or {}
+        if trace:
+            st.write({
+                "semantic_evidence": trace.get("semantic_evidence", []),
+                "creative_structure": trace.get("creative_structure", {}),
+                "creative_understanding": trace.get("creative_understanding", {}),
+                "opportunity_candidates": trace.get("opportunity_candidates", []),
+                "selected_opportunity": trace.get("selected_opportunity"),
+                "experiments": trace.get("experiments", []),
+                "compatibility_mode": trace.get("compatibility_mode", False),
+            })
+        else:
+            _empty("No creative reasoning trace was available.")
 
 
 def _render_acquisition(report):
@@ -281,7 +298,7 @@ def render_advanced_analysis(report, product_mode, version_metadata):
         st.divider()
         _render_evidence_details(report)
         st.divider()
-        _render_reasoning_details(report)
+        _render_reasoning_details(report, show_creative_trace=product_mode == "builder")
         st.divider()
         _render_acquisition(report)
         st.divider()

@@ -88,6 +88,11 @@ def calculate_metrics(results):
     for item in results:
         categories[item.category].extend(item.agreements)
     benchmark_success = sum(bool(((report.get("creator_report") or {}).get("evidence_validation") or {}).get("benchmark_supported")) for report in reports)
+    reasoning_outputs = [((report.get("reasoning") or {}).get("creative_reasoning") or {}) for report in reports]
+    traced = sum(bool(item.get("traceability")) for item in reasoning_outputs)
+    structure_traced = sum(bool((item.get("traceability") or {}).get("creative_structure")) for item in reasoning_outputs)
+    supported = sum(all(candidate.get("supporting_evidence") for candidate in item.get("opportunity_candidates", [])) for item in reasoning_outputs)
+    diverse = sum(len({experiment.get("structural_dimension") for experiment in item.get("experiments", [])}) == len(item.get("experiments", [])) for item in reasoning_outputs)
     return {
         "video_count": len(results),
         "observation_coverage": _rate(raw_coverage, len(results)),
@@ -104,6 +109,10 @@ def calculate_metrics(results):
         "observation_only_rate": _rate(len(results) - benchmark_success, len(results)),
         "manual_agreement_rate": _rate(correct, len(agreements)),
         "manual_partial_rate": _rate(partial, len(agreements)),
+        "creative_reasoning_trace_rate": _rate(traced, len(results)),
+        "structure_trace_rate": _rate(structure_traced, len(results)),
+        "opportunity_evidence_rate": _rate(supported, len(results)),
+        "experiment_dimension_diversity_rate": _rate(diverse, len(results)),
         "per_category_agreement": {category: _rate(sum(x.result == "correct" for x in values), len(values)) for category, values in sorted(categories.items())},
     }
 

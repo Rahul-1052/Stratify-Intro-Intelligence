@@ -20,6 +20,9 @@ def _benchmark_experiment(item):
         "source": "Benchmark-supported",
         "evidence_key": "qualified_benchmark_comparison",
         "benchmark_supported": True,
+        "structural_dimension": str(item.get("structural_dimension") or "benchmark_comparison"),
+        "confidence": str(item.get("confidence") or "moderate"),
+        "limitations": ["Benchmark support is directional and does not guarantee an outcome."],
     }
 
 
@@ -34,7 +37,8 @@ def build_creator_report(report, creative_reasoning=None):
         benchmark_items = patterns.get("top_creator_experiments") or patterns.get("recommendations") or []
         for item in benchmark_items:
             enriched = _benchmark_experiment(item)
-            if enriched and enriched["title"] not in {existing.get("title") for existing in experiments}:
+            existing_dimensions = {existing.get("structural_dimension") for existing in experiments}
+            if enriched and enriched["title"] not in {existing.get("title") for existing in experiments} and enriched["structural_dimension"] not in existing_dimensions:
                 experiments.insert(0, enriched)
             if len(experiments) >= 3:
                 break
