@@ -34,7 +34,7 @@ def _focus_insight(semantic):
     focus = semantic["primary_visual_focus"]
     clarity = semantic["focus_clarity"]
     confidence = semantic["semantic_confidence"]
-    if focus == "unavailable" or clarity == "unavailable":
+    if focus == "unavailable" or clarity == "unavailable" or len(semantic.get("supporting_evidence", [])) < 2:
         return None
     if focus == "alternating_subjects":
         return _insight(
@@ -69,23 +69,16 @@ def _focus_insight(semantic):
             "Compare the first two seconds and note which version reveals one dominant focus earlier.",
             f"focus_clarity:{clarity}", confidence,
         )
-    return _insight(
-        "Protect the opening's clear hierarchy",
-        "One dominant visual focus is established in the first beat.",
-        "A singular starting point makes the opening composition easy to parse before later elements arrive.",
-        "Create one alternate first frame with one secondary element removed.",
-        "The controlled subtraction tests which supporting element can disappear without weakening the opening hierarchy.",
-        "Keep the dominant subject, audio, timing, color, and following edit unchanged.",
-        "Compare which frame preserves the same main focus with less competing information.",
-        "focus_clarity:immediate", confidence,
-    )
+    # Immediate clarity is a supported strength, not evidence that a secondary
+    # element exists or should be removed. Do not manufacture an experiment.
+    return None
 
 
 def _text_insight(semantic):
     role = semantic["text_role"]
     mode = semantic["information_mode"]
     confidence = semantic["semantic_confidence"]
-    if role in {"unavailable", "absent"}:
+    if role in {"unavailable", "absent"} or len(semantic.get("supporting_evidence", [])) < 2:
         return None
     if role in {"persistent", "dominant"}:
         return _insight(
@@ -113,7 +106,7 @@ def _text_insight(semantic):
 def _progression_insight(semantic):
     progression = semantic["visual_progression"]
     confidence = semantic["semantic_confidence"]
-    if progression == "unavailable":
+    if progression == "unavailable" or len(semantic.get("supporting_evidence", [])) < 2:
         return None
     if progression == "mostly_held":
         candidate_states = (semantic.get("temporal_diagnostics") or {}).get("candidate_visual_state_boundaries") or []
@@ -150,7 +143,7 @@ def _progression_insight(semantic):
 def _subject_pattern_insight(semantic):
     pattern = semantic["subject_presence_pattern"]
     confidence = semantic["semantic_confidence"]
-    if pattern in {"unavailable", "present_immediately"}:
+    if pattern in {"unavailable", "present_immediately"} or len(semantic.get("supporting_evidence", [])) < 2:
         return None
     if pattern == "multiple_subjects":
         return _insight(
