@@ -132,6 +132,7 @@ class EvaluationFrameworkTests(unittest.TestCase):
     @patch("ui.evaluation.st")
     def test_dashboard_renders_empty_and_populated_artifacts(self, st):
         st.expander.return_value.__enter__.return_value = None
+        st.columns.return_value = [MagicMock(), MagicMock(), MagicMock()]
         with tempfile.TemporaryDirectory() as directory:
             dataset_path = Path(directory) / "dataset.json"
             output = Path(directory) / "artifacts"

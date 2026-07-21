@@ -38,7 +38,7 @@ def compare_manual_labels(manual, report):
     semantic = report.get("semantic_observation", {}) or {}
     comparisons = []
     for field, expected in (manual or {}).items():
-        if expected is None or field == "manual_confidence":
+        if expected is None or field in {"manual_confidence", "reviewer_notes"}:
             continue
         if field == "number_of_semantic_beats":
             predicted = len(semantic.get("beats", []) or [])

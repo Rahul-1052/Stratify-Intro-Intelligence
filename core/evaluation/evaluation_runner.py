@@ -48,7 +48,7 @@ class EvaluationRunner:
                 result = EvaluationResult(video.video_id, video.video_title, video.category, "failed", 0.0, {}, [], False, str(exc))
             results.append(result)
             if self.dataset_store:
-                self.dataset_store.append_history(video.video_id, {"run_id": run_id, "status": result.status, "evaluated_at": datetime.now(timezone.utc).isoformat(), "cache_used": result.cache_used})
+                self.dataset_store.append_history(video.video_id, {"run_id": run_id, "run_status": result.status, "evaluated_at": datetime.now(timezone.utc).isoformat(), "cache_used": result.cache_used})
         run = EvaluationRun(
             run_id=run_id, created_at=datetime.now(timezone.utc).isoformat(),
             dataset_name=dataset.get("name", "evaluation"), results=results,

@@ -13,16 +13,26 @@ class EvaluationVideo:
     url: str
     expected_manual_labels: Dict[str, Any] = field(default_factory=dict)
     notes: Optional[str] = None
-    status: str = "pending"
+    status: str = "unreviewed"
     evaluation_history: List[Dict[str, Any]] = field(default_factory=list)
+    evaluation_id: str = ""
+    reviewer_notes: Optional[str] = None
+    _extra: Dict[str, Any] = field(default_factory=dict, repr=False)
 
     @classmethod
     def from_dict(cls, value):
         allowed = cls.__dataclass_fields__
-        return cls(**{key: value[key] for key in allowed if key in value})
+        known = {key: value[key] for key in allowed if key in value and key != "_extra"}
+        if known.get("status") == "pending":
+            known["status"] = "unreviewed"
+        known["_extra"] = {key: item for key, item in value.items() if key not in allowed}
+        return cls(**known)
 
     def to_dict(self):
-        return asdict(self)
+        value = asdict(self)
+        extra = value.pop("_extra", {})
+        value.update(extra)
+        return value
 
 
 @dataclass
