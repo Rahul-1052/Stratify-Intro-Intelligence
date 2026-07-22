@@ -91,6 +91,7 @@ def _candidate(
 def _opportunity_candidates(structure, understanding, semantic):
     candidates = []
     confidence = understanding.confidence
+    text_confidence = semantic.get("text_evidence_confidence", confidence)
     direct_count = len(semantic.get("supporting_evidence", []) or [])
     if direct_count < 2:
         return []
@@ -123,7 +124,7 @@ def _opportunity_candidates(structure, understanding, semantic):
             "Delay the existing written cue until the next semantic phase.",
             "Keep the wording, typography, footage, audio, and total duration unchanged.",
             "Compare whether each version makes the visual anchor and written message separately identifiable.",
-            _semantic_evidence(semantic, "text_role", "information_mode"), confidence, "moderate",
+            _semantic_evidence(semantic, "text_role", "information_mode"), text_confidence, "moderate",
         ))
     elif structure.information_density == "layered at selected moments":
         candidates.append(_candidate(
@@ -133,7 +134,7 @@ def _opportunity_candidates(structure, understanding, semantic):
             "Move the existing written cue to the next semantic phase in an alternate cut.",
             "Keep the wording, position, footage, audio, visual anchor, and total duration unchanged.",
             "Compare whether separating the image and written cue makes their sequence clearer while preserving the message.",
-            _semantic_evidence(semantic, "text_role", "information_mode"), confidence, "moderate",
+            _semantic_evidence(semantic, "text_role", "information_mode"), text_confidence, "moderate",
             limitations=["The evidence identifies a timing alternative, not a proven weakness."],
         ))
     if structure.attention_evolution == "moves through frequent purpose changes":
@@ -154,7 +155,7 @@ def _opportunity_candidates(structure, understanding, semantic):
             "Create an alternate order that introduces the clearest existing visual phase before the written cue.",
             "Keep the wording, footage, audio, duration, and endpoint unchanged.",
             "Compare which order communicates the same opening idea with fewer competing priorities.",
-            _semantic_evidence(semantic, "opening_mode", "information_mode", "primary_visual_focus"), confidence, "high",
+            _semantic_evidence(semantic, "opening_mode", "information_mode", "primary_visual_focus"), text_confidence, "high",
         ))
     return [item for item in candidates if item]
 

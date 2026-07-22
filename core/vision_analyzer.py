@@ -6,6 +6,10 @@ import cv2
 import numpy as np
 
 
+PROMINENT_FACE_AREA_RATIO = 0.2
+DUPLICATE_FACE_OVERLAP_RATIO = 0.5
+
+
 def analyze_intro_frames(frame_paths: List[str]) -> Dict[str, Any]:
     frame_paths = frame_paths or []
     observations = []
@@ -58,7 +62,8 @@ def _analyze_single_frame(
     dominant_lighting = _lighting_level(brightness)
     visual_clarity = _clarity_level(contrast)
 
-    human_presence = _detect_human_presence(frame)
+    subject_count = _detect_human_count(frame)
+    human_presence = subject_count > 0
     text_overlay = _detect_text_like_regions(gray)
     scene_type = _infer_scene_type(human_presence, text_overlay)
 
@@ -75,7 +80,9 @@ def _analyze_single_frame(
         "visual_clarity": visual_clarity,
         "visual_energy": visual_energy,
         "human_presence": human_presence,
+        "subject_count": subject_count,
         "text_overlay": text_overlay,
+        "text_overlay_confidence": "limited",
         "scene_type": scene_type,
         "brightness_score": round(brightness, 2),
         "contrast_score": round(contrast, 2),
@@ -110,13 +117,17 @@ def _energy_level(motion_score: float, contrast: float) -> str:
 
 
 def _detect_human_presence(frame) -> bool:
+    return _detect_human_count(frame) > 0
+
+
+def _detect_human_count(frame) -> int:
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
     cascade_path = cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
     face_cascade = cv2.CascadeClassifier(cascade_path)
 
     if face_cascade.empty():
-        return False
+        return 0
 
     faces = face_cascade.detectMultiScale(
         gray,
@@ -125,7 +136,33 @@ def _detect_human_presence(frame) -> bool:
         minSize=(40, 40),
     )
 
-    return len(faces) > 0
+    return _count_prominent_faces(faces)
+
+
+def _count_prominent_faces(faces) -> int:
+    boxes = [tuple(int(value) for value in face) for face in faces]
+    if not boxes:
+        return 0
+    boxes.sort(key=lambda box: box[2] * box[3], reverse=True)
+    distinct = []
+    for box in boxes:
+        x, y, width, height = box
+        area = width * height
+        duplicate = False
+        for kept_x, kept_y, kept_width, kept_height in distinct:
+            overlap_width = max(0, min(x + width, kept_x + kept_width) - max(x, kept_x))
+            overlap_height = max(0, min(y + height, kept_y + kept_height) - max(y, kept_y))
+            overlap = overlap_width * overlap_height
+            if overlap / max(min(area, kept_width * kept_height), 1) >= DUPLICATE_FACE_OVERLAP_RATIO:
+                duplicate = True
+                break
+        if not duplicate:
+            distinct.append(box)
+    largest_area = distinct[0][2] * distinct[0][3]
+    return sum(
+        width * height >= largest_area * PROMINENT_FACE_AREA_RATIO
+        for _, _, width, height in distinct
+    )
 
 
 def _detect_text_like_regions(gray) -> bool:

@@ -89,6 +89,7 @@ def build_creative_structure(semantic_observation: Mapping[str, Any] | None) -> 
 
 def build_creative_understanding(structure, semantic_observation=None):
     observation = semantic_observation if isinstance(semantic_observation, Mapping) else {}
+    text_confidence = _value(observation, "text_evidence_confidence")
     evidence = []
     for key in ("opening_mode", "primary_visual_focus", "visual_progression", "information_mode", "text_role"):
         value = _value(observation, key)
@@ -122,6 +123,8 @@ def build_creative_understanding(structure, semantic_observation=None):
         "continuously layered": "with written and visual information layered continuously",
         "written-information dense": "with written information carrying dense structural emphasis",
     }.get(structure.information_density)
+    if density and structure.information_density != "image-only information" and text_confidence == "limited":
+        density = "with possible written information indicated by limited visual evidence"
     components = [value for value in (strategy, reveal, evolution) if value]
     summary = "The opening " + "; ".join(components) + (f", {density}" if density else "") + "." if components else "The available observations do not establish how the opening is organized."
     structural_parts = [value for value in (structure.structural_rhythm, structure.information_order, structure.transition_style) if value != "unavailable"]

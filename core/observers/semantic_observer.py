@@ -55,6 +55,7 @@ class SemanticObservation:
     unavailable_fields: List[str]
     metadata_context: Dict[str, Any]
     temporal_diagnostics: Dict[str, Any]
+    text_evidence_confidence: str = "limited"
 
     def to_dict(self):
         result = asdict(self)
@@ -160,6 +161,16 @@ def _state(frame, raw_index):
 
 def _same_visual_state(left, right):
     return all(left[key] == right[key] for key in ("focus", "text", "composition", "motion", "environment"))
+
+
+def _has_persistent_multi_subject(frames, minimum_samples):
+    run = 0
+    for frame in frames:
+        count = _number(frame, "subject_count", "person_count", "face_count")
+        run = run + 1 if count >= 2 else 0
+        if run >= minimum_samples:
+            return True
+    return False
 
 
 def _candidate_states(states):
@@ -440,6 +451,11 @@ def _opening_summary(primary, clarity, progression, information, text_role, beat
 def observe_semantics(frame_observations, metadata_context=None, config=None):
     config = config or DEFAULT_CALIBRATION
     frames = [dict(frame) for frame in frame_observations or [] if isinstance(frame, Mapping)]
+    if not _has_persistent_multi_subject(frames, config.minimum_persistent_samples):
+        for frame in frames:
+            for key in ("subject_count", "person_count", "face_count"):
+                if _number(frame, key) >= 2:
+                    frame[key] = 1
     ordered = sorted(enumerate(frames), key=lambda item: float(item[1].get("timestamp", item[0]) or item[0]))
     states = [_state(frame, raw_index) for raw_index, frame in ordered]
     confidence = _confidence(frames)
@@ -473,6 +489,14 @@ def observe_semantics(frame_observations, metadata_context=None, config=None):
 
     text_flags = [state["text"] for state in states]
     text_count = sum(text_flags)
+    explicit_text_confidences = [
+        str(frame.get("text_overlay_confidence", "")).lower()
+        for frame in frames if frame.get("text_overlay_confidence")
+    ]
+    text_evidence_confidence = (
+        "limited" if explicit_text_confidences and "limited" in explicit_text_confidences
+        else confidence
+    )
     if not frames:
         text_role = "unavailable"
     elif text_count == 0:
@@ -544,4 +568,5 @@ def observe_semantics(frame_observations, metadata_context=None, config=None):
         semantic_confidence=confidence, supporting_evidence=evidence, beats=beats,
         unavailable_fields=unavailable, metadata_context=dict(metadata_context or {}),
         temporal_diagnostics=diagnostics,
+        text_evidence_confidence=text_evidence_confidence,
     ).to_dict()
