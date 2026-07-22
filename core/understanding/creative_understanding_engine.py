@@ -40,7 +40,15 @@ def build_creative_structure(semantic_observation: Mapping[str, Any] | None) -> 
         "environment_first": "context-first", "action_or_change_first": "change-first",
         "mixed": "multi-element opening",
     })
-    visual_anchor = _map(focus, {
+    anchor_focus = focus
+    effective_clarity = clarity
+    if opening_mode == "environment_first" and len(beats) > 1:
+        later_focuses = [str(beat.get("dominant_focus", "unavailable")) for beat in beats[1:]]
+        later_anchor = next((value for value in reversed(later_focuses) if value not in {"environment", "unavailable"}), None)
+        if later_anchor:
+            anchor_focus = later_anchor
+            effective_clarity = "delayed" if later_anchor != focus else clarity
+    visual_anchor = _map(anchor_focus, {
         "person": "single subject", "multiple_people": "multiple subjects",
         "alternating_subjects": "alternating subjects", "object": "object",
         "environment": "environment", "text": "written information", "mixed": "mixed elements",
@@ -65,7 +73,7 @@ def build_creative_structure(semantic_observation: Mapping[str, Any] | None) -> 
             "absent": "image-only information", "intermittent": "layered at selected moments",
             "persistent": "continuously layered", "dominant": "written-information dense",
         }),
-        reveal_pattern=_map(clarity, {
+        reveal_pattern=_map(effective_clarity, {
             "immediate": "anchor established immediately", "develops_early": "anchor develops early",
             "delayed": "anchor revealed later", "competing": "multiple anchors remain in play",
         }),
@@ -89,14 +97,33 @@ def build_creative_understanding(structure, semantic_observation=None):
     beats = _beats(observation)
     if beats:
         evidence.append({"semantic_field": "beats", "observed_value": len(beats)})
-    components = []
-    if structure.opening_strategy != "unavailable":
-        components.append(f"uses a {structure.opening_strategy} organization")
-    if structure.reveal_pattern != "unavailable":
-        components.append(structure.reveal_pattern)
-    if structure.attention_evolution != "unavailable":
-        components.append(structure.attention_evolution)
-    summary = "The opening " + ", then ".join(components) + "." if components else "The available observations do not establish how the opening is organized."
+    strategy = {
+        "subject-first": "starts subject-first",
+        "context-first": "starts context-first",
+        "text-first": "starts text-first",
+        "change-first": "starts change-first with visible action or change",
+        "multi-element opening": "starts with a multi-element opening",
+    }.get(structure.opening_strategy)
+    reveal = {
+        "anchor established immediately": f"the {structure.visual_anchor} is established immediately",
+        "anchor develops early": f"the {structure.visual_anchor} becomes established early",
+        "anchor revealed later": f"the {structure.visual_anchor} is introduced later",
+        "multiple anchors remain in play": "multiple visual anchors remain in play",
+    }.get(structure.reveal_pattern)
+    evolution = {
+        "holds one visual purpose": "the sequence holds one visual purpose",
+        "develops through one sustained change": "the sequence develops through one sustained change",
+        "moves through distinct phases": "the sequence moves through distinct phases",
+        "moves through frequent purpose changes": "the sequence moves through frequent purpose changes",
+    }.get(structure.attention_evolution)
+    density = {
+        "image-only information": "without written information",
+        "layered at selected moments": "with written information layered at selected moments",
+        "continuously layered": "with written and visual information layered continuously",
+        "written-information dense": "with written information carrying dense structural emphasis",
+    }.get(structure.information_density)
+    components = [value for value in (strategy, reveal, evolution) if value]
+    summary = "The opening " + "; ".join(components) + (f", {density}" if density else "") + "." if components else "The available observations do not establish how the opening is organized."
     structural_parts = [value for value in (structure.structural_rhythm, structure.information_order, structure.transition_style) if value != "unavailable"]
     strength = "strong" if len(evidence) >= 6 and structure.confidence == "high" else "moderate" if len(evidence) >= 3 and structure.confidence in {"high", "moderate"} else "limited"
     return CreativeUnderstanding(

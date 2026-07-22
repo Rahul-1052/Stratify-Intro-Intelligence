@@ -492,7 +492,7 @@ def observe_semantics(frame_observations, metadata_context=None, config=None):
         "object": "subject_first", "text": "text_first", "environment": "environment_first",
         "mixed": "mixed", "unavailable": "unavailable",
     }[first_focus]
-    if first_focus == "unavailable" and frames and _motion_state(frames[0]) in {"active", "moving"}:
+    if frames and _motion_state(frames[0]) == "active":
         opening_mode = "action_or_change_first"
 
     beat_count = len(beats)

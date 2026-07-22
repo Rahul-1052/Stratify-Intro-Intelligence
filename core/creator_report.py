@@ -51,11 +51,18 @@ def build_creator_report(report, creative_reasoning=None):
             "why_test": priority["reason"],
         }
     else:
-        opportunity = {
-            "title": "Gather a clearer opening sample",
-            "summary": "The available evidence is not specific enough to choose an editing priority without guessing.",
-            "why_test": "A readable opening clip is required before Stratify can recommend a defensible creative change.",
-        }
+        if creative.get("status") == "limited":
+            opportunity = {
+                "title": "Gather a clearer opening sample",
+                "summary": "The available evidence is not specific enough to choose an editing priority without guessing.",
+                "why_test": "A readable opening clip is required before Stratify can recommend a defensible creative change.",
+            }
+        else:
+            opportunity = {
+                "title": "No supported structural change yet",
+                "summary": "The opening is structurally readable, but the current evidence does not support one alternative strongly enough to prioritize it.",
+                "why_test": "Keep the current structure until direct or qualified comparison evidence supports a controlled alternative.",
+            }
 
     return {
         "opening_snapshot": {"summary": creative["opening_snapshot"]},

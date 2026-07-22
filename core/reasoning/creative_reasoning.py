@@ -205,7 +205,7 @@ def _strengths(structure, understanding, semantic):
         strengths.append({"title": "The opening establishes a clear visual anchor immediately", "explanation": f"The {structure.visual_anchor} leads from the first phase, preserving a readable hierarchy."})
     if structure.structural_consistency == "repeated purpose":
         strengths.append({"title": "The opening maintains one structural purpose", "explanation": "The edit changes presentation while preserving the same opening function across its phases."})
-    if structure.opening_strategy == "context-first" and structure.reveal_pattern in {"anchor established immediately", "anchor develops early"}:
+    if structure.opening_strategy == "context-first" and structure.reveal_pattern in {"anchor develops early", "anchor revealed later"} and structure.structural_rhythm != "single phase":
         strengths.append({"title": "The information sequence progresses from context to anchor", "explanation": "The setting is established before the more specific visual anchor takes priority."})
     if structure.information_density == "layered at selected moments":
         strengths.append({"title": "Written context has a defined structural role", "explanation": "Written information appears in selected phases instead of competing with the imagery throughout the opening."})
