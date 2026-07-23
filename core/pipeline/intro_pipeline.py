@@ -6,6 +6,7 @@ from core.feature_extractor import extract_video_features
 from core.understanding import build_intro_understanding, understand_creative_opening
 from core.vision_analyzer import analyze_intro_frames
 from core.observers.semantic_observer import observe_semantics
+from core.observers.temporal_evidence import build_temporal_evidence
 from utils.frame_extractor import extract_frames_from_clip
 from utils.video_utils import extract_intro_clip
 
@@ -51,7 +52,8 @@ def analyze_intro_pipeline(
         )
 
     frame_paths = frame_result["frames"]
-    vision = analyze_intro_frames(frame_paths)
+    vision = analyze_intro_frames(frame_paths, timestamps=frame_result.get("timestamps"))
+    temporal_evidence = build_temporal_evidence(vision.get("frame_observations", []))
     semantic_observation = observe_semantics(
         vision.get("frame_observations", []),
         metadata_context={
@@ -59,6 +61,7 @@ def analyze_intro_pipeline(
             "description": video.get("description", ""),
             "channel_title": video.get("channel_title", ""),
         },
+        temporal_evidence=temporal_evidence,
     )
     creative_structure, creative_understanding = understand_creative_opening(semantic_observation)
 
@@ -77,6 +80,8 @@ def analyze_intro_pipeline(
         "clip_path": clip_path,
         "frames": frame_paths,
         "vision": vision,
+        "sampling": frame_result.get("sampling_plan", {}),
+        "temporal_evidence": temporal_evidence,
         "semantic_observation": semantic_observation,
         "creative_structure": creative_structure.to_dict(),
         "creative_understanding": creative_understanding.to_dict(),

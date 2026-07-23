@@ -61,5 +61,7 @@ def acquire_intro_evidence(url, intro_seconds=15, frame_fps=1):
 
     evidence["status"] = "success"
     evidence["frames"] = frame_result["frames"]
+    evidence["samples"] = frame_result.get("samples", [])
+    evidence["sampling_plan"] = frame_result.get("sampling_plan", {})
     evidence["evidence_completeness"] = "visual_complete"
     return evidence

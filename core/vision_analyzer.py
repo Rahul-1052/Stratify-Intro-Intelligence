@@ -10,19 +10,20 @@ PROMINENT_FACE_AREA_RATIO = 0.2
 DUPLICATE_FACE_OVERLAP_RATIO = 0.5
 
 
-def analyze_intro_frames(frame_paths: List[str]) -> Dict[str, Any]:
+def analyze_intro_frames(frame_paths: List[str], timestamps=None) -> Dict[str, Any]:
     frame_paths = frame_paths or []
     observations = []
 
     previous_gray = None
 
-    for index, frame_path in enumerate(frame_paths[:15]):
+    timestamps = list(timestamps or [])
+    for index, frame_path in enumerate(frame_paths[:20]):
         frame = cv2.imread(frame_path)
 
         if frame is None:
             continue
 
-        timestamp = float(index)
+        timestamp = float(timestamps[index]) if index < len(timestamps) else float(index)
 
         observation, previous_gray = _analyze_single_frame(
             frame=frame,
@@ -37,7 +38,7 @@ def analyze_intro_frames(frame_paths: List[str]) -> Dict[str, Any]:
 
     return {
         "frame_count": len(frame_paths),
-        "frames_analyzed": frame_paths[:15],
+        "frames_analyzed": frame_paths[:20],
         "frame_observations": observations,
         **summary,
         "is_placeholder": False,

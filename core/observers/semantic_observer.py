@@ -448,7 +448,7 @@ def _opening_summary(primary, clarity, progression, information, text_role, beat
     return f"{start} {progression_phrase}{text_phrase}"
 
 
-def observe_semantics(frame_observations, metadata_context=None, config=None):
+def observe_semantics(frame_observations, metadata_context=None, config=None, temporal_evidence=None):
     config = config or DEFAULT_CALIBRATION
     frames = [dict(frame) for frame in frame_observations or [] if isinstance(frame, Mapping)]
     if not _has_persistent_multi_subject(frames, config.minimum_persistent_samples):
@@ -559,6 +559,7 @@ def observe_semantics(frame_observations, metadata_context=None, config=None):
         "merge_reasons": sorted({decision["reason"] for decision in decisions if decision["decision"] == "merge"}),
         "alternating_patterns": alternating_patterns,
         "rejected_split_candidates": rejected,
+        "temporal_evidence": temporal_evidence or {},
     }
     return SemanticObservation(
         version="observation-semantics-v2", primary_visual_focus=primary, focus_clarity=clarity,

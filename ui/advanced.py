@@ -90,6 +90,10 @@ def _render_intro_details(report, show_creative_understanding=False):
         _empty("No semantic aggregation was available.")
 
     if show_creative_understanding:
+        st.subheader("Temporal Evidence V2")
+        st.caption("Adaptive sampling plan, persistence windows, confidence reasons, and rejected isolated detections")
+        st.write({"sampling": report.get("sampling", {}), "temporal_evidence": report.get("temporal_evidence", {})})
+
         st.subheader("Creative Structure")
         structure = report.get("creative_structure", {}) or {}
         if structure:
