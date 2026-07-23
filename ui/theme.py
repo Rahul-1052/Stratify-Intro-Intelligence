@@ -236,6 +236,14 @@ summary:focus-visible {
     border-color: #dbe5ff;
 }
 
+.abstention-card { background: #fff; border-color: var(--stratify-border); }
+.opportunity-details, .version-pair, .confidence-grid {
+    display: grid; gap: .8rem; grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 1rem 0;
+}
+.opportunity-details p, .version-pair p { background: var(--stratify-soft); border-radius: 12px; padding: .8rem; }
+.confidence-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.confidence-grid strong { display: block; margin-top: .35rem; text-transform: capitalize; }
+
 .experiment-card {
     border-top: 3px solid #6d8ee8;
 }
@@ -387,6 +395,7 @@ summary:focus-visible {
     .stratify-grid.two,
     .stratify-compare-grid { grid-template-columns: 1fr; }
     .module-grid { grid-template-columns: 1fr; }
+    .opportunity-details, .version-pair, .confidence-grid { grid-template-columns: 1fr; }
     .platform-version { display: none; }
     .stratify-hero-card { border-radius: 16px; }
 }

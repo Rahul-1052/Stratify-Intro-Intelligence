@@ -259,9 +259,9 @@ def render_confidence(patterns):
 
 
 def render_report(report, product_mode, version_metadata):
-    creator = report.get("creator_report") or build_creator_report(report)
+    creator = report.get("creator_report") or build_creator_report(report, product_mode=product_mode)
 
-    section_heading("Opening Snapshot", "A concise read of what is directly visible in the opening.")
+    section_heading("Opening Snapshot", "How the sampled opening is constructed.")
     snapshot = creator.get("opening_snapshot", {})
     st.markdown(
         '<div class="stratify-hero-card">'
@@ -270,29 +270,34 @@ def render_report(report, product_mode, version_metadata):
         '<p class="stratify-muted">This describes the intro; it does not infer retention.</p>'
         '</div>', unsafe_allow_html=True,
     )
-    section_heading("Intro Timeline", "The sequence Stratify observed across sampled opening frames.")
-    timeline_cards = [info_card(item.get("time", "Opening"), item.get("moment") or item.get("observation", "")) for item in creator.get("intro_timeline", [])]
-    render_card_grid(timeline_cards or [info_card("Opening", "No additional visual detail was inferred.")], columns=2)
-
-    section_heading("What's Working", "Useful qualities already present in the observed intro.")
+    section_heading("What's Working", "Supported strengths that are distinct from the snapshot.")
     strength_cards = [
         info_card(item.get("title", "Creative strength"), item.get("explanation", ""))
         if isinstance(item, dict) else info_card("Creative strength", item)
         for item in creator.get("whats_working", [])
     ]
-    render_card_grid(strength_cards or [info_card("Evidence discipline", "Stratify leaves uncertain creative effects unstated rather than filling the report with generic praise.")])
+    if strength_cards:
+        render_card_grid(strength_cards)
+    else:
+        empty_state("No supported strength to call out yet", "The opening was analyzed, but the evidence does not justify adding generic praise.")
 
     section_heading("Biggest Opportunity", "The most useful controlled change to test next.")
     opportunity = creator.get("biggest_opportunity", {})
+    opportunity_supported = bool(opportunity.get("supported"))
     st.markdown(
-        '<div class="stratify-hero-card opportunity-card">'
+        f'<div class="stratify-hero-card opportunity-card{" abstention-card" if not opportunity_supported else ""}">'
+        f'<div class="stratify-eyebrow">{"Priority test" if opportunity_supported else "Evidence-aware decision"}</div>'
         f'<h2>{escape(clean_value(opportunity.get("title")) or "Improve observable opening clarity")}</h2>'
         f'<p>{escape(clean_value(opportunity.get("summary")) or "Test one visible opening change at a time.")}</p>'
-        f'<p><strong>Why test it:</strong> {escape(clean_value(opportunity.get("why_test")) or "A controlled comparison can clarify which version communicates the idea more directly.")}</p>'
+        f'<div class="opportunity-details"><p><strong>Current:</strong> {escape(clean_value(opportunity.get("current_structure")))}</p>'
+        f'<p><strong>Controlled alternative:</strong> {escape(clean_value(opportunity.get("proposed_alternative")))}</p></div>'
+        f'<p><strong>Why this decision:</strong> {escape(clean_value(opportunity.get("why_test")))}</p>'
+        f'<p class="stratify-muted"><strong>Main limitation:</strong> {escape(clean_value(opportunity.get("limitation")))}</p>'
+        f'<div style="margin-top:1rem">{confidence_badge(opportunity.get("confidence"))}</div>'
         '</div>', unsafe_allow_html=True,
     )
 
-    section_heading("Three Observation-Backed Experiments", "Controlled creative tests grounded in visible intro evidence. Benchmark support is labeled separately.")
+    section_heading("Experiments to Run", "Run only the controlled tests supported by this opening.")
     experiment_cards = []
     for index, item in enumerate(creator.get("experiments", [])[:3], 1):
         badge = clean_value(item.get("source")) or ("Benchmark-supported" if item.get("benchmark_supported") else "Observation-backed")
@@ -300,22 +305,42 @@ def render_report(report, product_mode, version_metadata):
             '<div class="stratify-card experiment-card">'
             f'<span class="stratify-badge">{escape(badge)}</span>'
             f'<h3>{index}. {escape(clean_value(item.get("title")) or "Controlled intro test")}</h3>'
-            f'<p><strong>What to change:</strong> {escape(clean_value(item.get("recommendation")) or clean_value(item.get("suggested_test")) or clean_value(item.get("experiment")))}</p>'
-            f'<p><strong>Why test it:</strong> {escape(clean_value(item.get("reason")) or clean_value(item.get("why_it_matters")) or clean_value(item.get("why")))}</p>'
+            f'<p><strong>Hypothesis:</strong> {escape(clean_value(item.get("hypothesis")))}</p>'
+            f'<p><strong>Change:</strong> {escape(clean_value(item.get("change")))}</p>'
             f'<p><strong>Keep constant:</strong> {escape(clean_value(item.get("what_stays_constant")) or "Keep the remaining intro decisions unchanged.")}</p>'
-            f'<p><strong>Compare:</strong> {escape(clean_value(item.get("how_to_compare")) or clean_value(item.get("validation")) or "Compare the two cuts without claiming a performance outcome.")}</p>'
+            f'<div class="version-pair"><p><strong>Version A</strong><br>{escape(clean_value(item.get("version_a")))}</p>'
+            f'<p><strong>Version B</strong><br>{escape(clean_value(item.get("version_b")))}</p></div>'
+            f'<p><strong>Why supported:</strong> {escape(clean_value(item.get("support")))}</p>'
+            f'<p class="stratify-muted"><strong>Limitation:</strong> {escape(clean_value(item.get("limitation")))}</p>'
+            f'{confidence_badge(item.get("confidence"))}'
             '</div>'
         )
-    render_card_grid(experiment_cards, columns=3)
+    if experiment_cards:
+        render_card_grid(experiment_cards, columns=2 if len(experiment_cards) == 2 else 3)
+    else:
+        empty_state("No experiment is supported yet", "This is a successful abstention: keep the current edit until clearer visual evidence supports a controlled alternative.")
 
-    section_heading("Evidence Validation (Beta)", "Optional benchmark enrichment, kept separate from direct observation.")
+    section_heading("Evidence and Confidence", "Analysis completeness, evidence quality, and recommendation confidence are reported separately.")
     validation = creator.get("evidence_validation", {})
+    confidence = creator.get("confidence_summary", {})
     st.markdown(
-        '<div class="stratify-card">'
-        f'{confidence_badge("Validated" if validation.get("benchmark_supported") else "Observation only")}'
-        f'<p style="margin-top:.9rem">{escape(clean_value(validation.get("label")) or "Observation-backed; benchmark validation unavailable")}</p>'
+        '<div class="stratify-card confidence-card">'
+        '<div class="confidence-grid">'
+        f'<div><span class="stratify-label">Analysis completeness</span><strong>{escape(clean_value(confidence.get("analysis_completeness")) or "Limited")}</strong></div>'
+        f'<div><span class="stratify-label">Evidence confidence</span><strong>{escape(clean_value(confidence.get("evidence_confidence")) or "Limited")}</strong></div>'
+        f'<div><span class="stratify-label">Recommendation confidence</span><strong>{escape(clean_value(confidence.get("recommendation_confidence")) or "Limited")}</strong></div>'
+        '</div>'
+        f'<p>{escape(clean_value(confidence.get("plain_language")))}</p>'
+        f'<p class="stratify-muted">{escape(clean_value(validation.get("label")) or "No qualified comparison set was available.")}</p>'
         '</div>', unsafe_allow_html=True,
     )
 
-    section_heading("Advanced Analysis", "Detailed evidence and diagnostics for deeper review.")
-    render_advanced_analysis(report, product_mode, version_metadata)
+    observations = creator.get("additional_observations", []) or []
+    if observations:
+        with st.expander("Additional observations", expanded=False):
+            timeline_cards = [info_card(item.get("time", "Opening"), item.get("moment") or item.get("observation", "")) for item in observations]
+            render_card_grid(timeline_cards, columns=2)
+
+    if product_mode == "builder":
+        section_heading("Advanced Analysis", "Builder-only evidence and diagnostic traceability.")
+        render_advanced_analysis(report, product_mode, version_metadata)

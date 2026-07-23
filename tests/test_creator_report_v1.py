@@ -56,10 +56,10 @@ class CreatorReportV1Tests(unittest.TestCase):
         render_report(report, "creator", {})
         titles = [call.args[0] for call in heading.call_args_list]
         self.assertEqual(titles, [
-            "Opening Snapshot", "Intro Timeline", "What's Working", "Biggest Opportunity",
-            "Three Observation-Backed Experiments", "Evidence Validation (Beta)", "Advanced Analysis",
+            "Opening Snapshot", "What's Working", "Biggest Opportunity",
+            "Experiments to Run", "Evidence and Confidence",
         ])
-        advanced.assert_called_once()
+        advanced.assert_not_called()
 
 
 if __name__ == "__main__":

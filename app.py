@@ -1,6 +1,7 @@
 import os
 import uuid
 from pathlib import Path
+from urllib.parse import urlparse
 
 import streamlit as st
 
@@ -79,6 +80,11 @@ def has_youtube_download_block(warnings):
     return any(marker in warning_text for marker in block_markers)
 
 
+def valid_video_url(value):
+    parsed = urlparse(str(value or "").strip())
+    return parsed.scheme in {"http", "https"} and bool(parsed.netloc)
+
+
 def render_landing():
     render_workspace_intro()
 
@@ -111,15 +117,17 @@ def build_report(url, uploaded_video):
     uploaded_video_path = save_uploaded_video(uploaded_video)
     with st.status("Analyzing the opening", expanded=True) as status:
         progress = ProgressPresenter()
-        report = run_module(
-            "intro_intelligence",
-            url=url.strip(),
-            intro_seconds=15,
-            frame_fps=1,
-            progress_callback=progress.update,
-            uploaded_video_path=uploaded_video_path,
-        )
-        progress.complete()
+        try:
+            report = run_module(
+                "intro_intelligence",
+                url=url.strip(), intro_seconds=15, frame_fps=1,
+                progress_callback=progress.update,
+                uploaded_video_path=uploaded_video_path,
+            )
+        except Exception as exc:
+            report = {"status": "failed", "stage": "analysis_exception",
+                      "warnings": [str(exc)] if DEBUG else [],
+                      "error": str(exc) if DEBUG else "The analysis could not be completed."}
 
         if report.get("status") == "failed":
             status.update(
@@ -129,6 +137,7 @@ def build_report(url, uploaded_video):
             )
             return report
 
+        progress.complete()
         status.update(
             label=(
                 "Report ready with limited evidence"
@@ -141,16 +150,34 @@ def build_report(url, uploaded_video):
     return report
 
 
-def render_warnings(report):
+def render_warnings(report, product_mode="creator"):
     warnings = report.get("warnings", []) or []
     if not warnings:
         return
-    st.warning("Stratify built the best available report, but some evidence was unavailable.")
-    with st.expander("What happened?", expanded=False):
-        for warning in warnings:
-            st.markdown(f"- {warning}")
-        if has_youtube_download_block(warnings):
-            st.info(YOUTUBE_BLOCK_FALLBACK)
+    st.warning("The opening was analyzed, but part of the supporting evidence was unavailable.")
+    if has_youtube_download_block(warnings):
+        st.info("Automatic video access was unavailable. Upload the video or its opening clip to complete the visual review.")
+    else:
+        st.info("The report uses the evidence that completed successfully. Try a clearer upload if the result feels incomplete.")
+    if product_mode == "builder":
+        with st.expander("Builder diagnostics", expanded=False):
+            for warning in warnings:
+                st.markdown(f"- {warning}")
+
+
+def render_failure_state(report, product_mode="creator"):
+    stage = report.get("stage", "analysis_failed")
+    title = "This opening could not be analyzed"
+    message = "No report was saved. Check the link or upload the opening clip and try again."
+    if stage in {"normalize_url_failed", "invalid_url"}:
+        title, message = "That video link is not valid", "Paste a complete video URL, or upload the opening clip instead."
+    elif has_youtube_download_block(report.get("warnings", [])):
+        title, message = "Automatic video access was unavailable", "Upload the video or its opening clip to continue with visual analysis."
+    st.error(title)
+    st.info(message)
+    if product_mode == "builder" and report.get("error"):
+        with st.expander("Builder diagnostics", expanded=False):
+            st.write({"stage": stage, "error": report.get("error"), "warnings": report.get("warnings", [])})
 
 
 st.set_page_config(page_title="Stratify", page_icon="S", layout="wide")
@@ -163,7 +190,7 @@ if project and project.module_results.get("intro_intelligence"):
     render_project_navigation("intro_intelligence")
     render_module_cards(compact=True)
     report = project.module_results["intro_intelligence"]
-    render_warnings(report)
+    render_warnings(report, ACTIVE_PRODUCT_MODE)
     render_report(report, ACTIVE_PRODUCT_MODE, VERSION_METADATA)
     if st.button("Start a new project", width="stretch"):
         st.session_state.pop("stratify_project", None)
@@ -173,8 +200,11 @@ else:
     render_module_cards()
 
     if analyze_clicked:
-        if not url.strip():
-            st.warning("Paste a YouTube URL to begin.")
+        if not url.strip() and uploaded_video is None:
+            st.warning("Paste a video URL or upload an opening clip to begin.")
+            st.stop()
+        if url.strip() and not valid_video_url(url):
+            st.warning("Paste a complete video URL, including https://, or upload the opening clip instead.")
             st.stop()
 
         project = create_project(
@@ -188,10 +218,7 @@ else:
         if report.get("status") == "failed":
             project.module_run_statuses["intro_intelligence"] = "failed"
             st.session_state["stratify_project"] = project.to_session()
-            for warning in report.get("warnings", []) or []:
-                st.error(warning)
-            if has_youtube_download_block(report.get("warnings", [])):
-                st.info(YOUTUBE_BLOCK_FALLBACK)
+            render_failure_state(report, ACTIVE_PRODUCT_MODE)
             st.stop()
 
         project.title = report.get("video", {}).get("title") or project.title

@@ -117,7 +117,8 @@ class RealWorldCalibrationTests(unittest.TestCase):
         self.assertEqual(creator["experiments"], [])
 
         unknown = build_creator_report({})
-        self.assertEqual(unknown["biggest_opportunity"]["title"], "Gather a clearer opening sample")
+        self.assertEqual(unknown["biggest_opportunity"]["title"], "No supported structural change yet")
+        self.assertIn("not specific enough", unknown["biggest_opportunity"]["summary"])
 
     def test_every_calibrated_experiment_retains_control_fields(self):
         _, _, _, reasoning, _ = analyzed([

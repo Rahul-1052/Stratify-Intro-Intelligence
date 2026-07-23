@@ -4,13 +4,13 @@ import streamlit as st
 
 
 PROGRESS_STAGES = (
-    "Acquiring intro",
-    "Observing visuals",
-    "Understanding the opening",
-    "Finding comparable videos",
-    "Qualifying benchmarks",
+    "Preparing the opening",
+    "Sampling key moments",
+    "Observing visual changes",
+    "Mapping the creative structure",
     "Comparing evidence",
     "Building experiments",
+    "Preparing the report",
 )
 
 
@@ -85,12 +85,12 @@ class ProgressPresenter:
         message_text = str(message or "").lower()
         matches = (
             (0, ("acquir", "download", "video context", "metadata")),
-            (1, ("watch", "observ", "visual", "frame")),
-            (2, ("understand", "creator decision", "content")),
-            (3, ("discover", "search", "shortlist", "benchmark context")),
-            (4, ("qualif", "viewer job", "compatib")),
-            (5, ("learn", "compar", "reason", "pattern")),
-            (6, ("experiment", "recommend", "report")),
+            (1, ("sample", "frame", "watch")),
+            (2, ("observ", "visual")),
+            (3, ("understand", "creator decision", "content")),
+            (4, ("discover", "search", "shortlist", "benchmark", "qualif", "viewer job", "compatib", "learn", "compar", "reason", "pattern")),
+            (5, ("experiment", "recommend")),
+            (6, ("report",)),
         )
         for index, keywords in matches:
             if any(keyword in message_text for keyword in keywords):
