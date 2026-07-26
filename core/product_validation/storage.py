@@ -8,7 +8,7 @@ from pathlib import Path
 class ValidationStore:
     def __init__(self, root=".stratify_validation"):
         self.root = Path(root)
-        for name in ("runs", "reports", "reviews", "exports"):
+        for name in ("runs", "reports", "reviews", "exports", "traces"):
             (self.root / name).mkdir(parents=True, exist_ok=True)
 
     def _write(self, path, payload):
@@ -33,6 +33,10 @@ class ValidationStore:
 
     def load_report(self, reference):
         return json.loads((self.root / reference).read_text(encoding="utf-8"))
+
+    def save_trace(self, run_id, case_id, trace):
+        payload = trace.to_dict() if hasattr(trace, "to_dict") else trace
+        return self._write(self.root / "traces" / run_id / f"{case_id}.json", payload)
 
     def save_review(self, run_id, case_id, review):
         if not str(review.get("one_change", "")).strip():

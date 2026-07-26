@@ -20,6 +20,26 @@ def _review(store, run, case):
     st.caption("Automated heuristic review; warnings are not confirmed defects.")
     for item in warnings:
         st.warning(f"{item.get('section')}: {item.get('message')}")
+    if case.get("pipeline_trace_reference"):
+        trace = store.load_report(case["pipeline_trace_reference"])
+        with st.expander("Pipeline trace diagnostics", expanded=False):
+            st.write({"last_successful_stage": trace.get("last_successful_stage"),
+                      "first_failed_stage": trace.get("first_failed_stage"),
+                      "failure_category": trace.get("failure_category"),
+                      "provenance": trace.get("provenance")})
+            for stage in trace.get("stages", []):
+                st.markdown(
+                    f"**{stage.get('stage_name')}** · {stage.get('stage_status')} · "
+                    f"{stage.get('duration_seconds', 0)}s"
+                )
+                if stage.get("evidence_counts"):
+                    st.write(stage["evidence_counts"])
+                if stage.get("warnings"):
+                    st.caption(" · ".join(stage["warnings"]))
+                if stage.get("error_message"):
+                    st.error(f"{stage.get('error_type')}: {stage.get('error_message')}")
+                if stage.get("output_references"):
+                    st.caption("Outputs: " + ", ".join(stage["output_references"]))
     if case.get("report_reference"):
         from ui.report import render_report
         report = store.load_report(case["report_reference"])
