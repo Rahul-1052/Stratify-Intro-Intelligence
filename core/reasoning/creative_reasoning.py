@@ -13,6 +13,117 @@ CONFIDENCE_WEIGHT = {"high": 3, "moderate": 2, "limited": 1}
 IMPORTANCE_WEIGHT = {"high": 3, "moderate": 2, "limited": 1}
 
 
+def _v3_candidate(report):
+    intelligence = report.get("intelligence_v3") or {}
+    findings = {
+        item.get("finding_id"): item for item in intelligence.get("findings", [])
+        if isinstance(item, dict)
+    }
+    timing = findings.get("v3-change-timing") or {}
+    if timing.get("qualification_result") != "qualified":
+        return None
+    measured = timing.get("measured_value") or {}
+    stable = measured.get("longest_stable_interval") or {}
+    duration = float(stable.get("duration") or 0)
+    if duration < 2:
+        return None
+    start, end = float(stable.get("start_time") or 0), float(stable.get("end_time") or 0)
+    target_start = round(start + min(1.3, max(0.8, duration * 0.35)), 1)
+    target_end = round(min(end, target_start + 0.5), 1)
+    confidence = (intelligence.get("confidence") or {}).get(
+        "recommendation_confidence", "limited"
+    )
+    limitation = "No qualified benchmark comparison or outcome evidence is available."
+    return {
+        "opportunity_type": "visual_change_timing",
+        "structural_dimension": "visual_change_timing",
+        "current_structure": (
+            f"one visually stable interval from {start:.1f}s to {end:.1f}s "
+            f"({duration:.1f}s)"
+        ),
+        "alternative_structure": (
+            f"one visible update between {target_start:.1f}s and {target_end:.1f}s"
+        ),
+        "rationale": (
+            f"The longest qualified stable interval lasts {duration:.1f}s with no "
+            "scene, text, subject, composition, or major motion-state change detected."
+        ),
+        "supporting_evidence": [timing],
+        "evidence_count": len(timing.get("supporting_observations") or []) or 1,
+        "evidence_consistency": "consistent",
+        "structural_importance": "high" if start < 5 else "moderate",
+        "confidence": confidence,
+        "limitations": [limitation, *list(timing.get("limitations") or [])],
+        "title": "Test an earlier meaningful visual update",
+        "observation": (
+            f"The opening remains in a visually similar state from {start:.1f}s "
+            f"to {end:.1f}s."
+        ),
+        "evidence": (
+            f"The qualified stable interval is {duration:.1f}s; no meaningful "
+            f"visual change was measured between {start:.1f}s and {end:.1f}s."
+        ),
+        "interpretation": "The visual presentation provides fewer observable updates during this interval.",
+        "opportunity": "Test whether one earlier visible update creates a clearer progression point.",
+        "recommendation_eligibility": (
+            f"Supported by direct visual evidence at {confidence} confidence."
+        ),
+        "recommendation": (
+            f"Introduce exactly one composition, crop, graphic, or cutaway "
+            f"change between {target_start:.1f}s and {target_end:.1f}s."
+        ),
+        "reason": "This isolates the timing of the first visible progression point without predicting performance.",
+        "what_stays_constant": (
+            "Keep the opening script, speaker, source footage outside the target "
+            "window, total intro duration, and spoken delivery unchanged."
+        ),
+        "how_to_compare": (
+            "Compare the original and revised openings for the timestamp of the "
+            "first qualified visual update; review outcome metrics only after the "
+            "creative variable remains isolated."
+        ),
+        "experiment_title": "Move one meaningful visual update earlier",
+        "source_finding_ids": ["v3-change-timing"],
+        "variable": "Timing of the first meaningful visual change",
+        "control": (
+            "Opening script, speaker, total intro duration, spoken delivery, and "
+            "all edits outside the target window"
+        ),
+        "exact_execution": (
+            f"Add one visible update between {target_start:.1f}s and "
+            f"{target_end:.1f}s; do not change another creative variable."
+        ),
+        "target_timing": {"start_time": target_start, "end_time": target_end,
+                          "applicability": "applicable"},
+        "acceptable_implementation_examples": [
+            "one composition change", "one crop change", "one graphic introduction",
+            "one cutaway",
+        ],
+        "expected_observable_change": (
+            f"The revised opening contains a qualified visual update by "
+            f"{target_end:.1f}s."
+        ),
+        "measurement_plan": (
+            "Verify the first qualified change timestamp, then compare an outcome "
+            "metric against a similar upload without attributing causality if other "
+            "variables changed."
+        ),
+        "evidence_basis": "Direct timestamped visual evidence; no benchmark support.",
+        "invalidation_criteria": (
+            "The conclusion is invalid if multiple creative variables change, the "
+            "new event is not detectable, or the comparison upload is not comparable."
+        ),
+        "source": "Observation-backed",
+        "evidence_key": "v3-change-timing",
+        "benchmark_supported": False,
+        "magnitude": min(duration / 5.0, 1.0),
+        "temporal_importance": 1.0 if start < 5 else 0.5,
+        "actionability": 1.0,
+        "isolation": 1.0,
+        "novelty": 0.8,
+    }
+
+
 def _semantic_input(report):
     semantic = report.get("semantic_observation") or {}
     if semantic.get("version") == "observation-semantics-v2":
@@ -168,11 +279,15 @@ def _rank_candidates(candidates):
             candidate["current_structure"], candidate["alternative_structure"]
         ))
         benchmark = 2 if candidate.get("benchmark_supported") else 0
+        v3_score = sum(float(candidate.get(key) or 0) for key in (
+            "magnitude", "temporal_importance", "actionability", "isolation", "novelty"
+        ))
+        limitation_penalty = min(len(candidate.get("limitations") or []), 2) * 0.25
         score = (
             min(candidate["evidence_count"], 4) +
             IMPORTANCE_WEIGHT.get(candidate["structural_importance"], 0) +
             CONFIDENCE_WEIGHT.get(candidate["confidence"], 0) + benchmark -
-            contradictions * 2 - missing * 3
+            contradictions * 2 - missing * 3 + v3_score - limitation_penalty
         )
         ranked.append({**candidate, "ranking": {
             "score": score, "evidence_count": candidate["evidence_count"],
@@ -181,6 +296,8 @@ def _rank_candidates(candidates):
             "structural_importance": candidate["structural_importance"],
             "confidence": candidate["confidence"], "contradiction_penalty": contradictions * 2,
             "missing_evidence_penalty": missing * 3,
+            "magnitude_actionability_score": round(v3_score, 3),
+            "limitation_penalty": limitation_penalty,
         }})
     return sorted(ranked, key=lambda item: (-item["ranking"]["score"], item["structural_dimension"]))
 
@@ -192,10 +309,44 @@ def _diverse_experiments(ranked):
         if dimension in dimensions:
             continue
         dimensions.add(dimension)
-        experiments.append(candidate)
+        experiments.append(_ensure_experiment_contract(candidate))
         if len(experiments) == 3:
             break
     return experiments
+
+
+def _ensure_experiment_contract(candidate):
+    """Complete the measurable experiment contract for compatible V2 candidates."""
+    if candidate.get("variable"):
+        return candidate
+    dimension = str(candidate.get("structural_dimension") or "opening structure")
+    finding_ids = list(candidate.get("source_finding_ids") or [])
+    if not finding_ids:
+        finding_ids = [str(candidate.get("evidence_key") or f"semantic:{dimension}")]
+    change = str(candidate.get("recommendation") or "")
+    control = str(candidate.get("what_stays_constant") or
+                  "Keep all other opening decisions unchanged.")
+    return {
+        **candidate,
+        "experiment_title": candidate.get("title"),
+        "source_finding_ids": finding_ids,
+        "variable": dimension.replace("_", " "),
+        "control": control,
+        "exact_execution": change,
+        "target_timing": {"applicability": "not_applicable",
+                          "reason": "The qualified semantic phase has no narrower reliable timestamp."},
+        "acceptable_implementation_examples": [change] if change else [],
+        "expected_observable_change": str(candidate.get("alternative_structure") or ""),
+        "measurement_plan": str(candidate.get("how_to_compare") or ""),
+        "evidence_basis": (
+            "Qualified benchmark and direct evidence." if candidate.get("benchmark_supported")
+            else "Direct qualified semantic evidence; no benchmark support."
+        ),
+        "invalidation_criteria": (
+            "The comparison is inconclusive if another creative variable changes "
+            "or the stated alternative is not implemented."
+        ),
+    }
 
 
 def _strengths(structure, understanding, semantic):
@@ -215,7 +366,11 @@ def _strengths(structure, understanding, semantic):
 
 def build_creative_reasoning(report):
     semantic, structure, understanding, compatibility_mode = _reasoning_inputs(report)
-    ranked = _rank_candidates(_opportunity_candidates(structure, understanding, semantic))
+    candidates = _opportunity_candidates(structure, understanding, semantic)
+    v3_candidate = _v3_candidate(report)
+    if v3_candidate:
+        candidates.insert(0, v3_candidate)
+    ranked = _rank_candidates(candidates)
     beat_references = [
         {"beat_index": index, "beat_purpose": beat.get("beat_purpose", "unavailable")}
         for index, beat in enumerate(semantic.get("beats", []))

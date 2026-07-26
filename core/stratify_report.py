@@ -139,6 +139,7 @@ def run_stratify_report(
         creative_structure = {}
         creative_understanding = {}
         temporal_evidence = {}
+        intelligence_v3 = {}
 
         intro_observation = {
             "status": "unavailable",
@@ -171,6 +172,7 @@ def run_stratify_report(
             creative_structure = intro_result.get("creative_structure", {})
             creative_understanding = intro_result.get("creative_understanding", {})
             temporal_evidence = intro_result.get("temporal_evidence", {})
+            intelligence_v3 = intro_result.get("intelligence_v3", {})
 
             video_understanding = {
                 "status": "success",
@@ -406,6 +408,7 @@ def run_stratify_report(
             "vision": vision,
             "semantic_observation": semantic_observation,
             "temporal_evidence": temporal_evidence,
+            "intelligence_v3": intelligence_v3,
             "creative_structure": creative_structure,
             "creative_understanding": creative_understanding,
             "video_understanding": video_understanding,
@@ -439,6 +442,7 @@ def run_stratify_report(
             "vision": vision,
             "semantic_observation": semantic_observation,
             "temporal_evidence": temporal_evidence,
+            "intelligence_v3": intelligence_v3,
             "creative_structure": creative_structure,
             "creative_understanding": creative_understanding,
             "video_understanding": video_understanding,

@@ -60,6 +60,18 @@ def _friendly_verdict(text):
     return value
 
 
+def _target_timing(item):
+    timing = item.get("target_timing")
+    if not isinstance(timing, dict):
+        return ""
+    if timing.get("applicability") == "not_applicable":
+        return clean_value(timing.get("reason")) or "No narrower reliable timestamp applies."
+    start, end = timing.get("start_time"), timing.get("end_time")
+    if start is None or end is None:
+        return ""
+    return f"{float(start):.1f}s–{float(end):.1f}s"
+
+
 def render_next_best_test(patterns):
     recommendation = _strongest_recommendation(patterns)
     title = clean_value(recommendation.get("title"))
@@ -309,6 +321,17 @@ def render_report(report, product_mode, version_metadata, after_opportunity=None
     experiment_cards = []
     for index, item in enumerate(creator.get("experiments", [])[:3], 1):
         badge = clean_value(item.get("source")) or ("Benchmark-supported" if item.get("benchmark_supported") else "Observation-backed")
+        operational = ""
+        if item.get("variable"):
+            operational = (
+                f'<p><strong>Variable:</strong> {escape(clean_value(item.get("variable")))}</p>'
+                f'<p><strong>Control:</strong> {escape(clean_value(item.get("control")))}</p>'
+                f'<p><strong>Target timing:</strong> {escape(_target_timing(item))}</p>'
+                f'<p><strong>Exact execution:</strong> {escape(clean_value(item.get("exact_execution")))}</p>'
+                f'<p><strong>Expected visible change:</strong> {escape(clean_value(item.get("expected_observable_change")))}</p>'
+                f'<p><strong>Measurement:</strong> {escape(clean_value(item.get("measurement_plan")))}</p>'
+                f'<p class="stratify-muted"><strong>Invalidation:</strong> {escape(clean_value(item.get("invalidation_criteria")))}</p>'
+            )
         experiment_cards.append(
             '<div class="stratify-card experiment-card">'
             f'<span class="stratify-badge">{escape(badge)}</span>'
@@ -319,6 +342,7 @@ def render_report(report, product_mode, version_metadata, after_opportunity=None
             f'<div class="version-pair"><p><strong>Version A</strong><br>{escape(clean_value(item.get("version_a")))}</p>'
             f'<p><strong>Version B</strong><br>{escape(clean_value(item.get("version_b")))}</p></div>'
             f'<p><strong>Why supported:</strong> {escape(clean_value(item.get("support")))}</p>'
+            f'{operational}'
             f'<p class="stratify-muted"><strong>Limitation:</strong> {escape(clean_value(item.get("limitation")))}</p>'
             f'<p><strong>{escape(clean_value(item.get("confidence")) or "Limited")} confidence</strong> — '
             f'{escape("Qualified comparison evidence supports this test." if item.get("benchmark_supported") else "Repeated observations in this opening support this controlled test.")}</p>'
@@ -370,6 +394,7 @@ def render_report(report, product_mode, version_metadata, after_opportunity=None
             st.json({
                 "confidence_mapping": presentation["diagnostics"],
                 "experiment_calibration": creator.get("presentation_diagnostics", {}),
+                "intelligence_v3": report.get("intelligence_v3", {}),
             })
         section_heading("Advanced Analysis", "Builder-only evidence and diagnostic traceability.")
         render_advanced_analysis(report, product_mode, version_metadata)

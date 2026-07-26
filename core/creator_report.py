@@ -60,6 +60,23 @@ def _creator_experiment(item):
     }
 
 
+def _meaningful_timeline(report, fallback):
+    intelligence = report.get("intelligence_v3") or {}
+    events = intelligence.get("meaningful_change_events") or []
+    timeline = []
+    for event in events:
+        event_type = str(event.get("event_type") or "").replace("_", " ")
+        timeline.append({
+            "time": f"{float(event.get('timestamp') or 0):.1f}s",
+            "moment": (
+                f"{event_type.capitalize()}: {event.get('previous_state')} "
+                f"→ {event.get('new_state')}."
+            ),
+            "confidence": event.get("evidence_strength", "limited"),
+        })
+    return timeline or fallback
+
+
 def _benchmark_experiment(item):
     title = str(item.get("title") or "").strip()
     change = str(item.get("suggested_test") or item.get("experiment") or "").strip()
@@ -148,6 +165,12 @@ def build_creator_report(report, creative_reasoning=None, product_mode="creator"
     strength_state = "supported" if strengths else "neutral"
     benchmark_supported = bool(quality.get("eligible_for_directional_learning"))
     recommendation_confidence = opportunity.get("confidence", "limited") if opportunity.get("supported") else "limited"
+    v3_confidence = (report.get("intelligence_v3") or {}).get("confidence") or {}
+    observation_confidence = v3_confidence.get("observation_confidence", evidence_confidence)
+    interpretation_confidence = v3_confidence.get("interpretation_confidence", evidence_confidence)
+    recommendation_confidence = v3_confidence.get(
+        "recommendation_confidence", recommendation_confidence
+    ) if opportunity.get("supported") else "limited"
     source_context = report.get("source_context") or {}
     report_limitations = []
     if source_context.get("metadata_status") == "unavailable":
@@ -168,7 +191,11 @@ def build_creator_report(report, creative_reasoning=None, product_mode="creator"
             "benchmark_context_status": source_context.get("benchmark_context_status", "unavailable"),
         },
         "opening_snapshot": {"summary": _creator_text(creative["opening_snapshot"], text_confidence)},
-        "intro_timeline": creative["timeline"],
+        "creative_understanding": {
+            "status": creative.get("status", "limited"),
+            "evidence_basis": "Timestamped visual observations and qualified semantic structure.",
+        },
+        "intro_timeline": _meaningful_timeline(report, creative["timeline"]),
         "whats_working": strengths,
         "strength_state": strength_state,
         "biggest_opportunity": opportunity,
@@ -191,7 +218,13 @@ def build_creator_report(report, creative_reasoning=None, product_mode="creator"
                 "The report is grounded in repeated visual evidence from the sampled opening."
             ),
         },
-        "additional_observations": creative["timeline"],
+        "confidence_breakdown": {
+            "observation_confidence": observation_confidence,
+            "interpretation_confidence": interpretation_confidence,
+            "recommendation_confidence": recommendation_confidence,
+            "reasons": v3_confidence.get("reasons", []),
+        },
+        "additional_observations": _meaningful_timeline(report, creative["timeline"]),
         "limitations": report_limitations,
         "product_access": access_for_mode(product_mode).to_dict(),
         "presentation_diagnostics": {
