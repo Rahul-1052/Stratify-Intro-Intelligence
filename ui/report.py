@@ -4,6 +4,7 @@ import streamlit as st
 
 from ui.advanced import render_advanced_analysis
 from core.creator_report import build_creator_report
+from core.creator_presentation import creator_confidence_presentation
 from ui.components import (
     clean_value,
     confidence_badge,
@@ -258,16 +259,17 @@ def render_confidence(patterns):
     )
 
 
-def render_report(report, product_mode, version_metadata):
+def render_report(report, product_mode, version_metadata, after_opportunity=None):
     creator = report.get("creator_report") or build_creator_report(report, product_mode=product_mode)
+    presentation = creator_confidence_presentation(report, creator)
 
     section_heading("Opening Snapshot", "How the sampled opening is constructed.")
     snapshot = creator.get("opening_snapshot", {})
     st.markdown(
         '<div class="stratify-hero-card">'
-        '<div class="stratify-eyebrow">First viewer experience</div>'
+        '<div class="stratify-eyebrow">How the opening begins</div>'
         f'<h2>{escape(clean_value(snapshot.get("summary")) or "Intro observation was limited")}</h2>'
-        '<p class="stratify-muted">This describes the intro; it does not infer retention.</p>'
+        '<p class="stratify-muted">This describes the observed opening structure.</p>'
         '</div>', unsafe_allow_html=True,
     )
     section_heading("What's Working", "Supported strengths that are distinct from the snapshot.")
@@ -284,18 +286,24 @@ def render_report(report, product_mode, version_metadata):
     section_heading("Biggest Opportunity", "The most useful controlled change to test next.")
     opportunity = creator.get("biggest_opportunity", {})
     opportunity_supported = bool(opportunity.get("supported"))
+    recommendation_label = presentation["recommendation_confidence"]["value"]
+    if opportunity_supported:
+        recommendation_label += " confidence"
     st.markdown(
         f'<div class="stratify-hero-card opportunity-card{" abstention-card" if not opportunity_supported else ""}">'
-        f'<div class="stratify-eyebrow">{"Priority test" if opportunity_supported else "Evidence-aware decision"}</div>'
+        f'<div class="stratify-eyebrow">{"Controlled test" if opportunity_supported else "Evidence-aware decision"}</div>'
         f'<h2>{escape(clean_value(opportunity.get("title")) or "Improve observable opening clarity")}</h2>'
         f'<p>{escape(clean_value(opportunity.get("summary")) or "Test one visible opening change at a time.")}</p>'
         f'<div class="opportunity-details"><p><strong>Current:</strong> {escape(clean_value(opportunity.get("current_structure")))}</p>'
         f'<p><strong>Controlled alternative:</strong> {escape(clean_value(opportunity.get("proposed_alternative")))}</p></div>'
         f'<p><strong>Why this decision:</strong> {escape(clean_value(opportunity.get("why_test")))}</p>'
         f'<p class="stratify-muted"><strong>Main limitation:</strong> {escape(clean_value(opportunity.get("limitation")))}</p>'
-        f'<div style="margin-top:1rem">{confidence_badge(opportunity.get("confidence"))}</div>'
+        f'<p><strong>{escape(recommendation_label)}</strong> — '
+        f'{escape(presentation["recommendation_confidence"]["explanation"])}</p>'
         '</div>', unsafe_allow_html=True,
     )
+    if after_opportunity:
+        after_opportunity()
 
     section_heading("Experiments to Run", "Run only the controlled tests supported by this opening.")
     experiment_cards = []
@@ -312,7 +320,8 @@ def render_report(report, product_mode, version_metadata):
             f'<p><strong>Version B</strong><br>{escape(clean_value(item.get("version_b")))}</p></div>'
             f'<p><strong>Why supported:</strong> {escape(clean_value(item.get("support")))}</p>'
             f'<p class="stratify-muted"><strong>Limitation:</strong> {escape(clean_value(item.get("limitation")))}</p>'
-            f'{confidence_badge(item.get("confidence"))}'
+            f'<p><strong>{escape(clean_value(item.get("confidence")) or "Limited")} confidence</strong> — '
+            f'{escape("Qualified comparison evidence supports this test." if item.get("benchmark_supported") else "Repeated observations in this opening support this controlled test.")}</p>'
             '</div>'
         )
     if experiment_cards:
@@ -320,18 +329,21 @@ def render_report(report, product_mode, version_metadata):
     else:
         empty_state("No experiment is supported yet", "This is a successful abstention: keep the current edit until clearer visual evidence supports a controlled alternative.")
 
-    section_heading("Evidence and Confidence", "Analysis completeness, evidence quality, and recommendation confidence are reported separately.")
-    validation = creator.get("evidence_validation", {})
-    confidence = creator.get("confidence_summary", {})
+    section_heading("Evidence and Confidence", "Report completion, evidence coverage, interpretation, and recommendation are separate.")
+    confidence_items = (
+        ("Analysis status", presentation["analysis_status"]),
+        ("Evidence coverage", presentation["evidence_coverage"]),
+        ("Structural interpretation", presentation["structural_confidence"]),
+        ("Recommendation confidence", presentation["recommendation_confidence"]),
+    )
     st.markdown(
         '<div class="stratify-card confidence-card">'
-        '<div class="confidence-grid">'
-        f'<div><span class="stratify-label">Analysis completeness</span><strong>{escape(clean_value(confidence.get("analysis_completeness")) or "Limited")}</strong></div>'
-        f'<div><span class="stratify-label">Evidence confidence</span><strong>{escape(clean_value(confidence.get("evidence_confidence")) or "Limited")}</strong></div>'
-        f'<div><span class="stratify-label">Recommendation confidence</span><strong>{escape(clean_value(confidence.get("recommendation_confidence")) or "Limited")}</strong></div>'
-        '</div>'
-        f'<p>{escape(clean_value(confidence.get("plain_language")))}</p>'
-        f'<p class="stratify-muted">{escape(clean_value(validation.get("label")) or "No qualified comparison set was available.")}</p>'
+        '<div class="confidence-grid">' + "".join(
+            '<div><span class="stratify-label">'
+            f'{escape(label)}</span><strong>{escape(item["value"])}</strong>'
+            f'<p class="stratify-muted">{escape(item["explanation"])}</p></div>'
+            for label, item in confidence_items
+        ) + '</div>'
         '</div>', unsafe_allow_html=True,
     )
 
@@ -342,5 +354,10 @@ def render_report(report, product_mode, version_metadata):
             render_card_grid(timeline_cards, columns=2)
 
     if product_mode == "builder":
+        with st.expander("Builder diagnostics: Creator presentation"):
+            st.json({
+                "confidence_mapping": presentation["diagnostics"],
+                "experiment_calibration": creator.get("presentation_diagnostics", {}),
+            })
         section_heading("Advanced Analysis", "Builder-only evidence and diagnostic traceability.")
         render_advanced_analysis(report, product_mode, version_metadata)

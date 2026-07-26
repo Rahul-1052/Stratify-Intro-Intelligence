@@ -63,16 +63,26 @@ def render_current_comparison(comparison):
 def render_save_controls(service, report, project, product_mode):
     profile = service.profile()
     if not profile:
-        st.info("Create a Creator Memory profile to save this report. You can continue analyzing without one.")
+        st.markdown(
+            "<div class='stratify-card memory-save-card'><h3>Save this analysis to Creator Memory</h3>"
+            "<p>Create a local profile to compare future openings with this one.</p>"
+            "<p class='stratify-muted'>Creator Memory is optional and stored locally on this device.</p></div>",
+            unsafe_allow_html=True,
+        )
         return
     if service.dashboard()["counts"]["analyses"]:
         comparison = service.comparison(report)
         render_current_comparison(comparison)
+    if st.session_state.get("creator_memory_saved_analysis_id"):
+        st.success("Saved locally to Creator Memory.")
+        return
+    st.caption("Creator Memory is optional and stored locally on this device.")
     if st.button("Save this analysis to Creator Memory", type="primary", width="stretch"):
         try:
             saved = service.save_report(report, project)
             st.success("Analysis saved locally to Creator Memory.")
             st.session_state["creator_memory_saved_analysis_id"] = saved["analysis_id"]
+            st.rerun()
         except Exception as exc:
             st.warning("The report is ready, but it could not be saved to Creator Memory. Try again in a moment.")
             if product_mode == "builder":

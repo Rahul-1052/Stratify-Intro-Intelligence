@@ -12,6 +12,8 @@ from ui.report import render_report
 from ui.memory import render_memory_workspace, render_save_controls
 from core.memory import CreatorMemoryService
 from core.product_access import access_for_mode
+from core.creator_report import build_creator_report
+from core.creator_presentation import creator_confidence_presentation, creator_status_message
 from ui.theme import apply_theme
 from ui.workspace import (
     render_module_cards,
@@ -154,14 +156,20 @@ def build_report(url, uploaded_video):
 
 
 def render_warnings(report, product_mode="creator"):
+    creator = report.get("creator_report") or build_creator_report(report, product_mode=product_mode)
+    presentation = creator_confidence_presentation(report, creator)
     warnings = report.get("warnings", []) or []
-    if not warnings:
-        return
-    st.warning("The opening was analyzed, but part of the supporting evidence was unavailable.")
+    message = creator_status_message(
+        presentation, bool((creator.get("biggest_opportunity") or {}).get("supported"))
+    )
+    if presentation["analysis_status"]["value"] in {"Partial", "Failed"}:
+        st.warning(message)
+    elif presentation["analysis_status"]["value"] == "Completed with limited evidence":
+        st.info(message)
+    else:
+        st.success(message)
     if has_youtube_download_block(warnings):
         st.info("Automatic video access was unavailable. Upload the video or its opening clip to complete the visual review.")
-    else:
-        st.info("The report uses the evidence that completed successfully. Try a clearer upload if the result feels incomplete.")
     if product_mode == "builder":
         with st.expander("Builder diagnostics", expanded=False):
             for warning in warnings:
@@ -213,11 +221,18 @@ if project and project.module_results.get("intro_intelligence"):
     render_module_cards(compact=True)
     report = project.module_results["intro_intelligence"]
     render_warnings(report, ACTIVE_PRODUCT_MODE)
-    render_report(report, ACTIVE_PRODUCT_MODE, VERSION_METADATA)
+    memory_callback = None
     if memory_service and access_for_mode(ACTIVE_PRODUCT_MODE).creator_memory == "enabled":
-        render_save_controls(memory_service, report, project, ACTIVE_PRODUCT_MODE)
+        memory_callback = lambda: render_save_controls(
+            memory_service, report, project, ACTIVE_PRODUCT_MODE
+        )
+    render_report(
+        report, ACTIVE_PRODUCT_MODE, VERSION_METADATA,
+        after_opportunity=memory_callback,
+    )
     if st.button("Start a new project", width="stretch"):
         st.session_state.pop("stratify_project", None)
+        st.session_state.pop("creator_memory_saved_analysis_id", None)
         st.rerun()
 else:
     url, uploaded_video, analyze_clicked = render_landing()

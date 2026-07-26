@@ -3,13 +3,14 @@
 import streamlit as st
 
 from core.creator_report import build_creator_report
+from core.creator_presentation import creator_confidence_presentation, creator_status_message
 from core.memory.models import AnalysisRecord
 from core.memory.reconstruction import reconstruct_creator_report
 from ui.components import ProgressPresenter
-from ui.memory import _fallback_saved_report, render_current_comparison
+from ui.memory import _fallback_saved_report, render_current_comparison, render_save_controls
 from ui.report import render_report
 from ui.theme import apply_theme
-from ui.workspace import render_platform_header, render_workspace_intro
+from ui.workspace import render_module_cards, render_platform_header, render_workspace_intro
 
 
 def _frames(text=False, sparse=False):
@@ -27,6 +28,31 @@ def _report(text=False, sparse=False):
               "patterns": {}, "reasoning": {}, "evidence": {}}
     report["creator_report"] = build_creator_report(report)
     return report
+
+
+def _status(report):
+    creator = report["creator_report"]
+    presentation = creator_confidence_presentation(report, creator)
+    message = creator_status_message(
+        presentation, bool(creator["biggest_opportunity"].get("supported"))
+    )
+    if presentation["analysis_status"]["value"] == "Completed":
+        st.success(message)
+    else:
+        st.info(message)
+
+
+class _NoProfileMemory:
+    def profile(self):
+        return None
+
+
+class _SavedMemory:
+    def profile(self):
+        return {"id": "fixture"}
+
+    def dashboard(self):
+        return {"counts": {"analyses": 0}}
 
 
 def _memory_record(partial=False):
@@ -78,23 +104,78 @@ st.set_page_config(page_title="Stratify visual QA", layout="wide")
 apply_theme()
 state = st.query_params.get("state", "landing")
 render_platform_header()
+st.caption("Fixture-based UI validation · not a real-video replay")
 
 if state == "landing":
     render_workspace_intro()
     st.text_input("YouTube video URL", placeholder="Paste a YouTube video URL", label_visibility="collapsed")
     st.button("Analyze this intro", type="primary", width="stretch")
+    render_module_cards()
 elif state == "loading":
     st.header("Analyzing the opening")
     progress = ProgressPresenter()
     progress.update("Observing visual changes")
 elif state == "limited":
-    render_report(_report(text=True), "creator", {})
+    report = _report(text=True)
+    _status(report)
+    render_report(report, "creator", {})
 elif state == "no-opportunity":
-    render_report(_report(sparse=True), "creator", {})
+    report = _report(sparse=True)
+    _status(report)
+    render_report(report, "creator", {})
 elif state == "builder":
-    render_report(_report(text=True), "builder", {})
+    report = _report(text=True)
+    _status(report)
+    render_report(report, "builder", {})
+elif state == "cta":
+    report = _report()
+    _status(report)
+    render_report(
+        report, "creator", {},
+        after_opportunity=lambda: render_save_controls(
+            _NoProfileMemory(), report, object(), "creator"
+        ),
+    )
+elif state == "saved":
+    report = _report()
+    _status(report)
+    st.session_state["creator_memory_saved_analysis_id"] = "fixture-saved"
+    render_report(
+        report, "creator", {},
+        after_opportunity=lambda: render_save_controls(
+            _SavedMemory(), report, object(), "creator"
+        ),
+    )
+elif state == "confidence":
+    report = _report(text=True)
+    _status(report)
+    render_report(report, "creator", {})
+elif state == "one-experiment":
+    report = _report()
+    creative = report["creator_report"]
+    creative["biggest_opportunity"] = {
+        "title": "Test a clearer first visual priority",
+        "summary": "More than one visual anchor appears in the first phase.",
+        "why_test": "This controlled change isolates visual hierarchy.",
+        "current_structure": "Multiple visual anchors",
+        "proposed_alternative": "Hold one existing anchor first",
+        "confidence": "high", "source": "Observation-backed",
+        "limitation": "No qualified benchmark comparison is available.",
+        "supported": True,
+    }
+    creative["experiments"] = [{
+        "title": "Lead with one visual anchor", "source": "Observation-backed",
+        "hypothesis": "One initial anchor changes the opening hierarchy.",
+        "change": "Hold the existing primary subject before other elements appear.",
+        "what_stays_constant": "Footage, audio, message, and duration.",
+        "version_a": "Keep the current simultaneous introduction.",
+        "version_b": "Introduce the primary subject first.",
+        "support": "Repeated multi-subject evidence appears in the first phase.",
+        "confidence": "moderate", "limitation": "This does not predict performance.",
+    }]
+    _status(report)
+    render_report(report, "creator", {})
 elif state == "history-full":
-    st.caption("Fixture-based UI validation · not a real-video replay")
     restored = reconstruct_creator_report(
         _memory_record(), {"title": "Fixture saved project"}, revision=2
     )
@@ -105,13 +186,11 @@ elif state == "history-full":
     )
     render_report(restored["report"], "creator", {})
 elif state == "history-partial":
-    st.caption("Fixture-based UI validation · not a real-video replay")
     restored = reconstruct_creator_report(
         _memory_record(partial=True), {"title": "Fixture partial project"}, revision=1
     )
     _fallback_saved_report(restored, "creator")
 elif state == "comparison":
-    st.caption("Fixture-based UI validation · not a real-video replay")
     current = _report()
     render_report(current, "creator", {})
     render_current_comparison({
@@ -136,4 +215,5 @@ else:
         "support": "Repeated visual evidence shows competing early priorities.", "confidence": "moderate",
         "limitation": "This tests clarity; it does not predict retention.",
     }]
+    _status(report)
     render_report(report, "creator", {})

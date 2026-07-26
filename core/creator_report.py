@@ -2,6 +2,7 @@
 
 from core.reasoning.creative_reasoning import build_creative_reasoning
 from core.product_access import access_for_mode
+from core.creator_presentation import calibrate_experiments
 
 
 def _creator_text(text, text_confidence):
@@ -49,7 +50,12 @@ def _creator_experiment(item):
         "change": change,
         "version_a": f"Keep {current}.",
         "version_b": change,
-        "support": str(item.get("interpretation") or reason),
+        "support": str(
+            item.get("observation")
+            or (
+                f"Repeated evidence supports testing the {str(item.get('structural_dimension') or 'opening structure').replace('_', ' ')}."
+            )
+        ),
         "limitation": _limitation(item, "This is a controlled creative test, not a predicted performance result."),
     }
 
@@ -95,21 +101,25 @@ def build_creator_report(report, creative_reasoning=None, product_mode="creator"
                 break
 
     experiments = [_creator_experiment(item) for item in experiments[:3]]
-    priority = experiments[0] if experiments else creative.get("priority")
     semantic = report.get("semantic_observation") or {}
     text_confidence = _text_confidence(report, semantic, creative.get("semantic_confidence", "limited"))
+    experiments, excluded_text_experiments = calibrate_experiments(experiments, text_confidence)
+    priority = experiments[0] if experiments else None
     analysis_status = report.get("status", "success")
     evidence_confidence = creative.get("semantic_confidence", "limited")
     if priority:
         opportunity = {
             "title": priority["title"],
-            "summary": priority["interpretation"],
+            "summary": str(priority.get("observation") or f"The opening currently uses {priority.get('current_structure', 'the observed structure')}."),
             "why_test": priority["reason"],
             "current_structure": priority.get("current_structure", "Current observed structure"),
             "proposed_alternative": priority.get("alternative_structure") or priority.get("recommendation", ""),
             "keep_constant": priority.get("what_stays_constant", "Keep the remaining opening decisions unchanged."),
             "confidence": priority.get("confidence", "limited"),
             "limitation": _limitation(priority, "No qualified benchmark support is available."),
+            "source": priority.get("source", "Observation-backed"),
+            "structural_dimension": priority.get("structural_dimension"),
+            "evidence_consistency": priority.get("evidence_consistency"),
             "supported": True,
         }
     else:
@@ -167,4 +177,12 @@ def build_creator_report(report, creative_reasoning=None, product_mode="creator"
         },
         "additional_observations": creative["timeline"],
         "product_access": access_for_mode(product_mode).to_dict(),
+        "presentation_diagnostics": {
+            "excluded_text_experiments": excluded_text_experiments,
+            "section_summary_sources": {
+                "opening_snapshot": "creative_understanding.summary",
+                "biggest_opportunity": "selected_opportunity.observation",
+                "experiment_support": "selected_experiment.observation",
+            },
+        },
     }

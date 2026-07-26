@@ -30,13 +30,17 @@ def render_workspace_intro():
 
 
 def render_module_cards(compact=False):
-    cards = []
-    for module in list_modules():
-        status = "Available now" if module.is_available else "Planned"
-        css = "available" if module.is_available else "planned"
-        cards.append(
+    modules = list_modules()
+    available = [module for module in modules if module.is_available]
+    planned = [module for module in modules if not module.is_available]
+    cards = [
+        '<div class="module-card"><span class="module-status available">Available now</span>'
+        '<h3>Creator Memory</h3><p>Save analyses locally and compare future openings with your history.</p></div>'
+    ]
+    for module in available:
+        cards.insert(0,
             '<div class="module-card">'
-            f'<span class="module-status {css}">{escape(status)}</span>'
+            '<span class="module-status available">Available now</span>'
             f'<h3>{escape(module.name)}</h3>'
             f'<p>{escape(module.description)}</p>'
             '</div>'
@@ -45,6 +49,12 @@ def render_module_cards(compact=False):
         f'<div class="module-grid{" compact" if compact else ""}">{"".join(cards)}</div>',
         unsafe_allow_html=True,
     )
+    if planned:
+        with st.expander("Coming later", expanded=False):
+            st.markdown(
+                " · ".join(escape(module.name) for module in planned),
+                unsafe_allow_html=True,
+            )
 
 
 def render_project_header(project):

@@ -29,7 +29,8 @@ class StreamlitWorkspaceTests(unittest.TestCase):
         self.assertIn("Creative Intelligence Platform", landing)
         self.assertIn("Intro Intelligence", landing)
         self.assertIn("Story Intelligence", landing)
-        self.assertIn("Planned", landing)
+        self.assertIn("Coming later", [item.label for item in app.expander])
+        self.assertIn("Creator Memory", landing)
 
         app.session_state["stratify_project"] = _project_with_observation_report()
         app.run(timeout=15)

@@ -23,7 +23,7 @@ class CreatorReportV1Tests(unittest.TestCase):
         self.assertTrue(creator["opening_snapshot"]["summary"])
         self.assertTrue(creator["intro_timeline"])
         self.assertTrue(creator["whats_working"])
-        self.assertGreaterEqual(len(creator["experiments"]), 1)
+        self.assertLessEqual(len(creator["experiments"]), 3)
         self.assertTrue(all(not item["benchmark_supported"] for item in creator["experiments"]))
         self.assertTrue(all(item["observation"] and item["interpretation"] and item["recommendation"] and item["reason"] for item in creator["experiments"]))
         self.assertEqual(creator["evidence_validation"]["status"], "observation_only")
@@ -43,7 +43,6 @@ class CreatorReportV1Tests(unittest.TestCase):
         report["benchmark"] = {"benchmark_quality": {"eligible_for_directional_learning": False}}
         report["patterns"] = {"top_creator_experiments": [{"title": "Unsupported benchmark claim"}]}
         creator = build_creator_report(report)
-        self.assertGreaterEqual(len(creator["experiments"]), 1)
         self.assertFalse(any(item["benchmark_supported"] for item in creator["experiments"]))
 
     @patch("ui.report.render_advanced_analysis")

@@ -241,7 +241,7 @@ summary:focus-visible {
     display: grid; gap: .8rem; grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 1rem 0;
 }
 .opportunity-details p, .version-pair p { background: var(--stratify-soft); border-radius: 12px; padding: .8rem; }
-.confidence-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.confidence-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .confidence-grid strong { display: block; margin-top: .35rem; text-transform: capitalize; }
 
 .experiment-card {
