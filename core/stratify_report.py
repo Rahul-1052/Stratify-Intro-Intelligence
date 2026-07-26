@@ -19,6 +19,7 @@ from core.reasoning import (
 from core.youtube_client import get_full_youtube_context
 from core.brain import build_stratify_brain
 from core.creator_report import build_creator_report
+from core.source_context import resolve_source_context
 
 
 def _empty_benchmark():
@@ -50,6 +51,8 @@ def run_stratify_report(
     frame_fps=1,
     progress_callback=None,
     uploaded_video_path=None,
+    local_source_type="uploaded_file",
+    no_network=False,
 ):
     warnings = []
     brain_report = {}
@@ -77,17 +80,51 @@ def run_stratify_report(
             pass
 
     try:
-        progress("Understanding video context...")
-        data = get_full_youtube_context(url)
-
-        if data is None:
-            return {
-                "status": "failed",
-                "warnings": ["Could not fetch video data from YouTube."],
-                "brain_report": brain_report,
-                "video_understanding": video_understanding,
-                "reasoning": reasoning,
+        source_context = resolve_source_context(
+            url=url, local_path=uploaded_video_path or "",
+            local_source_type=local_source_type,
+        )
+        if source_context.source_type == "youtube_url":
+            if no_network:
+                return {
+                    "status": "failed", "stage": "source_context_unavailable",
+                    "warnings": ["YouTube source analysis is unavailable in no-network mode."],
+                    "brain_report": brain_report, "video_understanding": video_understanding,
+                    "reasoning": reasoning, "source_context": source_context.to_dict(),
+                }
+            progress("Understanding video context...")
+            try:
+                data = get_full_youtube_context(url)
+            except Exception as exc:
+                return {
+                    "status": "failed", "stage": "source_context_unavailable",
+                    "warnings": [str(exc)], "error": str(exc),
+                    "brain_report": brain_report, "video_understanding": video_understanding,
+                    "reasoning": reasoning, "source_context": source_context.to_dict(),
+                }
+            if data is None:
+                return {
+                    "status": "failed", "stage": "source_context_unavailable",
+                    "warnings": ["Could not fetch video data from YouTube."],
+                    "brain_report": brain_report, "video_understanding": video_understanding,
+                    "reasoning": reasoning, "source_context": source_context.to_dict(),
+                }
+            source_context.metadata_status = "available"
+            source_context.acquisition_status = "pending"
+            source_context.benchmark_context_status = "available"
+        else:
+            if source_context.acquisition_status == "failed":
+                return {
+                    "status": "failed", "stage": "local_source_unavailable",
+                    "warnings": source_context.warnings,
+                    "brain_report": brain_report, "video_understanding": video_understanding,
+                    "reasoning": reasoning, "source_context": source_context.to_dict(),
+                }
+            data = {
+                "video": source_context.video_metadata(), "channel": {},
+                "recent_videos": [], "transcript": None, "context": None,
             }
+            warnings.extend(source_context.warnings)
 
         video = data.get("video", {})
         channel = data.get("channel", {})
@@ -101,6 +138,7 @@ def run_stratify_report(
         semantic_observation = {}
         creative_structure = {}
         creative_understanding = {}
+        temporal_evidence = {}
 
         intro_observation = {
             "status": "unavailable",
@@ -124,6 +162,7 @@ def run_stratify_report(
         )
 
         if intro_result.get("status") == "success":
+            source_context.acquisition_status = "completed"
             frames = intro_result.get("frames", [])
             vision = intro_result.get("vision", {})
             feature_report = intro_result.get("features", {})
@@ -131,6 +170,7 @@ def run_stratify_report(
             semantic_observation = intro_result.get("semantic_observation", {})
             creative_structure = intro_result.get("creative_structure", {})
             creative_understanding = intro_result.get("creative_understanding", {})
+            temporal_evidence = intro_result.get("temporal_evidence", {})
 
             video_understanding = {
                 "status": "success",
@@ -177,6 +217,7 @@ def run_stratify_report(
                 warnings.append(f"Content understanding failed: {str(exc)}")
 
         else:
+            source_context.acquisition_status = "failed"
             warnings.append(
                 f"Intro pipeline failed at {intro_result.get('stage', 'unknown')}: "
                 f"{intro_result.get('error', 'Unknown error.')}"
@@ -198,6 +239,7 @@ def run_stratify_report(
                 category = {}
                 warnings.append(f"Content understanding failed: {str(exc)}")
 
+        benchmark_unavailable = source_context.source_type != "youtube_url" or no_network
         progress("Building benchmark evidence profile...")
         try:
             user_benchmark_signature = build_benchmark_signature(
@@ -215,34 +257,44 @@ def run_stratify_report(
             )
 
         progress("Discovering benchmark context...")
-        try:
-            benchmark = collect_benchmark_videos(
-                category,
-                user_video_id=video.get("video_id"),
-                max_results=30,
-                user_video=video,
-                user_vision=vision,
-                user_understanding=video_understanding.get(
-                    "understanding",
-                    {},
-                ),
-                user_signature=user_benchmark_signature,
-            )
-        except Exception as exc:
+        if benchmark_unavailable:
             benchmark = _empty_benchmark()
-            warnings.append(f"Benchmark discovery failed: {str(exc)}")
+            benchmark["status"] = "unavailable"
+            benchmark["limitation"] = "Benchmark context is unavailable for this local source."
+            warnings.append("Benchmark context is unavailable; recommendations use direct video evidence only.")
+        else:
+            try:
+                benchmark = collect_benchmark_videos(
+                    category,
+                    user_video_id=video.get("video_id"),
+                    max_results=30,
+                    user_video=video,
+                    user_vision=vision,
+                    user_understanding=video_understanding.get(
+                        "understanding",
+                        {},
+                    ),
+                    user_signature=user_benchmark_signature,
+                )
+            except Exception as exc:
+                benchmark = _empty_benchmark()
+                benchmark["status"] = "unavailable"
+                warnings.append(f"Benchmark discovery failed: {str(exc)}")
 
         progress("Watching benchmark shortlist intros...")
         shortlist = benchmark.get("shortlist", [])
-        try:
-            observed_shortlist = extract_benchmark_features(
-                shortlist,
-                intro_seconds=intro_seconds,
-                frame_fps=frame_fps,
-            )
-        except Exception as exc:
+        if benchmark_unavailable:
             observed_shortlist = []
-            warnings.append(f"Benchmark shortlist observation failed: {str(exc)}")
+        else:
+            try:
+                observed_shortlist = extract_benchmark_features(
+                    shortlist,
+                    intro_seconds=intro_seconds,
+                    frame_fps=frame_fps,
+                )
+            except Exception as exc:
+                observed_shortlist = []
+                warnings.append(f"Benchmark shortlist observation failed: {str(exc)}")
 
         progress("Qualifying observed benchmark viewer jobs...")
         qualification = qualify_observed_benchmarks(
@@ -253,6 +305,10 @@ def run_stratify_report(
             observed_candidates=observed_shortlist,
             user_content_identity=category.get("content_understanding", {}),
         )
+        if benchmark_unavailable:
+            qualification["status"] = "unavailable"
+            qualification["reason"] = "Benchmark context is unavailable for this local source."
+            qualification["eligible_for_directional_learning"] = False
         benchmark["qualification"] = qualification
         benchmark["benchmark_quality"] = qualification.get("benchmark_quality", {})
         benchmark["performance_diagnostics"] = qualification.get("performance_diagnostics", {})
@@ -349,11 +405,13 @@ def run_stratify_report(
             "feature_report": feature_report,
             "vision": vision,
             "semantic_observation": semantic_observation,
+            "temporal_evidence": temporal_evidence,
             "creative_structure": creative_structure,
             "creative_understanding": creative_understanding,
             "video_understanding": video_understanding,
             "benchmark": benchmark,
             "patterns": patterns,
+            "source_context": source_context.to_dict(),
         }
         progress("Translating evidence into creative reasoning...")
         reasoning["creative_reasoning"] = build_creative_reasoning(partial_report)
@@ -380,6 +438,7 @@ def run_stratify_report(
             "feature_report": feature_report,
             "vision": vision,
             "semantic_observation": semantic_observation,
+            "temporal_evidence": temporal_evidence,
             "creative_structure": creative_structure,
             "creative_understanding": creative_understanding,
             "video_understanding": video_understanding,
@@ -387,6 +446,8 @@ def run_stratify_report(
             "reasoning": reasoning,
             "acquisition": acquisition,
             "frames": frames,
+            "source_context": source_context.to_dict(),
+            "benchmark_context_status": "unavailable" if benchmark_unavailable else "available",
         }
 
     except Exception as exc:

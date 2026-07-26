@@ -38,6 +38,8 @@ The failure taxonomy is stable and includes source, network, downloader, media, 
 .\.venv\Scripts\python.exe tools\run_real_pipeline_audit.py --input-dir temp_clips --limit 5 --no-network --trace-export
 .\.venv\Scripts\python.exe tools\run_real_pipeline_audit.py --limit 5 --resume latest --skip-existing --no-network
 .\.venv\Scripts\python.exe tools\run_real_pipeline_audit.py --limit 5 --case local-01 --no-network
+.\.venv\Scripts\python.exe tools\run_real_pipeline_audit.py --limit 5 --no-network `
+  --input temp_clips\clip-one.mp4 --input temp_clips\clip-two.mp4
 ```
 
 The runner uses at most five readable, nonduplicate cached MP4 clips, never downloads in `--no-network` mode, checkpoints after every case, continues after failures, and performs no retries. It does not infer creator, title, niche, or URL from filenames.

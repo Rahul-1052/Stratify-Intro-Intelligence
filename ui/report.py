@@ -346,6 +346,18 @@ def render_report(report, product_mode, version_metadata, after_opportunity=None
         ) + '</div>'
         '</div>', unsafe_allow_html=True,
     )
+    source = creator.get("source_provenance") or {}
+    limitations = creator.get("limitations") or []
+    if source.get("source_type") in {"uploaded_file", "cached_local_clip"}:
+        st.info(
+            "Local source analysis · Creator, title, URL, channel statistics, and "
+            "qualified benchmark context were unavailable. The report uses direct "
+            "evidence from the supplied video only."
+        )
+    if limitations:
+        with st.expander("Report limitations", expanded=False):
+            for limitation in limitations:
+                st.markdown(f"- {clean_value(limitation)}")
 
     observations = creator.get("additional_observations", []) or []
     if observations:

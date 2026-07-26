@@ -148,9 +148,25 @@ def build_creator_report(report, creative_reasoning=None, product_mode="creator"
     strength_state = "supported" if strengths else "neutral"
     benchmark_supported = bool(quality.get("eligible_for_directional_learning"))
     recommendation_confidence = opportunity.get("confidence", "limited") if opportunity.get("supported") else "limited"
+    source_context = report.get("source_context") or {}
+    report_limitations = []
+    if source_context.get("metadata_status") == "unavailable":
+        report_limitations.append(
+            "Creator, title, URL, channel statistics, and other source metadata are unavailable."
+        )
+    if not benchmark_supported:
+        report_limitations.append(
+            "No qualified benchmark context was available; recommendations use direct video evidence only."
+        )
 
     return {
         "report_version": "creator-product-v1",
+        "source_provenance": {
+            "source_type": source_context.get("source_type", "unknown"),
+            "provenance": source_context.get("provenance", "unknown"),
+            "metadata_status": source_context.get("metadata_status", "unavailable"),
+            "benchmark_context_status": source_context.get("benchmark_context_status", "unavailable"),
+        },
         "opening_snapshot": {"summary": _creator_text(creative["opening_snapshot"], text_confidence)},
         "intro_timeline": creative["timeline"],
         "whats_working": strengths,
@@ -176,6 +192,7 @@ def build_creator_report(report, creative_reasoning=None, product_mode="creator"
             ),
         },
         "additional_observations": creative["timeline"],
+        "limitations": report_limitations,
         "product_access": access_for_mode(product_mode).to_dict(),
         "presentation_diagnostics": {
             "excluded_text_experiments": excluded_text_experiments,

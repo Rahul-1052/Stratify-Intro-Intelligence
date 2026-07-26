@@ -45,6 +45,8 @@ def discover(root, limit):
 def main(argv=None):
     parser = argparse.ArgumentParser()
     parser.add_argument("--input-dir", default="temp_clips")
+    parser.add_argument("--input", action="append", default=[],
+                        help="Explicit local clip path; repeat for a reproducible cohort.")
     parser.add_argument("--output", default=".stratify_validation")
     parser.add_argument("--limit", type=int, default=5)
     parser.add_argument("--case")
@@ -53,7 +55,13 @@ def main(argv=None):
     parser.add_argument("--no-network", action="store_true")
     parser.add_argument("--trace-export", action="store_true")
     args = parser.parse_args(argv)
-    inspected, selected = discover(args.input_dir, max(0, min(args.limit, 5)))
+    if args.input:
+        inspected = [inspect_clip(Path(value)) for value in args.input]
+        selected = [item for item in inspected if item["suitable_for_reproducible_validation"]][
+            :max(0, min(args.limit, 5))
+        ]
+    else:
+        inspected, selected = discover(args.input_dir, max(0, min(args.limit, 5)))
     entries = [{"case_id": f"local-{index + 1:02d}", "local_source": item["path"],
                 "url": "", "creator": "", "title": "", "niche": "unknown",
                 "source_type": "cached local intro clip", "validation_kind": "real-video pipeline validation"}

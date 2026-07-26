@@ -35,9 +35,15 @@ class ProductValidationRunner:
             return self.analyzer(entry)
         from stratify_platform.module_registry import run_module
         source = entry.get("local_source") or entry.get("url", "")
-        kwargs = {"url": entry.get("url", ""), "intro_seconds": 15, "frame_fps": 1}
+        kwargs = {"url": entry.get("url", ""), "intro_seconds": 15, "frame_fps": 1,
+                  "no_network": no_network}
         if entry.get("local_source"):
             kwargs["uploaded_video_path"] = source
+            kwargs["local_source_type"] = (
+                "cached_local_clip"
+                if "cached" in str(entry.get("source_type", "")).lower()
+                else "uploaded_file"
+            )
         if no_network and not entry.get("local_source"):
             raise RuntimeError("Network disabled and no local source is available.")
         return run_module("intro_intelligence", **kwargs)
@@ -201,7 +207,10 @@ def _complete_derived_stages(trace, report, counts, failed_stage=""):
                 "semantic observation": bool(report.get("creative_structure") or report.get("creative_understanding")),
                 "benchmark discovery": counts.get("benchmark_candidates", 0),
                 "evidence qualification": counts.get("qualified_benchmarks", 0),
-                "creative reasoning": bool(report.get("creative_reasoning")),
+                "creative reasoning": bool(
+                    report.get("creative_reasoning")
+                    or (report.get("reasoning") or {}).get("creative_reasoning")
+                ),
                 "experiment generation": counts.get("supported_experiments", 0),
                 "report construction": bool(report.get("creator_report")),
             }[name]
