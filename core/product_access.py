@@ -11,6 +11,7 @@ class ProductAccess:
     report_export: bool = False
     project_history: bool = False
     builder_diagnostics: bool = False
+    creator_memory: str = "enabled"
 
     def to_dict(self):
         return asdict(self)
@@ -26,7 +27,12 @@ BETA_ACCESS = ProductAccess()
 
 def access_for_mode(product_mode="creator"):
     """Beta keeps current features available; Builder remains mode-gated."""
+    import os
+    memory = os.getenv("STRATIFY_CREATOR_MEMORY", "enabled").strip().lower()
+    if memory not in {"enabled", "preview", "disabled"}:
+        memory = "enabled"
     return ProductAccess(**{
         **BETA_ACCESS.to_dict(),
         "builder_diagnostics": str(product_mode).lower() == "builder",
+        "creator_memory": memory,
     })

@@ -9,6 +9,9 @@ from stratify_platform.module_registry import run_module
 from stratify_platform.projects import create_project, restore_project
 from ui.components import ProgressPresenter
 from ui.report import render_report
+from ui.memory import render_memory_workspace, render_save_controls
+from core.memory import CreatorMemoryService
+from core.product_access import access_for_mode
 from ui.theme import apply_theme
 from ui.workspace import (
     render_module_cards,
@@ -182,8 +185,27 @@ def render_failure_state(report, product_mode="creator"):
 
 st.set_page_config(page_title="Stratify", page_icon="S", layout="wide")
 apply_theme()
+memory_service = None
+memory_error = None
+try:
+    memory_service = CreatorMemoryService()
+except Exception as exc:
+    memory_error = exc
 project = restore_project(st.session_state.get("stratify_project"))
 render_platform_header(project)
+workspace_area = st.sidebar.radio("Workspace", ("Analyze", "Creator Memory"))
+
+if workspace_area == "Creator Memory":
+    if memory_service:
+        render_memory_workspace(
+            memory_service, ACTIVE_PRODUCT_MODE,
+            access_for_mode(ACTIVE_PRODUCT_MODE), VERSION_METADATA,
+        )
+    else:
+        st.warning("Creator Memory is temporarily unavailable. Your one-off analysis workspace is unaffected.")
+        if ACTIVE_PRODUCT_MODE == "builder":
+            st.error(f"Creator Memory initialization error: {memory_error}")
+    st.stop()
 
 if project and project.module_results.get("intro_intelligence"):
     render_project_header(project)
@@ -192,6 +214,8 @@ if project and project.module_results.get("intro_intelligence"):
     report = project.module_results["intro_intelligence"]
     render_warnings(report, ACTIVE_PRODUCT_MODE)
     render_report(report, ACTIVE_PRODUCT_MODE, VERSION_METADATA)
+    if memory_service and access_for_mode(ACTIVE_PRODUCT_MODE).creator_memory == "enabled":
+        render_save_controls(memory_service, report, project, ACTIVE_PRODUCT_MODE)
     if st.button("Start a new project", width="stretch"):
         st.session_state.pop("stratify_project", None)
         st.rerun()

@@ -3,7 +3,10 @@
 import streamlit as st
 
 from core.creator_report import build_creator_report
+from core.memory.models import AnalysisRecord
+from core.memory.reconstruction import reconstruct_creator_report
 from ui.components import ProgressPresenter
+from ui.memory import _fallback_saved_report, render_current_comparison
 from ui.report import render_report
 from ui.theme import apply_theme
 from ui.workspace import render_platform_header, render_workspace_intro
@@ -26,6 +29,51 @@ def _report(text=False, sparse=False):
     return report
 
 
+def _memory_record(partial=False):
+    normalized = {
+        "id": "fixture-analysis", "video_id": "fixture-video",
+        "analysis_version": "creator-product-v1",
+        "created_at": "2026-07-20T14:30:00+00:00",
+        "snapshot": {} if partial else {"summary": "A creator appears first, then establishes the surrounding context."},
+        "creative_structure": {
+            "opening_strategy": "subject-first", "structural_rhythm": "two phases",
+            "reveal_pattern": "anchor established immediately",
+        },
+        "creative_understanding": {"summary": "The creator leads before the setting expands."},
+        "reasoning_summary": {"status": "success", "additional_observations": []},
+        "opportunity": {
+            "title": "Test the timing of the context reveal",
+            "summary": "The subject is established before the setting becomes clear.",
+            "why_test": "A controlled timing alternative can compare two readable structures.",
+            "current_structure": "Subject before surrounding context",
+            "proposed_alternative": "Reveal the same context one phase earlier",
+            "supported": True, "confidence": "moderate",
+            "limitation": "This is structural evidence, not a performance prediction.",
+        },
+        "experiments": [{
+            "title": "Move the context reveal", "hypothesis": "Earlier context changes the opening sequence.",
+            "change": "Reveal the existing setting one phase earlier.",
+            "what_stays_constant": "Keep footage, audio, message, and duration unchanged.",
+            "version_a": "Keep the subject-first order.", "version_b": "Reveal context one phase earlier.",
+            "support": "The saved structure contains two distinct phases.", "confidence": "moderate",
+            "limitation": "No outcome evidence is stored.", "source": "Observation-backed",
+        }],
+        "confidence_summary": {} if partial else {
+            "analysis_completeness": "complete", "evidence_confidence": "moderate",
+            "recommendation_confidence": "moderate", "text_evidence": "limited",
+            "plain_language": "Visual structure is available, but text-like evidence remains limited.",
+        },
+        "evidence_limitations": ["Written-information evidence was limited."],
+        "analysis_completeness": "partial" if partial else "complete",
+        "opening_strategy": "subject-first", "primary_visual_focus": "person",
+        "progression_style": "two phases", "subject_timing": "anchor established immediately",
+        "subject_presence": "single_subject", "multiple_subjects": False,
+        "written_information_state": "limited", "recommendation_state": "supported",
+        "recommendation_confidence": "moderate",
+    }
+    return AnalysisRecord(**normalized)
+
+
 st.set_page_config(page_title="Stratify visual QA", layout="wide")
 apply_theme()
 state = st.query_params.get("state", "landing")
@@ -45,6 +93,32 @@ elif state == "no-opportunity":
     render_report(_report(sparse=True), "creator", {})
 elif state == "builder":
     render_report(_report(text=True), "builder", {})
+elif state == "history-full":
+    st.caption("Fixture-based UI validation · not a real-video replay")
+    restored = reconstruct_creator_report(
+        _memory_record(), {"title": "Fixture saved project"}, revision=2
+    )
+    saved = restored["report"]["saved_history"]
+    st.info(
+        f"Saved historical analysis · originally analyzed {saved['analysis_date'][:10]} "
+        f"· revision {saved['revision']} · no analysis rerun"
+    )
+    render_report(restored["report"], "creator", {})
+elif state == "history-partial":
+    st.caption("Fixture-based UI validation · not a real-video replay")
+    restored = reconstruct_creator_report(
+        _memory_record(partial=True), {"title": "Fixture partial project"}, revision=1
+    )
+    _fallback_saved_report(restored, "creator")
+elif state == "comparison":
+    st.caption("Fixture-based UI validation · not a real-video replay")
+    current = _report()
+    render_report(current, "creator", {})
+    render_current_comparison({
+        "state": "partially_matches_history",
+        "message": "The subject-first opening is familiar, while the two-phase progression differs from most saved analyses.",
+        "evidence": {"baseline_analyses": 4},
+    })
 else:
     report = _report()
     creative = report["creator_report"]
