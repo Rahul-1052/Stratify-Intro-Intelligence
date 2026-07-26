@@ -1,0 +1,15 @@
+{
+  "name": "first-product-validation-sprint",
+  "cases": [
+    {"case_id": "food-01", "url": "", "creator": "", "title": "", "niche": "food", "expected_source_type": "youtube", "notes": "Human input required.", "enabled": false},
+    {"case_id": "finance-01", "url": "", "creator": "", "title": "", "niche": "finance", "expected_source_type": "youtube", "enabled": false},
+    {"case_id": "technology-01", "url": "", "creator": "", "title": "", "niche": "technology", "expected_source_type": "youtube", "enabled": false},
+    {"case_id": "gaming-01", "url": "", "creator": "", "title": "", "niche": "gaming", "expected_source_type": "youtube", "enabled": false},
+    {"case_id": "education-01", "url": "", "creator": "", "title": "", "niche": "education", "expected_source_type": "youtube", "enabled": false},
+    {"case_id": "vlog-01", "url": "", "creator": "", "title": "", "niche": "vlog", "expected_source_type": "youtube", "enabled": false},
+    {"case_id": "podcast-01", "url": "", "creator": "", "title": "", "niche": "podcast", "expected_source_type": "youtube", "enabled": false},
+    {"case_id": "documentary-01", "url": "", "creator": "", "title": "", "niche": "documentary", "expected_source_type": "youtube", "enabled": false},
+    {"case_id": "entertainment-01", "url": "", "creator": "", "title": "", "niche": "entertainment", "expected_source_type": "youtube", "enabled": false},
+    {"case_id": "small-creator-01", "url": "", "creator": "", "title": "", "niche": "small creator", "expected_source_type": "youtube", "enabled": false}
+  ]
+}

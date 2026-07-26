@@ -10,6 +10,7 @@ from stratify_platform.projects import create_project, restore_project
 from ui.components import ProgressPresenter
 from ui.report import render_report
 from ui.memory import render_memory_workspace, render_save_controls
+from ui.product_validation import render_product_validation
 from core.memory import CreatorMemoryService
 from core.product_access import access_for_mode
 from core.creator_report import build_creator_report
@@ -201,7 +202,12 @@ except Exception as exc:
     memory_error = exc
 project = restore_project(st.session_state.get("stratify_project"))
 render_platform_header(project)
-workspace_area = st.sidebar.radio("Workspace", ("Analyze", "Creator Memory"))
+workspace_options = ("Analyze", "Creator Memory", "Product Validation") if ACTIVE_PRODUCT_MODE == "builder" else ("Analyze", "Creator Memory")
+workspace_area = st.sidebar.radio("Workspace", workspace_options)
+
+if workspace_area == "Product Validation":
+    render_product_validation(ACTIVE_PRODUCT_MODE)
+    st.stop()
 
 if workspace_area == "Creator Memory":
     if memory_service:
