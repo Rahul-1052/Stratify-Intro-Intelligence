@@ -108,21 +108,19 @@ class TextExperimentSafetyTests(unittest.TestCase):
 
 
 class CreatorRenderingClarityTests(unittest.TestCase):
-    @patch("ui.report.render_card_grid")
-    @patch("ui.report.empty_state")
-    @patch("ui.report.st.markdown")
-    @patch("ui.report.section_heading")
+    @patch("ui.creator_report_v4.st.markdown")
+    @patch("ui.creator_report_v4.section_heading")
     def test_creator_terminology_removes_viewer_and_completeness_language(
-        self, heading, markdown, empty, grid,
+        self, heading, markdown,
     ):
         report, creator = creator_confidence(text="limited", recommendation="moderate")
         render_report(report, "creator", {})
         rendered = " ".join(call.args[0] for call in markdown.call_args_list)
         self.assertNotIn("First viewer experience", rendered)
-        self.assertIn("How the opening begins", rendered)
+        self.assertIn("Opening verdict", rendered)
         self.assertNotIn("Analysis completeness", rendered)
-        self.assertIn("Analysis status", rendered)
-        self.assertIn("Structural interpretation", rendered)
+        self.assertIn("Observation Confidence", rendered)
+        self.assertIn("Interpretation Confidence", rendered)
 
     def test_snapshot_opportunity_and_support_are_distinct(self):
         repeated = "The opening uses one long repeated Creative Understanding sentence."

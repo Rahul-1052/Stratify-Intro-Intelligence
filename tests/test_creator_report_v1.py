@@ -45,18 +45,17 @@ class CreatorReportV1Tests(unittest.TestCase):
         creator = build_creator_report(report)
         self.assertFalse(any(item["benchmark_supported"] for item in creator["experiments"]))
 
-    @patch("ui.report.render_advanced_analysis")
-    @patch("ui.report.render_card_grid")
-    @patch("ui.report.st.markdown")
-    @patch("ui.report.section_heading")
-    def test_report_renders_all_required_sections(self, heading, markdown, grid, advanced):
+    @patch("ui.creator_report_v4.render_advanced_analysis")
+    @patch("ui.creator_report_v4.section_heading")
+    def test_report_renders_all_required_sections(self, heading, advanced):
         report = observed_report()
         report["creator_report"] = build_creator_report(report)
         render_report(report, "creator", {})
         titles = [call.args[0] for call in heading.call_args_list]
         self.assertEqual(titles, [
-            "Opening Snapshot", "What's Working", "Biggest Opportunity",
-            "Experiments to Run", "Evidence and Confidence",
+            "Hero Summary", "Story of the Intro", "Strongest Finding",
+            "Primary Experiment", "Confidence Breakdown", "Benchmarks",
+            "Supporting Evidence", "What Stratify Cannot Conclude",
         ])
         advanced.assert_not_called()
 

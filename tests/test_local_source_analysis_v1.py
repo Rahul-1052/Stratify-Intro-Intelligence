@@ -114,9 +114,7 @@ class LocalReportTests(unittest.TestCase):
 
     def test_creator_mode_discloses_local_and_benchmark_limits(self):
         report, _ = self._run_local()
-        with patch("ui.report.st") as st, patch("ui.report.render_card_grid"), \
-             patch("ui.report.section_heading"), patch("ui.report.empty_state"), \
-             patch("ui.report.render_advanced_analysis"):
+        with patch("ui.creator_report_v4.st") as st:
             render_report(report, "creator", {})
         message = " ".join(str(call.args[0]) for call in st.info.call_args_list)
         self.assertIn("Local source analysis", message)

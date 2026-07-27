@@ -38,8 +38,8 @@ class StreamlitWorkspaceTests(unittest.TestCase):
         project_view = " ".join(item.value for item in app.markdown)
         self.assertIn("Offline creator project", project_view)
         headings = [item.value for item in app.header]
-        self.assertIn("Opening Snapshot", headings)
-        self.assertIn("Experiments to Run", headings)
+        self.assertIn("Hero Summary", headings)
+        self.assertIn("Primary Experiment", headings)
 
     def test_creator_fallback_message_hides_internal_warning(self):
         app = AppTest.from_file("app.py")

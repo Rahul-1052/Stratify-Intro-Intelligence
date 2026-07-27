@@ -74,11 +74,8 @@ class CreatorProductReadinessTests(unittest.TestCase):
             "Preparing the report",
         ))
 
-    @patch("ui.report.render_advanced_analysis")
-    @patch("ui.report.render_card_grid")
-    @patch("ui.report.st.markdown")
-    @patch("ui.report.section_heading")
-    def test_creator_builder_isolation(self, heading, markdown, grid, advanced):
+    @patch("ui.creator_report_v4.render_advanced_analysis")
+    def test_creator_builder_isolation(self, advanced):
         report = semantic_report()
         render_report(report, "creator", {})
         advanced.assert_not_called()
