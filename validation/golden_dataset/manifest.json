@@ -6,6 +6,13 @@
       "case_id": "gd-001-static-talking-head",
       "source_type": "local_clip",
       "local_clip_path": "clips/gd-001-static-talking-head.mp4",
+      "expected_observations": [
+        {"metric": "visual_energy", "expected_value": "low", "comparison": "ordered", "tolerance": 1, "weight": 1.0, "required": true, "description": "The stable composition should remain low-energy."},
+        {"metric": "motion_score_mean", "expected_value": 2.0, "comparison": "numeric_max", "weight": 1.0, "required": true},
+        {"metric": "change_count", "expected_value": 1, "comparison": "numeric_max", "weight": 1.0, "required": true},
+        {"metric": "subject_intro_seconds", "expected_value": 1.0, "comparison": "temporal_before", "weight": 1.0, "required": true},
+        {"metric": "text_intro_seconds", "expected_value": "absent", "comparison": "presence", "weight": 0.5, "required": false}
+      ],
       "youtube_url": "",
       "creator_style": "talking head",
       "content_category": "general",
@@ -25,6 +32,13 @@
       "case_id": "gd-002-rapid-montage",
       "source_type": "local_clip",
       "local_clip_path": "clips/gd-002-rapid-montage.mp4",
+      "expected_observations": [
+        {"metric": "visual_energy", "expected_value": "high", "comparison": "ordered", "tolerance": 0, "weight": 1.0, "required": true},
+        {"metric": "motion_score_mean", "expected_value": 15.0, "comparison": "numeric_min", "weight": 1.0, "required": true},
+        {"metric": "scene_change_count", "expected_value": 5, "comparison": "numeric_min", "weight": 1.5, "required": true},
+        {"metric": "scene_continuity", "expected_value": 0.4, "comparison": "numeric_max", "weight": 1.0, "required": true},
+        {"metric": "novelty_mean", "expected_value": 0.5, "comparison": "numeric_min", "weight": 1.0, "required": false}
+      ],
       "youtube_url": "",
       "creator_style": "fast-cut montage",
       "content_category": "entertainment",
@@ -44,6 +58,12 @@
       "case_id": "gd-003-early-subject",
       "source_type": "local_clip",
       "local_clip_path": "clips/gd-003-early-subject.mp4",
+      "expected_observations": [
+        {"metric": "subject_intro_seconds", "expected_value": 1.0, "comparison": "temporal_before", "weight": 1.5, "required": true},
+        {"metric": "subject_presence_ratio", "expected_value": 0.8, "comparison": "numeric_min", "weight": 1.0, "required": true},
+        {"metric": "subject_continuity", "expected_value": "stable_visible_subject", "comparison": "exact", "weight": 1.0, "required": true},
+        {"metric": "change_count", "expected_value": 2, "comparison": "numeric_max", "weight": 0.5, "required": false}
+      ],
       "youtube_url": "",
       "creator_style": "vlog",
       "content_category": "lifestyle",
@@ -62,6 +82,12 @@
       "case_id": "gd-004-delayed-subject",
       "source_type": "local_clip",
       "local_clip_path": "clips/gd-004-delayed-subject.mp4",
+      "expected_observations": [
+        {"metric": "subject_initially_present", "expected_value": false, "comparison": "boolean", "weight": 1.0, "required": true},
+        {"metric": "subject_intro_seconds", "expected_value": 3.0, "comparison": "temporal_after", "weight": 1.5, "required": true},
+        {"metric": "subject_presence_ratio", "expected_value": 0.4, "comparison": "numeric_min", "weight": 1.0, "required": true},
+        {"metric": "information_intro_seconds", "expected_value": 3.0, "comparison": "temporal_after", "weight": 1.0, "required": false}
+      ],
       "youtube_url": "",
       "creator_style": "documentary",
       "content_category": "documentary",
@@ -80,6 +106,11 @@
       "case_id": "gd-005-early-text",
       "source_type": "local_clip",
       "local_clip_path": "clips/gd-005-early-text.mp4",
+      "expected_observations": [
+        {"metric": "text_intro_seconds", "expected_value": 1.5, "comparison": "temporal_before", "weight": 1.5, "required": true},
+        {"metric": "text_initially_present", "expected_value": true, "comparison": "boolean", "weight": 1.0, "required": true},
+        {"metric": "text_presence_ratio", "expected_value": 0.1, "comparison": "numeric_min", "weight": 1.0, "required": true}
+      ],
       "youtube_url": "",
       "creator_style": "news",
       "content_category": "news",
@@ -98,6 +129,11 @@
       "case_id": "gd-006-late-text",
       "source_type": "local_clip",
       "local_clip_path": "clips/gd-006-late-text.mp4",
+      "expected_observations": [
+        {"metric": "text_initially_present", "expected_value": false, "comparison": "boolean", "weight": 1.0, "required": true},
+        {"metric": "text_intro_seconds", "expected_value": 4.0, "comparison": "temporal_after", "weight": 1.5, "required": true},
+        {"metric": "text_presence_ratio", "expected_value": 0.2, "comparison": "numeric_min", "weight": 1.0, "required": true}
+      ],
       "youtube_url": "",
       "creator_style": "education",
       "content_category": "education",
@@ -116,6 +152,12 @@
       "case_id": "gd-007-frequent-scenes",
       "source_type": "local_clip",
       "local_clip_path": "clips/gd-007-frequent-scenes.mp4",
+      "expected_observations": [
+        {"metric": "scene_change_count", "expected_value": 5, "comparison": "numeric_min", "weight": 1.5, "required": true},
+        {"metric": "scene_continuity", "expected_value": 0.35, "comparison": "numeric_max", "weight": 1.0, "required": true},
+        {"metric": "novelty_mean", "expected_value": 0.4, "comparison": "numeric_min", "weight": 1.0, "required": true},
+        {"metric": "motion_score_mean", "expected_value": 8.0, "comparison": "numeric_min", "weight": 0.5, "required": false}
+      ],
       "youtube_url": "",
       "creator_style": "trailer",
       "content_category": "entertainment",
@@ -134,6 +176,12 @@
       "case_id": "gd-008-no-scenes",
       "source_type": "local_clip",
       "local_clip_path": "clips/gd-008-no-scenes.mp4",
+      "expected_observations": [
+        {"metric": "scene_change_count", "expected_value": 1, "comparison": "numeric_max", "weight": 1.0, "required": true},
+        {"metric": "scene_continuity", "expected_value": 0.85, "comparison": "numeric_min", "weight": 1.0, "required": true},
+        {"metric": "novelty_mean", "expected_value": 0.2, "comparison": "numeric_max", "weight": 0.75, "required": false},
+        {"metric": "motion_score_mean", "expected_value": 2.0, "comparison": "numeric_max", "weight": 0.75, "required": true}
+      ],
       "youtube_url": "",
       "creator_style": "podcast",
       "content_category": "conversation",
@@ -152,6 +200,11 @@
       "case_id": "gd-009-stable-anchor",
       "source_type": "local_clip",
       "local_clip_path": "clips/gd-009-stable-anchor.mp4",
+      "expected_observations": [
+        {"metric": "focal_stability", "expected_value": "stable", "comparison": "exact", "weight": 1.5, "required": true},
+        {"metric": "density_classification", "expected_value": "high_density_stable_focal_anchor", "comparison": "exact", "weight": 1.0, "required": true},
+        {"metric": "change_count", "expected_value": 2, "comparison": "numeric_max", "weight": 0.75, "required": false}
+      ],
       "youtube_url": "",
       "creator_style": "product review",
       "content_category": "technology",
@@ -170,6 +223,11 @@
       "case_id": "gd-010-competing-focal",
       "source_type": "local_clip",
       "local_clip_path": "clips/gd-010-competing-focal.mp4",
+      "expected_observations": [
+        {"metric": "density_classification", "expected_value": "high_density_competing_focal_regions", "comparison": "exact", "weight": 1.5, "required": true},
+        {"metric": "focal_stability", "expected_value": "variable", "comparison": "exact", "weight": 1.0, "required": true},
+        {"metric": "average_visible_elements", "expected_value": 2.0, "comparison": "numeric_min", "weight": 1.0, "required": true}
+      ],
       "youtube_url": "",
       "creator_style": "gaming",
       "content_category": "gaming",

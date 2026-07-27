@@ -19,6 +19,7 @@ def parser():
     value.add_argument("--compare-run")
     value.add_argument("--output-dir", default="validation/golden_dataset/runs")
     value.add_argument("--no-network", action="store_true")
+    value.add_argument("--evaluate", action="store_true")
     return value
 
 
@@ -44,6 +45,13 @@ def main(argv=None):
     print(f"Cases selected: {len(cases)}")
     print(f"Results: {counts}")
     print(f"Saved: {Path(location)}")
+    if args.evaluate:
+        from core.beta.observation_accuracy import (
+            console_summary, evaluate_saved_run,
+        )
+        accuracy, accuracy_path = evaluate_saved_run(location, args.manifest)
+        print()
+        print(console_summary(accuracy, accuracy_path))
     return 0
 
 
