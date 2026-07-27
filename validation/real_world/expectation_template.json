@@ -1,0 +1,19 @@
+{
+  "instructions": "Copy only metrics you can annotate. Replace example values before locking.",
+  "expectations": [
+    {"metric": "scene_change_count", "expected_value": [0, 3], "comparison": "numeric_range", "tolerance": 0, "weight": 1, "required": false, "description": "Count visible scene changes."},
+    {"metric": "scene_continuity", "expected_value": 0.7, "comparison": "numeric_min", "tolerance": 0, "weight": 1, "required": false, "description": "Minimum continuity ratio."},
+    {"metric": "novelty_mean", "expected_value": [0.0, 1.0], "comparison": "numeric_range", "tolerance": 0, "weight": 1, "required": false, "description": "Acceptable mean novelty range."},
+    {"metric": "motion_score_mean", "expected_value": [0.0, 1.0], "comparison": "numeric_range", "tolerance": 0, "weight": 1, "required": false, "description": "Acceptable mean motion range."},
+    {"metric": "visual_energy", "expected_value": "moderate", "comparison": "ordered", "tolerance": 1, "weight": 1, "required": false, "description": "Ordered visual energy class."},
+    {"metric": "text_initially_present", "expected_value": true, "comparison": "boolean", "tolerance": 0, "weight": 1, "required": false, "description": "Whether text is present at the first sample."},
+    {"metric": "text_intro_seconds", "expected_value": 2.0, "comparison": "temporal_before", "tolerance": 0, "weight": 1, "required": false, "description": "Text appears at or before this time."},
+    {"metric": "text_presence_ratio", "expected_value": [0.0, 1.0], "comparison": "numeric_range", "tolerance": 0, "weight": 1, "required": false, "description": "Text-present sample ratio."},
+    {"metric": "subject_initially_present", "expected_value": true, "comparison": "boolean", "tolerance": 0, "weight": 1, "required": false, "description": "Whether a subject is present at the first sample."},
+    {"metric": "subject_intro_seconds", "expected_value": 2.0, "comparison": "temporal_before", "tolerance": 0, "weight": 1, "required": false, "description": "Subject appears at or before this time."},
+    {"metric": "subject_presence_ratio", "expected_value": [0.0, 1.0], "comparison": "numeric_range", "tolerance": 0, "weight": 1, "required": false, "description": "Subject-present sample ratio."},
+    {"metric": "focal_stability", "expected_value": "moderate", "comparison": "ordered", "tolerance": 1, "weight": 1, "required": false, "description": "Ordered focal-stability class."},
+    {"metric": "density_classification", "expected_value": "moderate", "comparison": "exact", "tolerance": 0, "weight": 1, "required": false, "description": "Exact density classification."},
+    {"metric": "average_visible_elements", "expected_value": [1, 5], "comparison": "numeric_range", "tolerance": 0, "weight": 1, "required": false, "description": "Acceptable visible-element range."}
+  ]
+}
