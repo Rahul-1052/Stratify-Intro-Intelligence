@@ -43,7 +43,10 @@ class GoldenDatasetTests(unittest.TestCase):
                 load_golden_manifest(path)
 
     def test_missing_clips_are_skipped_without_analyzer(self):
-        case = load_golden_manifest(MANIFEST)["cases"][0]
+        case = {
+            **load_golden_manifest(MANIFEST)["cases"][0],
+            "local_clip_path": "clips/does-not-exist.mp4",
+        }
         analyzer = MagicMock()
         with tempfile.TemporaryDirectory() as folder:
             run, _ = GoldenDatasetRunner(analyzer).run([case], folder, no_network=True)

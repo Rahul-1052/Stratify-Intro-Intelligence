@@ -93,6 +93,7 @@ class GoldenDatasetRunner:
             "intro_intelligence", url=case.get("youtube_url", ""),
             intro_seconds=int(case.get("intro_duration") or 15), frame_fps=1,
             uploaded_video_path=str(clip), local_source_type="uploaded_file",
+            no_network=bool(case.get("_no_network")),
         )
 
     def run(self, cases, output_dir, no_network=False, compare_run=None):
@@ -121,7 +122,7 @@ class GoldenDatasetRunner:
                 continue
             started = time.perf_counter()
             try:
-                report = self.analyzer(case, clip)
+                report = self.analyzer({**case, "_no_network": no_network}, clip)
                 runtime = round(time.perf_counter() - started, 3)
                 creator = report.get("creator_report") or {}
                 supported = bool((creator.get("biggest_opportunity") or {}).get("supported"))
