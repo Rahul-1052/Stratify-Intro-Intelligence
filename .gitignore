@@ -14,3 +14,5 @@ temp_uploads/
 *.db-journal
 *.db-wal
 *.db-shm
+
+validation/golden_dataset/runs/*/
