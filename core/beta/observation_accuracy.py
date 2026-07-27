@@ -183,10 +183,20 @@ def normalize_observations(report):
         - (intelligence.get("sample_coverage") or {}).get("start_time", 0)
     )
     stable_duration = (changes.get("longest_stable_interval") or {}).get("duration")
-    add("scene_continuity", round(float(stable_duration) / span, 3)
+    calibrated_continuity = changes.get("scene_continuity")
+    add("scene_continuity", calibrated_continuity if calibrated_continuity is not None
+        else round(float(stable_duration) / span, 3)
         if stable_duration is not None and span > 0 else None,
-        "intelligence_v3.visual_change_timing.longest_stable_interval",
-        interpretation_confidence, evidence={"sample_span": span})
+        (
+            "intelligence_v3.visual_change_timing.scene_continuity"
+            if calibrated_continuity is not None
+            else "intelligence_v3.visual_change_timing.longest_stable_interval"
+        ),
+        interpretation_confidence, evidence={
+            "sample_span": span,
+            "scene_change_count": changes.get("scene_change_count"),
+            "formula": changes.get("scene_continuity_formula"),
+        })
     add("cadence_progression", cadence.get("progression"),
         "intelligence_v3.visual_cadence.progression", interpretation_confidence)
     add("cadence_interval_median", cadence.get("median_interval"),
@@ -230,22 +240,43 @@ def normalize_observations(report):
         "vision.frame_observations.text_overlay", text_confidence)
     add("text_presence_ratio",
         round(len(text_frames) / len(frames), 3) if frames else None,
-        "vision.frame_observations.text_overlay", text_confidence)
+        "vision.frame_observations.text_overlay", text_confidence,
+        evidence={"timestamps": [item.get("timestamp") for item in text_frames]})
+    add("text_present", bool(text_frames),
+        "vision.frame_observations.text_overlay", text_confidence,
+        evidence={"timestamps": [item.get("timestamp") for item in text_frames]})
     add("information_intro_seconds", information.get("time_to_first_event"),
         "intelligence_v3.information_introduction.time_to_first_event",
         interpretation_confidence)
     add("information_event_count", information.get("event_count"),
         "intelligence_v3.information_introduction.event_count",
         interpretation_confidence)
+    density_confidence = CONFIDENCE_VALUES.get(
+        str(density.get("confidence") or "limited").lower(),
+        interpretation_confidence,
+    )
     add("density_classification", density.get("classification"),
         "intelligence_v3.visual_density.classification",
-        interpretation_confidence)
-    add("average_visible_elements", density.get("average_elements"),
-        "intelligence_v3.visual_density.average_elements",
-        interpretation_confidence)
+        density_confidence, evidence={
+            "dominance": density.get("focal_dominance_score"),
+            "competition": density.get("focal_competition_score"),
+            "centroid_drift": density.get("focal_centroid_drift"),
+        })
+    visible_elements = density.get(
+        "average_visible_elements", density.get("average_elements")
+    )
+    add("average_visible_elements", visible_elements,
+        "intelligence_v3.visual_density.average_visible_elements"
+        if density.get("average_visible_elements") is not None
+        else "intelligence_v3.visual_density.average_elements",
+        density_confidence)
     add("focal_stability", density.get("focal_stability"),
         "intelligence_v3.visual_density.focal_stability",
-        interpretation_confidence)
+        density_confidence, evidence={
+            "centroid_drift": density.get("focal_centroid_drift"),
+            "dominance": density.get("focal_dominance_score"),
+            "competition": density.get("focal_competition_score"),
+        })
     return normalized
 
 

@@ -2,6 +2,7 @@
 
 from dataclasses import asdict, dataclass, field
 from statistics import median
+import math
 from typing import Any, Dict, List, Mapping
 
 
@@ -114,10 +115,23 @@ def _events(frames):
     for index in range(1, len(frames)):
         previous, current = _state(frames[index - 1]), _state(frames[index])
         differences = _meaningful_differences(previous, current)
+        if frames[index].get("scene_cut_detected") and not any(
+            item[0] == "scene_change" for item in differences
+        ):
+            differences.append((
+                "scene_change", "perceptual_scene_cut",
+                "previous_visual_state", "new_visual_state",
+            ))
         if not differences:
             continue
         timestamp = _number(frames[index].get("timestamp"), index)
-        novelty = min(1.0, len({item[1] for item in differences}) / 5.0)
+        perceptual_novelty = _number(
+            frames[index].get("perceptual_novelty_score")
+        )
+        novelty = max(
+            perceptual_novelty,
+            min(1.0, len({item[1] for item in differences}) / 5.0),
+        )
         for event_type, key, before, after in differences:
             warnings = []
             strength = "moderate"
@@ -134,6 +148,9 @@ def _events(frames):
                         abs(current["brightness"] - previous["brightness"]), 3
                     ),
                     "sample_before": index - 1, "sample_after": index,
+                    "scene_cut_score": _number(
+                        frames[index].get("scene_cut_score")
+                    ),
                 },
                 warnings=warnings, novelty_score=round(novelty, 3),
             ))
@@ -187,6 +204,75 @@ def _density(frames):
     if len(frames) < 2:
         return {"classification": "insufficient_evidence", "average_elements": 0.0,
                 "focal_stability": "unavailable"}
+    geometric = any(
+        frame.get("prominent_region_count") is not None for frame in frames
+    )
+    if geometric:
+        counts = [
+            int(_number(frame.get("prominent_region_count")))
+            for frame in frames
+        ]
+        dominance = [
+            _number(frame.get("focal_dominance_score"))
+            for frame in frames
+        ]
+        competition = [
+            _number(frame.get("focal_competition_score"))
+            for frame in frames
+        ]
+        centroids = [
+            frame.get("focal_centroid") for frame in frames
+            if isinstance(frame.get("focal_centroid"), (list, tuple))
+            and len(frame.get("focal_centroid")) == 2
+        ]
+        if centroids:
+            center = (
+                median([float(item[0]) for item in centroids]),
+                median([float(item[1]) for item in centroids]),
+            )
+            drift = mean_distance = sum(
+                math.dist((float(item[0]), float(item[1])), center)
+                for item in centroids
+            ) / len(centroids)
+        else:
+            drift = mean_distance = None
+        average = sum(counts) / len(counts)
+        average_dominance = sum(dominance) / len(dominance)
+        average_competition = sum(competition) / len(competition)
+        stable = (
+            mean_distance is not None
+            and mean_distance <= 0.08
+            and average_dominance >= 0.52
+            and average_competition < 0.52
+        )
+        if average >= 1.6 and average_competition >= 0.52:
+            classification = "high_density_competing_focal_regions"
+        elif stable and average >= 1.0:
+            classification = "high_density_stable_focal_anchor"
+        else:
+            classification = "low_density"
+        confidence_values = [
+            str(frame.get("focal_structure_confidence") or "limited")
+            for frame in frames
+        ]
+        confidence = (
+            "high" if confidence_values.count("high") >= len(frames) * 0.6
+            else "moderate" if any(value != "limited" for value in confidence_values)
+            else "limited"
+        )
+        return {
+            "classification": classification,
+            "density_level": "high" if average >= 1.6 else "low",
+            "average_elements": round(average, 3),
+            "average_visible_elements": round(average, 3),
+            "focal_stability": "stable" if stable else "variable",
+            "focal_centroid_drift": round(drift, 3) if drift is not None else None,
+            "focal_dominance_score": round(average_dominance, 3),
+            "focal_competition_score": round(average_competition, 3),
+            "element_counts": counts,
+            "confidence": confidence,
+            "provenance": "frame_observations.prominent_regions",
+        }
     element_counts, focal = [], []
     for frame in frames:
         state = _state(frame)
@@ -205,6 +291,7 @@ def _density(frames):
     else:
         classification = "high_density_competing_focal_regions"
     return {"classification": classification, "average_elements": round(average, 3),
+            "average_visible_elements": round(average, 3),
             "focal_stability": "stable" if focal_stable else "variable",
             "element_counts": element_counts}
 
@@ -254,7 +341,13 @@ def build_intelligence_v3(frame_observations, benchmark_context=None):
         ),
         "progression": _progression(intervals),
     }
-    novelty_values = [event.novelty_score for event in events]
+    novelty_values = [
+        round(_number(frame.get("perceptual_novelty_score")), 3)
+        for frame in frames[1:]
+        if frame.get("perceptual_novelty_score") is not None
+    ]
+    if not novelty_values:
+        novelty_values = [event.novelty_score for event in events]
     novelty = {
         "scores": novelty_values,
         "average": round(sum(novelty_values) / len(novelty_values), 3)
@@ -278,6 +371,25 @@ def build_intelligence_v3(frame_observations, benchmark_context=None):
         "periods_without_new_information": stable,
     }
     density = _density(frames)
+    scene_cut_timestamps = sorted({
+        event.timestamp for event in events if event.event_type == "scene_change"
+    })
+    sample_span = max(end_time - first_time, 0.0)
+    if sample_span > 0:
+        cut_boundaries = [first_time, *scene_cut_timestamps, end_time]
+        cut_intervals = [
+            max(0.0, right - left)
+            for left, right in zip(cut_boundaries, cut_boundaries[1:])
+        ]
+        longest_cut_free_ratio = max(cut_intervals, default=sample_span) / sample_span
+        cut_ratio = min(
+            1.0, len(scene_cut_timestamps) / max(len(frames) - 1, 1)
+        )
+        scene_continuity = round(
+            0.55 * (1.0 - cut_ratio) + 0.45 * longest_cut_free_ratio, 3
+        )
+    else:
+        scene_continuity = None
     coverage = len(frames)
     qualified = coverage >= 3
     observation_confidence = "high" if coverage >= 8 else "moderate" if qualified else "limited"
@@ -297,6 +409,12 @@ def build_intelligence_v3(frame_observations, benchmark_context=None):
             "longest_stable_interval": longest,
             "early_window_change_count": sum(timestamp <= first_time + 5 for timestamp in change_timestamps),
             "late_window_change_count": sum(timestamp > first_time + 5 for timestamp in change_timestamps),
+            "scene_change_count": len(scene_cut_timestamps),
+            "scene_continuity": scene_continuity,
+            "scene_continuity_formula": (
+                "0.55 * (1 - sampled_cut_ratio) + "
+                "0.45 * longest_cut_free_interval_ratio"
+            ),
         }, event_dicts, qualified=qualified, strength=observation_confidence,
                  limitations=["Sampled frames can miss changes between timestamps."]),
         _finding("v3-cadence", "visual_cadence", frames, cadence, event_dicts,
