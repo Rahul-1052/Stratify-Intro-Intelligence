@@ -1,0 +1,190 @@
+{
+  "cases": [
+    {
+      "case_id": "gd-001-static-talking-head",
+      "reason": "Local clip is missing.",
+      "runtime_seconds": 0,
+      "status": "skipped"
+    },
+    {
+      "case_id": "gd-002-rapid-montage",
+      "reason": "Local clip is missing.",
+      "runtime_seconds": 0,
+      "status": "skipped"
+    },
+    {
+      "case_id": "gd-003-early-subject",
+      "reason": "Local clip is missing.",
+      "runtime_seconds": 0,
+      "status": "skipped"
+    },
+    {
+      "case_id": "gd-004-delayed-subject",
+      "reason": "Local clip is missing.",
+      "runtime_seconds": 0,
+      "status": "skipped"
+    },
+    {
+      "case_id": "gd-005-early-text",
+      "reason": "Local clip is missing.",
+      "runtime_seconds": 0,
+      "status": "skipped"
+    },
+    {
+      "case_id": "gd-006-late-text",
+      "reason": "Local clip is missing.",
+      "runtime_seconds": 0,
+      "status": "skipped"
+    },
+    {
+      "case_id": "gd-007-frequent-scenes",
+      "reason": "Local clip is missing.",
+      "runtime_seconds": 0,
+      "status": "skipped"
+    },
+    {
+      "case_id": "gd-008-no-scenes",
+      "reason": "Local clip is missing.",
+      "runtime_seconds": 0,
+      "status": "skipped"
+    },
+    {
+      "case_id": "gd-009-stable-anchor",
+      "reason": "Local clip is missing.",
+      "runtime_seconds": 0,
+      "status": "skipped"
+    },
+    {
+      "case_id": "gd-010-competing-focal",
+      "reason": "Local clip is missing.",
+      "runtime_seconds": 0,
+      "status": "skipped"
+    },
+    {
+      "case_id": "gd-011-slow-information",
+      "reason": "Local clip is missing.",
+      "runtime_seconds": 0,
+      "status": "skipped"
+    },
+    {
+      "case_id": "gd-012-rapid-information",
+      "reason": "Local clip is missing.",
+      "runtime_seconds": 0,
+      "status": "skipped"
+    },
+    {
+      "case_id": "gd-013-accelerating",
+      "reason": "Local clip is missing.",
+      "runtime_seconds": 0,
+      "status": "skipped"
+    },
+    {
+      "case_id": "gd-014-decelerating",
+      "reason": "Local clip is missing.",
+      "runtime_seconds": 0,
+      "status": "skipped"
+    },
+    {
+      "case_id": "gd-015-irregular",
+      "reason": "Local clip is missing.",
+      "runtime_seconds": 0,
+      "status": "skipped"
+    },
+    {
+      "case_id": "gd-016-near-identical-cuts",
+      "reason": "Local clip is missing.",
+      "runtime_seconds": 0,
+      "status": "skipped"
+    },
+    {
+      "case_id": "gd-017-interview",
+      "reason": "Local clip is missing.",
+      "runtime_seconds": 0,
+      "status": "skipped"
+    },
+    {
+      "case_id": "gd-018-podcast-single",
+      "reason": "Local clip is missing.",
+      "runtime_seconds": 0,
+      "status": "skipped"
+    },
+    {
+      "case_id": "gd-019-product-closeup",
+      "reason": "Local clip is missing.",
+      "runtime_seconds": 0,
+      "status": "skipped"
+    },
+    {
+      "case_id": "gd-020-screen-recording",
+      "reason": "Local clip is missing.",
+      "runtime_seconds": 0,
+      "status": "skipped"
+    },
+    {
+      "case_id": "gd-021-gameplay",
+      "reason": "Local clip is missing.",
+      "runtime_seconds": 0,
+      "status": "skipped"
+    },
+    {
+      "case_id": "gd-022-documentary-cold",
+      "reason": "Local clip is missing.",
+      "runtime_seconds": 0,
+      "status": "skipped"
+    },
+    {
+      "case_id": "gd-023-news",
+      "reason": "Local clip is missing.",
+      "runtime_seconds": 0,
+      "status": "skipped"
+    },
+    {
+      "case_id": "gd-024-finance",
+      "reason": "Local clip is missing.",
+      "runtime_seconds": 0,
+      "status": "skipped"
+    },
+    {
+      "case_id": "gd-025-whiteboard",
+      "reason": "Local clip is missing.",
+      "runtime_seconds": 0,
+      "status": "skipped"
+    },
+    {
+      "case_id": "gd-026-vlog-cold",
+      "reason": "Local clip is missing.",
+      "runtime_seconds": 0,
+      "status": "skipped"
+    },
+    {
+      "case_id": "gd-027-cinematic",
+      "reason": "Local clip is missing.",
+      "runtime_seconds": 0,
+      "status": "skipped"
+    },
+    {
+      "case_id": "gd-028-animation",
+      "reason": "Local clip is missing.",
+      "runtime_seconds": 0,
+      "status": "skipped"
+    },
+    {
+      "case_id": "gd-029-low-light",
+      "reason": "Local clip is missing.",
+      "runtime_seconds": 0,
+      "status": "skipped"
+    },
+    {
+      "case_id": "gd-030-high-density",
+      "reason": "Local clip is missing.",
+      "runtime_seconds": 0,
+      "status": "skipped"
+    }
+  ],
+  "comparison": [],
+  "git_commit": "4d5a2af",
+  "no_network": true,
+  "run_id": "20260727T003146Z-434fa82e",
+  "schema_version": 1,
+  "timestamp": "2026-07-27T00:31:46.764082+00:00"
+}

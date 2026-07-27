@@ -9,6 +9,8 @@ temp_uploads/
 .stratify_cache/
 .stratify_data/
 .stratify_validation/
+.stratify_beta/
+.stratify_beta_preview/
 *.db-journal
 *.db-wal
 *.db-shm

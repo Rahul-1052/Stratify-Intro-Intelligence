@@ -11,10 +11,14 @@ from ui.components import ProgressPresenter
 from ui.report import render_report
 from ui.memory import render_memory_workspace, render_save_controls
 from ui.product_validation import render_product_validation
+from ui.beta import render_beta_dashboard
+from core.beta import BetaService
 from core.memory import CreatorMemoryService
 from core.product_access import access_for_mode
 from core.creator_report import build_creator_report
 from core.creator_presentation import creator_confidence_presentation, creator_status_message
+from core.product_validation.checks import run_quality_checks
+from core.beta.services import report_identifier
 from ui.theme import apply_theme
 from ui.workspace import (
     render_module_cards,
@@ -202,8 +206,15 @@ except Exception as exc:
     memory_error = exc
 project = restore_project(st.session_state.get("stratify_project"))
 render_platform_header(project)
-workspace_options = ("Analyze", "Creator Memory", "Product Validation") if ACTIVE_PRODUCT_MODE == "builder" else ("Analyze", "Creator Memory")
+workspace_options = (
+    ("Analyze", "Creator Memory", "Product Validation", "Private Beta")
+    if ACTIVE_PRODUCT_MODE == "builder" else ("Analyze", "Creator Memory")
+)
 workspace_area = st.sidebar.radio("Workspace", workspace_options)
+
+if workspace_area == "Private Beta":
+    render_beta_dashboard(ACTIVE_PRODUCT_MODE)
+    st.stop()
 
 if workspace_area == "Product Validation":
     render_product_validation(ACTIVE_PRODUCT_MODE)
@@ -252,6 +263,13 @@ else:
             st.warning("Paste a complete video URL, including https://, or upload the opening clip instead.")
             st.stop()
 
+        beta_service = BetaService()
+        beta_session = st.session_state.setdefault("stratify_beta_session_id", uuid.uuid4().hex)
+        previous_runs = st.session_state.get("stratify_beta_analysis_count", 0)
+        beta_service.safe_track(
+            "another_analysis_started" if previous_runs else "analysis_started",
+            beta_session, source_type="uploaded_file" if uploaded_video else "youtube",
+        )
         project = create_project(
             source_url=url,
             upload_name=getattr(uploaded_video, "name", "") if uploaded_video else "",
@@ -261,12 +279,26 @@ else:
         st.session_state["stratify_project"] = project.to_session()
         report = build_report(url, uploaded_video)
         if report.get("status") == "failed":
+            beta_service.safe_track(
+                "analysis_failed", beta_session,
+                source_type="uploaded_file" if uploaded_video else "youtube",
+                metadata={"stage": report.get("stage", "unknown")},
+            )
             project.module_run_statuses["intro_intelligence"] = "failed"
             st.session_state["stratify_project"] = project.to_session()
             render_failure_state(report, ACTIVE_PRODUCT_MODE)
             st.stop()
 
         project.title = report.get("video", {}).get("title") or project.title
+        beta_service.safe_track(
+            "analysis_completed", beta_session, report_identifier(report),
+            source_type="uploaded_file" if uploaded_video else "youtube",
+            metadata={
+                "status": report.get("status", "unknown"),
+                "validation_warning_count": len(run_quality_checks(report)),
+            },
+        )
+        st.session_state["stratify_beta_analysis_count"] = previous_runs + 1
         project.record_result("intro_intelligence", report)
         st.session_state["stratify_project"] = project.to_session()
         st.rerun()

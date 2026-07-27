@@ -279,3 +279,5 @@ def render_report(report, product_mode, version_metadata, after_opportunity=None
         report, creator, presentation, product_mode, version_metadata,
         after_opportunity=after_opportunity,
     )
+    from ui.beta import render_creator_feedback
+    render_creator_feedback(report, product_mode)
