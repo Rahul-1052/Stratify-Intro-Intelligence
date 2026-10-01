@@ -17,3 +17,13 @@ Intake now has a review step before any YouTube call. The creator explicitly cho
 The API requires a validated inquiry with a supported focus, nonblank bounded question, optional bounded period and strict boolean confirmation. The response echoes that scope and attaches general evidence requirements for the selected focus. These are requirements, not observations or a diagnosis. A slow or branded opening is not assumed to be a problem. The requested period remains creator context: acquisition is still bounded and does not silently filter or assert that it covers that period.
 
 This implements explicit clarification and confirmation, not a conversational AI interpreter. Automatic paraphrasing, adaptive multi-turn questions, exact video/period selection, concern-specific measurement and conclusions remain future work. The form is not persisted across reloads.
+
+## Views investigation
+
+For the creator-selected reach focus, the workspace now offers explicit selection of recent and earlier video groups from the collected public inventory. Every video can be in at most one group. Creators state whether topics and formats are similar, different or unknown; these statements are labeled as creator context and never treated as independently verified observations.
+
+The calculation runs locally on the current evidence snapshot. It does not acquire new data, call a model or persist a diagnosis. It reports selected-video denominators, available counts, median lifetime views and publication ages at collection. Each group’s median is withheld if any selected count is missing or invalid. Differences are withheld when dates are missing, future-dated or interleaved; percentages are withheld when the earlier median is zero. Small groups are explicitly flagged. The calculation rejects duplicated, overlapping, empty or foreign selections.
+
+Even a valid descriptive lifetime-count difference cannot establish declining performance over equal time after publication or its cause. The result explains that limitation and identifies the next evidence to collect: matched post-publication view windows, impressions and traffic sources for the selected videos. No content-change recommendation or experiment is produced. Duration does not infer format. This does not yet retrieve or accept owner-authorized analytics.
+
+Changing selections or comparability clears stale results. Recollecting or editing the inquiry resets the comparison. Nine Node tests cover meaningful calculation edge cases; the browser workflow checks group selection, missing selection, descriptive output, focus, invalidation and accessibility with synthetic public-video fixtures.

@@ -40,21 +40,35 @@ await page.route('**/api/channel-workspace', route => route.fulfill({status:200,
   inquiry:{focus:'reach',question:'Which recent videos lost reach?',period:'Last six uploads',evidence_needed:['Views measured over the same time after publication']},
   concern:'Why are my views down?', fetched_at:'2026-10-01T12:00:00Z',
   channel:{title:'Fixture channel',source_url:'https://www.youtube.com/@fixture',created_at:'2020-01-01',subscribers:null,video_count:3},
-  coverage:{entries_checked:2,videos_available:1,unavailable_entries:1,more_uploads_available:true,uploads_playlist_available:true,oldest_published_at:'2026-01-01',newest_published_at:'2026-02-01'},
-  videos:[{video_id:'fixture1',title:'A deliberately long public video title to verify narrow screens',source_url:'https://www.youtube.com/watch?v=abcdefghijk',published_at:'2026-01-01',duration:'PT5M',views:0,likes:null,comments:null}],
+  coverage:{entries_checked:2,videos_available:2,unavailable_entries:0,more_uploads_available:true,uploads_playlist_available:true,oldest_published_at:'2026-01-01',newest_published_at:'2026-02-01'},
+  videos:[{video_id:'fixture1',title:'A deliberately long public video title to verify narrow screens',source_url:'https://www.youtube.com/watch?v=abcdefghijk',published_at:'2026-01-01',duration:'PT5M',views:0,likes:null,comments:null},{video_id:'fixture2',title:'Earlier tutorial',source_url:'https://www.youtube.com/watch?v=bcdefghijkl',published_at:'2025-01-01',duration:'PT6M',views:100,likes:3,comments:0}],
   limitations:['Public counts do not establish why performance changed.']
 })}));
 await page.getByRole('button',{name:'Confirm question and collect facts'}).click();
 await page.getByRole('heading',{name:'Fixture channel',exact:true}).waitFor();
 assert.equal(await page.locator(':focus').innerText(), 'Fixture channel');
 assert.equal(await page.locator('[aria-labelledby="channel-result-title"]').getByText('Which recent videos lost reach?',{exact:true}).count(),1);
-await page.getByText('Inspect the public video facts (1)',{exact:true}).click();
+await page.getByText('Inspect the public video facts (2)',{exact:true}).click();
 assert.equal(await page.getByRole('region',{name:'Channel video facts'}).getByText('Unavailable',{exact:true}).count(),2);
+await page.getByRole('button',{name:'Compare selected public facts'}).click();
+await page.getByRole('alert').filter({hasText:'Select at least one recent video and one earlier video.'}).waitFor();
+await page.getByLabel('Comparison group for A deliberately long public video title to verify narrow screens').selectOption('recent');
+await page.getByLabel('Comparison group for Earlier tutorial').selectOption('earlier');
+await page.getByRole('button',{name:'Compare selected public facts'}).click();
+await page.getByRole('heading',{name:'What the selected videos show',exact:true}).waitFor();
+assert.equal(await page.locator(':focus').innerText(),'What the selected videos show');
+await page.getByText('These public facts cannot establish a decline over equal viewing time or explain its cause.',{exact:true}).waitFor();
+await page.getByText(/Difference: -100 views/).waitFor();
 for(const width of [1440,768,390,320]){
   await page.setViewportSize({width,height:1000});
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth), `channel overflow at ${width}`);
   await audit(page);await page.screenshot({path:`${qa}/channel-${width}.png`,fullPage:true});
 }
+await page.getByLabel('Do the groups use similar formats?').selectOption('different');
+assert.equal(await page.getByRole('heading',{name:'What the selected videos show',exact:true}).count(),0);
+await page.getByLabel('Comparison group for Earlier tutorial').selectOption('');
+await page.getByRole('button',{name:'Compare selected public facts'}).click();
+await page.getByRole('alert').filter({hasText:'Select at least one recent video and one earlier video.'}).waitFor();
 await page.getByRole('button',{name:'Edit channel or original concern'}).click();
 assert.equal(await page.getByRole('heading',{name:'Fixture channel',exact:true}).count(),0);
 await page.getByLabel('What would you like help understanding about your channel?').fill('I want to grow');

@@ -1,4 +1,5 @@
 'use client';
+import ViewsInvestigation from './views-investigation';
 import {FormEvent, useRef, useState} from 'react';
 type Workspace = {
   inquiry: {question: string; focus: string; period: string; evidence_needed: string[]};
@@ -101,6 +102,7 @@ export default function ChannelWorkspace() {
           </table>
         </div>
       </details>
+      {workspace.inquiry.focus === 'reach' && <ViewsInvestigation key={workspace.fetched_at} videos={workspace.videos} fetchedAt={workspace.fetched_at}/>}
       <div className="evidence-note"><h3>What we can’t conclude yet</h3><ul>{workspace.limitations.map(item => <li key={item}>{item}</li>)}</ul></div>
     </section>}
   </>;
