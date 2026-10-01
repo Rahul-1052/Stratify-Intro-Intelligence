@@ -10,3 +10,5 @@ button,select{min-height:40px}.table-scroll:focus-visible{outline:2px solid #5b5
 .skip-link{position:fixed;top:8px;left:8px;z-index:100;background:#fff;padding:12px;border:2px solid #5b51dd;transform:translateY(-150%)}.skip-link:focus{transform:none}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 @media(max-width:620px){header{flex-wrap:wrap;height:auto;min-height:65px;padding:14px 0}.section-title{gap:10px}.stats{grid-template-columns:1fr} .timeline li{grid-template-columns:54px minmax(0,1fr)}}
+.nav-label,.aside-bottom small,header,.lede,th,.muted,.limits,footer,.stats span,.report-heading p:not(.eyebrow),.evidence-note li{color:#5d6577}
+.eyebrow,.report-kicker,.number,.experiment-head span{color:#554b9a}footer b,.slash{color:#62697b}
