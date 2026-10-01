@@ -82,6 +82,6 @@ def analyze_owned_intro(path: Path, frame_directory: Path):
         "temporal_window_count": len(temporal.get("windows", [])),
         "change_event_count": len(intelligence.get("meaningful_change_events", [])),
         "report": report, "creator_report": creator,
-        "recommendation": (creator.get("experiments") or [None])[0],
+        "recommendation": None,
         "limitations": report["warnings"],
     }
