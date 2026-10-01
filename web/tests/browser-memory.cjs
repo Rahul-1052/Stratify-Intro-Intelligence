@@ -17,4 +17,34 @@ await page.reload();await page.getByRole('button',{name:'Open owned.mp4, revisio
 await page.getByRole('button',{name:'Close saved analysis'}).click();assert.match(await page.locator(':focus').getAttribute('aria-label'),/revision 1/);
 await page.route('**/api/memory',route=>route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({detail:'Memory unavailable for QA'})}));await page.reload();await page.getByRole('alert').filter({hasText:'Memory unavailable for QA'}).waitFor();await page.unroute('**/api/memory');await page.getByRole('button',{name:'Retry saved history'}).click();await page.getByRole('button',{name:'Open owned.mp4, revision 1'}).waitFor();
 await page.getByLabel('Video file').setInputFiles(`${qa}/stable.mp4`);await page.getByLabel('I own this video').check();await page.getByRole('button',{name:'Observe intro'}).click();await page.getByText('No experiment is supported yet.',{exact:true}).waitFor({timeout:60000});assert.equal(await page.locator('.creator-report .experiment').count(),0);await page.screenshot({path:`${qa}/abstention-320.png`,fullPage:true});
+// Channel UI contract uses explicit fixtures; existing upload/memory coverage above uses real services.
+await page.reload();
+await page.route('**/api/channel-workspace', async route => {
+  const input = route.request().postDataJSON();
+  assert.equal(input.concern, 'Why are my views down?');
+  await route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({detail:'Channel facts unavailable for QA'})});
+});
+await page.getByLabel('YouTube channel link or @handle').fill('@fixture');
+await page.getByLabel('What would you like help understanding about your channel?').fill('Why are my views down?');
+await page.getByRole('button',{name:'Build channel evidence record'}).click();
+await page.getByRole('alert').filter({hasText:'Channel facts unavailable for QA'}).waitFor();
+assert.equal(await page.getByLabel('What would you like help understanding about your channel?').inputValue(), 'Why are my views down?');
+await page.unroute('**/api/channel-workspace');
+await page.route('**/api/channel-workspace', route => route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
+  concern:'Why are my views down?', fetched_at:'2026-10-01T12:00:00Z',
+  channel:{title:'Fixture channel',source_url:'https://www.youtube.com/@fixture',created_at:'2020-01-01',subscribers:null,video_count:3},
+  coverage:{entries_checked:2,videos_available:1,unavailable_entries:1,more_uploads_available:true,uploads_playlist_available:true,oldest_published_at:'2026-01-01',newest_published_at:'2026-02-01'},
+  videos:[{video_id:'fixture1',title:'A deliberately long public video title to verify narrow screens',source_url:'https://www.youtube.com/watch?v=abcdefghijk',published_at:'2026-01-01',duration:'PT5M',views:0,likes:null,comments:null}],
+  limitations:['Public counts do not establish why performance changed.']
+})}));
+await page.getByRole('button',{name:'Build channel evidence record'}).click();
+await page.getByRole('heading',{name:'Fixture channel',exact:true}).waitFor();
+assert.equal(await page.locator(':focus').innerText(), 'Fixture channel');
+await page.getByText('Inspect the public video facts (1)',{exact:true}).click();
+assert.equal(await page.getByRole('region',{name:'Channel video facts'}).getByText('Unavailable',{exact:true}).count(),2);
+for(const width of [1440,768,390,320]){
+  await page.setViewportSize({width,height:1000});
+  assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth), `channel overflow at ${width}`);
+  await audit(page);await page.screenshot({path:`${qa}/channel-${width}.png`,fullPage:true});
+}
 await audit(page);assert.deepEqual(errors,[]);console.log('PASS: real upload/report/profile/save/reload/reopen/status persistence; 4 widths; skip link; focus return; memory failure/retry; abstention; no browser exceptions');await browser.close();})().catch(e=>{console.error(e);process.exit(1)});

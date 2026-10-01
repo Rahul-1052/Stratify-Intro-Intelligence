@@ -15,3 +15,5 @@ button,select{min-height:40px}.table-scroll:focus-visible{outline:2px solid #5b5
 
 .sample-details{margin-top:16px}.sample-details summary{cursor:pointer;font-size:12px;color:#454b60;padding:10px 0}.sample-details summary:focus-visible{outline:2px solid #5b51dd;outline-offset:3px}.measurement-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:16px 0 0}.measurement-list dt{font-size:12px;color:#5d6577;text-transform:capitalize}.measurement-list dd{font-size:13px;margin:4px 0 0;font-variant-numeric:tabular-nums}@media(max-width:620px){.measurement-list{grid-template-columns:1fr}}
 .abstention p{color:#5d6577}
+
+.concern-label{margin-top:20px}textarea{display:block;width:100%;max-width:100%;resize:vertical;min-height:88px;border:1px solid #dddfea;border-radius:7px;padding:13px;font:inherit;background:#fafbfe;color:#30364b}.channel-submit{margin-top:18px}.table-scroll td:first-child{min-width:190px;max-width:360px;overflow-wrap:anywhere}

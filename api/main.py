@@ -204,3 +204,38 @@ def analyze(payload: AnalysisRequest):
             "No experiment is recommended until comparable observational evidence is available.",
         ],
     )
+
+class ChannelWorkspaceRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    channel: str = Field(min_length=1, max_length=2048)
+    concern: str = Field(min_length=1, max_length=2000)
+
+    @field_validator("channel")
+    @classmethod
+    def valid_channel(cls, value):
+        from core.channel_workspace import channel_selector
+        channel_selector(value)
+        return value.strip()
+
+    @field_validator("concern")
+    @classmethod
+    def valid_concern(cls, value):
+        if not value.strip():
+            raise ValueError("Tell us what you would like help understanding.")
+        return value.strip()
+
+
+@app.post("/v1/channel-workspace", dependencies=[Depends(require_service_token)])
+def channel_workspace(payload: ChannelWorkspaceRequest):
+    from core.channel_workspace import collect_channel_workspace
+    try:
+        result = collect_channel_workspace(payload.channel, payload.concern)
+    except ValueError:
+        raise HTTPException(503, "YouTube integration is not configured.") from None
+    except requests.Timeout:
+        raise HTTPException(504, "YouTube took too long. Try again.") from None
+    except (requests.RequestException, RuntimeError):
+        raise HTTPException(502, "Channel facts are temporarily unavailable.") from None
+    if result is None:
+        raise HTTPException(404, "Channel not found or unavailable.")
+    return result
