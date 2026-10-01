@@ -47,7 +47,7 @@ await page.route('**/api/channel-workspace', route => route.fulfill({status:200,
 await page.getByRole('button',{name:'Confirm question and collect facts'}).click();
 await page.getByRole('heading',{name:'Fixture channel',exact:true}).waitFor();
 assert.equal(await page.locator(':focus').innerText(), 'Fixture channel');
-assert.equal(await page.getByText('Which recent videos lost reach?',{exact:true}).count(),1);
+assert.equal(await page.locator('[aria-labelledby="channel-result-title"]').getByText('Which recent videos lost reach?',{exact:true}).count(),1);
 await page.getByText('Inspect the public video facts (1)',{exact:true}).click();
 assert.equal(await page.getByRole('region',{name:'Channel video facts'}).getByText('Unavailable',{exact:true}).count(),2);
 for(const width of [1440,768,390,320]){
