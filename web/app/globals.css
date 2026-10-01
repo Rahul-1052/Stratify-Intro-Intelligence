@@ -27,3 +27,5 @@ button,select{min-height:40px}.table-scroll:focus-visible{outline:2px solid #5b5
 .helper .source{text-decoration:underline;text-underline-offset:3px}
 
 .suggestion{border-top:1px solid #e3e5ee;padding:14px 0}.suggestion h4{font-size:13px;line-height:1.6;margin:0 0 8px}.suggestion p,.suggestion-evidence p{font-size:12px;line-height:1.7;overflow-wrap:anywhere}.suggestion-evidence{padding:10px;border-top:1px solid #e3e5ee}
+
+.workflow-step>summary,.optional-observation>summary{cursor:pointer;font-size:13px;font-weight:600;color:#454b60;line-height:1.6}.workflow-step>summary:focus-visible,.optional-observation>summary:focus-visible{outline:2px solid #5b51dd;outline-offset:3px}.workflow-step[open]>summary{margin-bottom:22px}.workflow-step:not([open]){padding:16px 20px}.optional-observation{margin-top:24px;padding:16px 20px;background:#fff;border:1px solid #e3e5ee;border-radius:12px}.intro{padding:32px 0 22px}h1{font-size:36px}.lede{font-size:14px}@media(max-width:620px){h1{font-size:29px}}

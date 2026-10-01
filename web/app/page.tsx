@@ -13,7 +13,7 @@ export default function Home() {
     <main id="workspace" tabIndex={-1}><header><span>Workspace <span className="slash">/</span> Content intelligence</span><span className="badge">EARLY ACCESS BUILD</span></header>
       <section className="intro"><p className="eyebrow">A CLEARER NEXT MOVE</p><h1>Understand your channel.<br/>Decide what comes next.</h1><p className="lede">Bring your questions and your goals.<br/>See the evidence, its limits, and what needs investigating.</p></section>
       <ChannelWorkspace/>
-      <IntroEvidence onEvidence={setEvidence}/><CreatorMemory report={evidence?.report} uploadName={evidence?.upload_name} contentDigest={evidence?.asset_sha256}/>
+      <details className="optional-observation"><summary>Optional: observe an owned video’s opening</summary><IntroEvidence onEvidence={setEvidence}/></details><CreatorMemory report={evidence?.report} uploadName={evidence?.upload_name} contentDigest={evidence?.asset_sha256}/>
       <footer><span>ASK <b>→</b> OBSERVE <b>→</b> UNDERSTAND <b>→</b> DECIDE</span><span>Built on evidence.</span></footer>
     </main></div>;
 }

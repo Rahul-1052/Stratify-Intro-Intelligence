@@ -46,7 +46,7 @@ export default function ChannelWorkspace() {
   }
   function editIntake() {setReviewing(false); setWorkspace(null); setError(''); requestAnimationFrame(() => channelInput.current?.focus());}
   return <>
-    <section className="input-card" aria-labelledby="channel-intake-title">
+    <details className="input-card workflow-step" open={!reviewing}><summary>1. Channel and original concern</summary>
       <div className="section-title"><span className="number">01</span><div><h2 id="channel-intake-title">Start with your channel</h2><p>Tell us what you want to understand. You don’t need technical terms.</p></div></div>
       <form onSubmit={review}>
         <label htmlFor="channel-link">YouTube channel link or @handle</label>
@@ -57,10 +57,10 @@ export default function ChannelWorkspace() {
         <button className="channel-submit" disabled={busy || reviewing}>Review my question</button>
       </form>
       <p className="helper">First confirm what you want investigated. Then collect public facts for up to 100 upload entries.</p>
-      {error && <p role="alert" className="error">{error}</p>}
-      <div role="status">{busy && <p className="loading">Retrieving channel and upload facts from YouTube…</p>}</div>
-    </section>
-    {reviewing && <section className="report" aria-labelledby="inquiry-title">
+    </details>
+    {error && <p role="alert" className="error">{error}</p>}
+    <div role="status">{busy && <p className="loading">Retrieving channel and upload facts from YouTube…</p>}</div>
+    {reviewing && <details className="report workflow-step" open={!workspace}><summary>2. Review or edit your investigation</summary>
       <h2 id="inquiry-title" tabIndex={-1} ref={reviewHeading}>Let’s make sure we understand your question</h2>
       <p className="muted">What matters most here? Choose a starting point. You can include other concerns in your question.</p>
       <form onSubmit={collect}>
@@ -74,15 +74,17 @@ export default function ChannelWorkspace() {
         <label className="concern-label" htmlFor="inquiry-period">Which period or videos do you mean? (optional)</label>
         <input id="inquiry-period" maxLength={200} value={period} onChange={event => {setPeriod(event.target.value); setWorkspace(null);}} disabled={busy} placeholder="For example: my last six uploads, compared with earlier tutorials"/>
         <p className="helper">This describes your intended scope. The public upload sample may not cover it, and has not yet been filtered to match it.</p>
-        <div className="inquiry-actions"><button disabled={busy}>{busy ? 'Collecting channel facts…' : 'Confirm question and collect facts'}</button><button type="button" className="secondary" onClick={editIntake} disabled={busy}>Edit channel or original concern</button></div>
+        <div className="inquiry-actions"><button disabled={busy}>{busy ? 'Collecting channel facts…' : 'Confirm question and collect facts'}</button>{!workspace && <button type="button" className="secondary" onClick={editIntake} disabled={busy}>Edit channel or original concern</button>}</div>
       </form>
-    </section>}
+    </details>}
     {workspace && <section className="report" aria-labelledby="channel-result-title">
-      <p className="eyebrow">CHANNEL EVIDENCE RECORD</p>
+      <p className="eyebrow">CHANNEL EVIDENCE RECORD</p><button type="button" className="secondary" onClick={editIntake}>Edit channel or original concern</button>
       <h2 id="channel-result-title" tabIndex={-1} ref={heading}>{workspace.channel.title}</h2>
       <a className="source" href={workspace.channel.source_url} target="_blank" rel="noopener noreferrer">View channel on YouTube ↗</a>
-      <div className="report-section"><h3>Your concern</h3><p>{workspace.concern}</p><p className="muted">Recorded in your words. These facts do not yet answer your concern.</p></div>
-      <div className="report-section"><h3>Your confirmed investigation</h3><p>{workspace.inquiry.question}</p><p className="muted">Starting point: {focuses.find(([value]) => value === workspace.inquiry.focus)?.[1]}.</p><p className="muted">Requested scope: {workspace.inquiry.period || 'Not specified yet'}.</p><h3>Evidence this question needs</h3><ul className="limits">{workspace.inquiry.evidence_needed.map(item => <li key={item}>{item}</li>)}</ul><p className="muted">These are evidence requirements, not findings. The public facts below do not provide all of them. Your question is confirmed; it is not answered yet.</p></div>
+      <div className="report-section"><h3>Your confirmed investigation</h3><p>{workspace.inquiry.question}</p>
+      <details className="sample-details"><summary>Original concern, scope and evidence requirements</summary><p>Original concern: {workspace.concern}</p><p className="muted">Starting point: {focuses.find(([value]) => value === workspace.inquiry.focus)?.[1]}.</p><p className="muted">Requested scope: {workspace.inquiry.period || 'Not specified yet'}.</p><ul className="limits">{workspace.inquiry.evidence_needed.map(item => <li key={item}>{item}</li>)}</ul><p className="muted">These are evidence requirements, not findings. The public facts do not provide all of them.</p></details></div>
+      <p className="helper">Sample: {workspace.coverage.videos_available} available videos from {workspace.coverage.entries_checked} upload entries. {workspace.coverage.more_uploads_available ? 'More uploads exist beyond this sample.' : 'Private or unavailable videos are not included.'}</p>
+      <details className="sample-details"><summary>Channel facts and collection coverage</summary>
       <dl className="measurement-list">
         <div><dt>Subscribers reported by YouTube</dt><dd>{count(workspace.channel.subscribers)}</dd></div>
         <div><dt>Public video count reported by YouTube</dt><dd>{count(workspace.channel.video_count)}</dd></div>
@@ -94,6 +96,7 @@ export default function ChannelWorkspace() {
         <p>Publication dates: {date(workspace.coverage.oldest_published_at)} to {date(workspace.coverage.newest_published_at)}.</p>
         <p>{!workspace.coverage.uploads_playlist_available ? 'No uploads playlist was available.' : workspace.coverage.more_uploads_available ? 'More uploads exist beyond this sample.' : 'The uploads playlist returned no further page. This does not include private or unavailable videos.'}</p>
       </div>
+      </details>
       <details className="sample-details"><summary>Inspect the public video facts ({workspace.videos.length})</summary>
         <p className="muted">Upload order. Formats have not been classified; counts are not a performance ranking. Duration is the value reported by YouTube (for example, PT5M means five minutes).</p>
         <div className="table-scroll" role="region" aria-label="Channel video facts" tabIndex={0}>

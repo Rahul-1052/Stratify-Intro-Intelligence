@@ -8,7 +8,7 @@ await page.goto('http://127.0.0.1:3005');
 await page.getByRole('button',{name:'Create profile',exact:true}).waitFor();
 await page.keyboard.press('Tab');assert.equal(await page.locator(':focus').innerText(),'Skip to workspace');await page.keyboard.press('Enter');assert.equal(await page.locator(':focus').getAttribute('id'),'workspace');
 await page.getByLabel('Creator name').fill('Browser QA');await page.getByLabel('Channel name',{exact:true}).fill('Synthetic clip validation');await page.getByRole('button',{name:'Create profile',exact:true}).click();await page.getByText('No saved analyses yet.').waitFor();
-await page.getByLabel('Video file').setInputFiles(`${qa}/owned.mp4`);await page.getByLabel('I own this video').check();await page.getByRole('button',{name:'Observe intro'}).click();await page.getByRole('button',{name:'Save this analysis'}).waitFor({timeout:60000});
+await page.getByText('Optional: observe an owned video’s opening',{exact:true}).click();await page.getByLabel('Video file').setInputFiles(`${qa}/owned.mp4`);await page.getByLabel('I own this video').check();await page.getByRole('button',{name:'Observe intro'}).click();await page.getByRole('button',{name:'Save this analysis'}).waitFor({timeout:60000});
 assert.equal(await page.locator('.creator-report .experiment').count(),1);assert.equal(await page.locator('tbody tr').count(),20);await page.getByText('View sampled frame measurements',{exact:true}).click();await page.getByText('View sampled frame measurements',{exact:true}).click();
 await page.getByRole('button',{name:'Save this analysis'}).click();await page.getByRole('button',{name:'Open owned.mp4, revision 1'}).waitFor();
 await page.getByLabel('Experiment status for').first().selectOption('running');await page.getByText('Experiment status saved.',{exact:true}).waitFor();
@@ -16,7 +16,7 @@ for(const width of [1440,768,390,320]){await page.setViewportSize({width,height:
 await page.reload();await page.getByRole('button',{name:'Open owned.mp4, revision 1'}).click();await page.getByRole('heading',{name:'Saved analysis',exact:true}).waitFor();assert.equal(await page.locator(':focus').innerText(),'Saved analysis');assert.equal(await page.locator('.reopened-report .confidence-row b').first().innerText(),'High');assert.equal(await page.locator('.reopened-report .finding').count(),1);assert.equal(await page.getByLabel('Experiment status for').first().inputValue(),'running');await page.screenshot({path:`${qa}/reopened-320.png`,fullPage:true});
 await page.getByRole('button',{name:'Close saved analysis'}).click();assert.match(await page.locator(':focus').getAttribute('aria-label'),/revision 1/);
 await page.route('**/api/memory',route=>route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({detail:'Memory unavailable for QA'})}));await page.reload();await page.getByRole('alert').filter({hasText:'Memory unavailable for QA'}).waitFor();await page.unroute('**/api/memory');await page.getByRole('button',{name:'Retry saved history'}).click();await page.getByRole('button',{name:'Open owned.mp4, revision 1'}).waitFor();
-await page.getByLabel('Video file').setInputFiles(`${qa}/stable.mp4`);await page.getByLabel('I own this video').check();await page.getByRole('button',{name:'Observe intro'}).click();await page.getByText('No experiment is supported yet.',{exact:true}).waitFor({timeout:60000});assert.equal(await page.locator('.creator-report .experiment').count(),0);await page.screenshot({path:`${qa}/abstention-320.png`,fullPage:true});
+await page.getByText('Optional: observe an owned video’s opening',{exact:true}).click();await page.getByLabel('Video file').setInputFiles(`${qa}/stable.mp4`);await page.getByLabel('I own this video').check();await page.getByRole('button',{name:'Observe intro'}).click();await page.getByText('No experiment is supported yet.',{exact:true}).waitFor({timeout:60000});assert.equal(await page.locator('.creator-report .experiment').count(),0);await page.screenshot({path:`${qa}/abstention-320.png`,fullPage:true});
 // Channel UI contract uses explicit fixtures; existing upload/memory coverage above uses real services.
 await page.reload();
 await page.route('**/api/channel-workspace', async route => {
@@ -46,6 +46,8 @@ await page.route('**/api/channel-workspace', route => route.fulfill({status:200,
 })}));
 await page.getByRole('button',{name:'Confirm question and collect facts'}).click();
 await page.getByRole('heading',{name:'Fixture channel',exact:true}).waitFor();
+assert.equal(await page.locator('.workflow-step').first().getAttribute('open'),null);
+assert.equal(await page.locator('.workflow-step').nth(1).getAttribute('open'),null);
 assert.equal(await page.locator(':focus').innerText(), 'Fixture channel');
 assert.equal(await page.locator('[aria-labelledby="channel-result-title"]').getByText('Which recent videos lost reach?',{exact:true}).count(),1);
 await page.getByText('Inspect the public video facts (2)',{exact:true}).click();
