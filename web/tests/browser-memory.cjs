@@ -40,7 +40,7 @@ await page.route('**/api/channel-workspace', route => route.fulfill({status:200,
   inquiry:{focus:'reach',question:'Which recent videos lost reach?',period:'Last six uploads',evidence_needed:['Views measured over the same time after publication']},
   concern:'Why are my views down?', fetched_at:'2026-10-01T12:00:00Z',
   channel:{title:'Fixture channel',source_url:'https://www.youtube.com/@fixture',created_at:'2020-01-01',subscribers:null,video_count:3},
-  coverage:{entries_checked:2,videos_available:2,unavailable_entries:0,more_uploads_available:true,uploads_playlist_available:true,oldest_published_at:'2026-01-01',newest_published_at:'2026-02-01'},
+  coverage:{entries_checked:2,videos_available:2,unavailable_entries:0,more_uploads_available:true,uploads_playlist_available:true,oldest_published_at:'2025-01-01',newest_published_at:'2026-01-01'},
   videos:[{video_id:'fixture1',title:'A deliberately long public video title to verify narrow screens',source_url:'https://www.youtube.com/watch?v=abcdefghijk',published_at:'2026-01-01',duration:'PT5M',views:0,likes:null,comments:null},{video_id:'fixture2',title:'Earlier tutorial',source_url:'https://www.youtube.com/watch?v=bcdefghijkl',published_at:'2025-01-01',duration:'PT6M',views:100,likes:3,comments:0}],
   limitations:['Public counts do not establish why performance changed.']
 })}));
