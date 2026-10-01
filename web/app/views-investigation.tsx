@@ -1,4 +1,5 @@
 'use client';
+import MatchedViews from './matched-views';
 import {FormEvent, useEffect, useRef, useState} from 'react';
 import {investigateViews, type PublicVideo, type Comparability} from '../lib/views-investigation';
 const number = (value: number | null) => value === null ? 'Unavailable' : value.toLocaleString(undefined,{maximumFractionDigits:1});
@@ -42,6 +43,7 @@ export default function ViewsInvestigation({videos, fetchedAt}: {videos: PublicV
       <p>{result.difference === null ? 'The difference between groups is withheld because counts or publication order do not support it.' : `Recent median lifetime views are ${result.difference === 0 ? 'equal to' : result.difference < 0 ? 'lower than' : 'higher than'} the earlier median. Difference: ${number(result.difference)} views${result.percent === null ? ' (percentage unavailable because the earlier median is zero)' : ` (${number(result.percent)}%)`}.`}</p>
       <h3>Limits of this comparison</h3><ul className="limits">{result.checks.map(check=><li key={check}>{check}</li>)}</ul>
       <p><strong>{result.conclusion}</strong></p><h3>Next evidence to check</h3><p>{result.nextStep}</p><p className="muted">Stratify has not retrieved those private analytics. No content change or experiment is justified by this comparison alone.</p>
+      <MatchedViews comparison={result}/>
     </div>}
   </section>;
 }

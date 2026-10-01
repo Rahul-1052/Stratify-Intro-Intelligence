@@ -60,11 +60,25 @@ await page.waitForFunction(()=>document.activeElement?.id==='views-result-title'
 assert.equal(await page.locator(':focus').innerText(),'What the selected videos show');
 await page.getByText('These public facts cannot establish a decline over equal viewing time or explain its cause.',{exact:true}).waitFor();
 await page.getByText(/Difference: -100 views/).waitFor();
+await page.getByLabel('Window count for A deliberately long public video title to verify narrow screens').fill('0');
+await page.getByLabel('Window count for Earlier tutorial').fill('100');
+await page.getByRole('button',{name:'Review matched-window evidence'}).click();
+await page.getByRole('alert').filter({hasText:'Confirm a completed window'}).waitFor();
+await page.getByLabel('I checked that every count uses this completed window').check();
+await page.getByRole('button',{name:'Review matched-window evidence'}).click();
+await page.getByRole('heading',{name:'Your views investigation',exact:true}).waitFor();
+await page.waitForFunction(()=>document.activeElement?.id==='matched-result-title');
+await page.getByText(/the selected recent group has a lower median engaged views count over the first 7 days/).waitFor();
+await page.getByText('0 of 1 selected recent videos are at or above the earlier group’s median.',{exact:false}).waitFor();
 for(const width of [1440,768,390,320]){
   await page.setViewportSize({width,height:1000});
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth), `channel overflow at ${width}`);
   await audit(page);await page.screenshot({path:`${qa}/channel-${width}.png`,fullPage:true});
 }
+await page.getByLabel('Time after each video was published').selectOption('28');
+assert.equal(await page.getByRole('heading',{name:'Your views investigation',exact:true}).count(),0);
+assert.equal(await page.getByLabel('Window count for Earlier tutorial').inputValue(),'');
+assert.equal(await page.getByLabel('I checked that every count uses this completed window').isChecked(),false);
 await page.getByLabel('Do the groups use similar formats?').selectOption('different');
 assert.equal(await page.getByRole('heading',{name:'What the selected videos show',exact:true}).count(),0);
 await page.getByLabel('Comparison group for Earlier tutorial').selectOption('');

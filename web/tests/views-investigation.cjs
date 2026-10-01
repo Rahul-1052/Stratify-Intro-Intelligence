@@ -35,3 +35,27 @@ test('invalid collection date or comparability rejected',()=>{
  assert.throws(()=>investigateViews(rows,['r1'],['e1'],'bad','same','same'));
  assert.throws(()=>investigateViews(rows,['r1'],['e1'],collected,'invented','same'));
 });
+const {investigateWindow}=require('../lib/views-investigation.ts');
+const evidence={days:7,metric:'engaged_views',counts:{r1:'20',r2:'40',r3:'600',e1:'200',e2:'400',e3:'500'},confirmed:true};
+test('matched window reports user-entered medians and exceptions',()=>{
+ const r=investigateWindow(run(),evidence);assert.equal(r.recentMedian,40);assert.equal(r.earlierMedian,400);assert.equal(r.difference,-360);assert.equal(r.percent,-90);assert.equal(r.recentAtOrAboveEarlierMedian,1);assert.equal(r.source,'creator_entered_unverified');assert.equal(r.comparableByCreator,false);
+});
+test('matched window rejects incomplete or unconfirmed evidence',()=>{
+ for(const change of [{confirmed:false},{days:2},{metric:'watch_time'},{counts:{...evidence.counts,r1:''}},{counts:{...evidence.counts,r1:'1.5'}},{counts:{...evidence.counts,r1:'-1'}},{counts:{...evidence.counts,r1:'9007199254740992'}}]) assert.throws(()=>investigateWindow(run(),{...evidence,...change}));
+});
+test('window must have completed at public snapshot',()=>{
+ assert.throws(()=>investigateWindow(run(),{...evidence,days:28}));
+ assert.throws(()=>investigateWindow(run(rows.map(v=>v.video_id==='r1'?{...v,published_at:'2026-09-30T12:00:00Z'}:v)),evidence));
+ assert.throws(()=>investigateWindow(run(rows,['r1','e3'],['e1','r2']),evidence));
+});
+test('zero is observed data, not missing, and zero baseline has no percent',()=>{
+ const r=investigateWindow(run(),{...evidence,counts:{r1:'0',r2:'0',r3:'0',e1:'0',e2:'0',e3:'0'}});assert.equal(r.difference,0);assert.equal(r.percent,null);assert.equal(r.recentAtOrAboveEarlierMedian,3);
+});
+test('matched evidence can be used without public lifetime counts',()=>{
+ const r=investigateWindow(run(rows.map(v=>({...v,views:null}))),evidence);assert.equal(r.difference,-360);
+});
+test('small samples stay labeled, positive and equal differences remain possible',()=>{
+ const publicResult=investigateViews(rows,['r1'],['e1'],collected,'same','same');
+ const r=investigateWindow(publicResult,{...evidence,counts:{r1:'300',e1:'100'}});assert.equal(r.difference,200);assert.equal(r.percent,200);assert.equal(r.smallSample,true);assert.equal(r.comparableByCreator,true);
+ const equal=investigateWindow(publicResult,{...evidence,counts:{r1:'100',e1:'100'}});assert.equal(equal.difference,0);
+});
