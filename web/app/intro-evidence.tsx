@@ -1,16 +1,15 @@
 'use client';
 import {FormEvent, useState} from 'react';
 import CreatorReportView from './creator-report';
-import CreatorMemory from './creator-memory';
-type Evidence = {asset_sha256: string; upload_name: string; sample_count: number; intro_seconds: number; samples: {timestamp: number; brightness_score: number; contrast_score: number; motion_score: number}[]; limitations: string[]; report: Parameters<typeof CreatorReportView>[0]['report']};
-export default function IntroEvidence() {
+export type Evidence = {asset_sha256: string; upload_name: string; sample_count: number; intro_seconds: number; samples: {timestamp: number; brightness_score: number; contrast_score: number; motion_score: number}[]; limitations: string[]; report: Parameters<typeof CreatorReportView>[0]['report']};
+export default function IntroEvidence({onEvidence}: {onEvidence: (evidence: Evidence | null) => void}) {
   const [file, setFile] = useState<File | null>(null);
   const [owned, setOwned] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [evidence, setEvidence] = useState<Evidence | null>(null);
   async function submit(event: FormEvent) {
-    event.preventDefault(); setError(''); setEvidence(null);
+    event.preventDefault(); setError(''); setEvidence(null); onEvidence(null);
     if (!file || file.size > 20 * 1024 * 1024) {setError('Choose a video smaller than 20 MB.'); return;}
     setBusy(true);
     try {
@@ -18,7 +17,7 @@ export default function IntroEvidence() {
       const response = await fetch('/api/intro-evidence', {method: 'POST', body: form});
       const data = await response.json();
       if (!response.ok) throw new Error(data.detail || 'Could not analyze this clip.');
-      setEvidence(data);
+      setEvidence(data); onEvidence(data);
     } catch (e) {setError(e instanceof Error ? e.message : 'Analysis failed.');}
     finally {setBusy(false);}
   }
@@ -29,6 +28,6 @@ export default function IntroEvidence() {
     </form><p className="helper">Video and frames are processed temporarily and deleted after the request. No video is sent to an AI provider.</p>
     {error && <p className="error" role="alert">{error}</p>}<div role="status" aria-live="polite">{busy && <p className="loading">Measuring sampled frames and assembling the evidence report…</p>}</div>
     {evidence && <div className="visual-result"><h3>{evidence.sample_count} observed frames · {evidence.intro_seconds.toFixed(1)} seconds</h3><p className="helper">Brightness and contrast use grayscale pixel values. Frame difference measures appearance change between samples.</p>
-      <div className="table-scroll"><table><thead><tr><th>Time</th><th>Brightness</th><th>Contrast</th><th>Frame difference</th></tr></thead><tbody>{evidence.samples.map(sample=><tr key={sample.timestamp}><td>{sample.timestamp.toFixed(1)}s</td><td>{sample.brightness_score.toFixed(1)}</td><td>{sample.contrast_score.toFixed(1)}</td><td>{sample.motion_score.toFixed(1)}</td></tr>)}</tbody></table></div></div>}
-  </section>{evidence?.report && <><CreatorReportView report={evidence.report}/><CreatorMemory report={evidence.report} uploadName={evidence.upload_name || file?.name || 'owned-video.mp4'} contentDigest={evidence.asset_sha256}/></>}</>;
+      <div className="table-scroll"><table><caption className="sr-only">Sampled intro frame measurements</caption><thead><tr><th scope="col">Time</th><th scope="col">Brightness</th><th scope="col">Contrast</th><th scope="col">Frame difference</th></tr></thead><tbody>{evidence.samples.map(sample=><tr key={sample.timestamp}><td>{sample.timestamp.toFixed(1)}s</td><td>{sample.brightness_score.toFixed(1)}</td><td>{sample.contrast_score.toFixed(1)}</td><td>{sample.motion_score.toFixed(1)}</td></tr>)}</tbody></table></div></div>}
+  </section>{evidence?.report && <><CreatorReportView report={evidence.report}/></>}</>;
 }

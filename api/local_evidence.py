@@ -9,6 +9,16 @@ from core.intelligence_v3 import build_intelligence_v3
 from core.creator_report import build_creator_report
 
 
+def _public_report(value):
+    """Remove temporary media locations at the adapter boundary, not in the engine."""
+    if isinstance(value, dict):
+        return {key: _public_report(item) for key, item in value.items()
+                if key not in {"frame_path", "frames_analyzed"}}
+    if isinstance(value, list):
+        return [_public_report(item) for item in value]
+    return value
+
+
 def analyze_owned_intro(path: Path, frame_directory: Path):
     capture = cv2.VideoCapture(str(path))
     try:
@@ -71,6 +81,8 @@ def analyze_owned_intro(path: Path, frame_directory: Path):
     if creator.get("experiments"):
         creator["experiments"] = creator["experiments"][:1]
     report["creator_report"] = creator
+    report = _public_report(report)
+    creator = report["creator_report"]
     digest = hashlib.sha256(path.read_bytes()).hexdigest()
     return {
         "status": "partial", "evidence_level": "sampled_visual_observations",
