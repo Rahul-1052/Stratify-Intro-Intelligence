@@ -22,24 +22,32 @@ await page.reload();
 await page.route('**/api/channel-workspace', async route => {
   const input = route.request().postDataJSON();
   assert.equal(input.concern, 'Why are my views down?');
+  assert.deepEqual(input.inquiry,{focus:'reach',question:'Which recent videos lost reach?',period:'Last six uploads',confirmed:true});
   await route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({detail:'Channel facts unavailable for QA'})});
 });
 await page.getByLabel('YouTube channel link or @handle').fill('@fixture');
 await page.getByLabel('What would you like help understanding about your channel?').fill('Why are my views down?');
-await page.getByRole('button',{name:'Build channel evidence record'}).click();
+await page.getByRole('button',{name:'Review my question'}).click();
+assert.equal(await page.locator(':focus').innerText(), 'Let’s make sure we understand your question');
+await page.getByLabel('What would you like to investigate first?').selectOption('reach');
+await page.getByLabel('The question you want Stratify to investigate').fill('Which recent videos lost reach?');
+await page.getByLabel('Which period or videos do you mean? (optional)').fill('Last six uploads');
+await page.getByRole('button',{name:'Confirm question and collect facts'}).click();
 await page.getByRole('alert').filter({hasText:'Channel facts unavailable for QA'}).waitFor();
 assert.equal(await page.getByLabel('What would you like help understanding about your channel?').inputValue(), 'Why are my views down?');
 await page.unroute('**/api/channel-workspace');
 await page.route('**/api/channel-workspace', route => route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({
+  inquiry:{focus:'reach',question:'Which recent videos lost reach?',period:'Last six uploads',evidence_needed:['Views measured over the same time after publication']},
   concern:'Why are my views down?', fetched_at:'2026-10-01T12:00:00Z',
   channel:{title:'Fixture channel',source_url:'https://www.youtube.com/@fixture',created_at:'2020-01-01',subscribers:null,video_count:3},
   coverage:{entries_checked:2,videos_available:1,unavailable_entries:1,more_uploads_available:true,uploads_playlist_available:true,oldest_published_at:'2026-01-01',newest_published_at:'2026-02-01'},
   videos:[{video_id:'fixture1',title:'A deliberately long public video title to verify narrow screens',source_url:'https://www.youtube.com/watch?v=abcdefghijk',published_at:'2026-01-01',duration:'PT5M',views:0,likes:null,comments:null}],
   limitations:['Public counts do not establish why performance changed.']
 })}));
-await page.getByRole('button',{name:'Build channel evidence record'}).click();
+await page.getByRole('button',{name:'Confirm question and collect facts'}).click();
 await page.getByRole('heading',{name:'Fixture channel',exact:true}).waitFor();
 assert.equal(await page.locator(':focus').innerText(), 'Fixture channel');
+assert.equal(await page.getByText('Which recent videos lost reach?',{exact:true}).count(),1);
 await page.getByText('Inspect the public video facts (1)',{exact:true}).click();
 assert.equal(await page.getByRole('region',{name:'Channel video facts'}).getByText('Unavailable',{exact:true}).count(),2);
 for(const width of [1440,768,390,320]){
@@ -47,4 +55,11 @@ for(const width of [1440,768,390,320]){
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth), `channel overflow at ${width}`);
   await audit(page);await page.screenshot({path:`${qa}/channel-${width}.png`,fullPage:true});
 }
+await page.getByRole('button',{name:'Edit channel or original concern'}).click();
+assert.equal(await page.getByRole('heading',{name:'Fixture channel',exact:true}).count(),0);
+await page.getByLabel('What would you like help understanding about your channel?').fill('I want to grow');
+await page.getByRole('button',{name:'Review my question'}).click();
+assert.equal(await page.getByLabel('What would you like to investigate first?').inputValue(),'');
+assert.equal(await page.getByLabel('The question you want Stratify to investigate').inputValue(),'I want to grow');
+assert.equal(await page.getByLabel('Which period or videos do you mean? (optional)').inputValue(),'');
 await audit(page);assert.deepEqual(errors,[]);console.log('PASS: real upload/report/profile/save/reload/reopen/status persistence; 4 widths; skip link; focus return; memory failure/retry; abstention; no browser exceptions');await browser.close();})().catch(e=>{console.error(e);process.exit(1)});

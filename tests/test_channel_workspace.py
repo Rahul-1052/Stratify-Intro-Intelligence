@@ -6,6 +6,7 @@ from core.channel_workspace import channel_selector, collect_channel_workspace, 
 
 CHANNEL = 'UC' + 'a' * 22
 TOKEN = 'test-service-token-that-is-long-enough'
+INQUIRY = {'focus': 'open_question', 'question': 'Which direction fits?', 'period': '', 'confirmed': True}
 
 
 @pytest.mark.parametrize('value,selector', [
@@ -65,7 +66,7 @@ def test_empty_channel_is_not_zero():
 def test_api_validation_auth_and_sanitized_errors(monkeypatch):
     monkeypatch.setenv('STRATIFY_SERVICE_TOKEN', TOKEN)
     client = TestClient(main.app)
-    payload = {'channel': '@creator', 'concern': 'Help me understand'}
+    payload = {'channel': '@creator', 'concern': 'Help me understand', 'inquiry': INQUIRY}
     headers = {'Authorization': 'Bearer ' + TOKEN}
     assert client.post('/v1/channel-workspace', json=payload).status_code == 401
     for invalid in [dict(payload, concern='   '), dict(payload, concern='x'*2001), dict(payload, channel='https://evil.test'), dict(payload, extra=True)]:
@@ -103,8 +104,31 @@ def test_api_records_concern_without_answer(monkeypatch):
     monkeypatch.setenv('STRATIFY_SERVICE_TOKEN', TOKEN)
     import core.channel_workspace as module
     monkeypatch.setattr(module, 'youtube_get', lambda *_: {'items': [{'id': CHANNEL}]})
-    response = TestClient(main.app).post('/v1/channel-workspace', json={'channel': '@creator', 'concern': '  Which direction fits?  '}, headers={'Authorization': 'Bearer ' + TOKEN})
+    response = TestClient(main.app).post('/v1/channel-workspace', json={'channel': '@creator', 'concern': '  Which direction fits?  ', 'inquiry': INQUIRY}, headers={'Authorization': 'Bearer ' + TOKEN})
     assert response.status_code == 200
     assert response.json()['concern'] == 'Which direction fits?'
     assert response.json()['recommendation'] is None
     assert response.json()['status'] == 'facts_only'
+
+
+@pytest.mark.parametrize('inquiry', [None, {}, dict(INQUIRY, confirmed=False), dict(INQUIRY, confirmed='true'), dict(INQUIRY, focus='made_up'), dict(INQUIRY, question='   '), dict(INQUIRY, period='x'*201), dict(INQUIRY, question='x'*2001), dict(INQUIRY, invented=True)])
+def test_invalid_inquiry_never_reaches_provider(monkeypatch, inquiry):
+    monkeypatch.setenv('STRATIFY_SERVICE_TOKEN', TOKEN)
+    import core.channel_workspace as module
+    monkeypatch.setattr(module, 'collect_channel_workspace', lambda *_: pytest.fail('Invalid inquiry reached provider'))
+    payload = {'channel': '@creator', 'concern': 'Help', 'inquiry': inquiry}
+    assert TestClient(main.app).post('/v1/channel-workspace', json=payload, headers={'Authorization': 'Bearer ' + TOKEN}).status_code == 422
+
+
+def test_inquiry_preserves_creator_words_and_does_not_diagnose(monkeypatch):
+    monkeypatch.setenv('STRATIFY_SERVICE_TOKEN', TOKEN)
+    import core.channel_workspace as module
+    monkeypatch.setattr(module, 'youtube_get', lambda *_: {'items': [{'id': CHANNEL}]})
+    inquiry = dict(INQUIRY, focus='watching', question='Is my deliberate slow branding working?', period='My last six tutorials')
+    result = TestClient(main.app).post('/v1/channel-workspace', json={'channel': '@creator', 'concern': 'Not sure', 'inquiry': inquiry}, headers={'Authorization': 'Bearer ' + TOKEN}).json()
+    assert result['inquiry']['question'] == inquiry['question']
+    assert result['inquiry']['period'] == inquiry['period']
+    assert result['inquiry']['source'] == 'creator_confirmed'
+    assert result['inquiry']['status'] == 'scope_confirmed_not_answered'
+    assert any('deliberate pacing' in item for item in result['inquiry']['evidence_needed'])
+    assert result['recommendation'] is None

@@ -17,3 +17,5 @@ button,select{min-height:40px}.table-scroll:focus-visible{outline:2px solid #5b5
 .abstention p{color:#5d6577}
 
 .concern-label{margin-top:20px}textarea{display:block;width:100%;max-width:100%;resize:vertical;min-height:88px;border:1px solid #dddfea;border-radius:7px;padding:13px;font:inherit;background:#fafbfe;color:#30364b}.channel-submit{margin-top:18px}.table-scroll td:first-child{min-width:190px;max-width:360px;overflow-wrap:anywhere}
+
+#inquiry-focus{width:100%;padding:12px;border:1px solid #dddfea;border-radius:7px;background:#fafbfe;color:#30364b;font:inherit}.inquiry-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}.inquiry-actions button{white-space:normal}.secondary{background:#eeecfc;color:#454060}

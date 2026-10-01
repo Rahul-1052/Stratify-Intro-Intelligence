@@ -205,10 +205,41 @@ def analyze(payload: AnalysisRequest):
         ],
     )
 
+class CreatorInquiry(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    focus: str
+    question: str = Field(min_length=1, max_length=2000)
+    period: str = Field(default="", max_length=200)
+    confirmed: bool = Field(strict=True)
+
+    @field_validator("focus")
+    @classmethod
+    def supported_focus(cls, value):
+        from core.creator_inquiry import FOCUS_REQUIREMENTS
+        if value not in FOCUS_REQUIREMENTS:
+            raise ValueError("Choose what you want to investigate.")
+        return value
+
+    @field_validator("question")
+    @classmethod
+    def nonempty_question(cls, value):
+        if not value.strip():
+            raise ValueError("Write the question you want investigated.")
+        return value.strip()
+
+    @field_validator("confirmed")
+    @classmethod
+    def require_confirmation(cls, value):
+        if value is not True:
+            raise ValueError("Confirm your question before collecting evidence.")
+        return value
+
+
 class ChannelWorkspaceRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     channel: str = Field(min_length=1, max_length=2048)
     concern: str = Field(min_length=1, max_length=2000)
+    inquiry: CreatorInquiry
 
     @field_validator("channel")
     @classmethod
@@ -238,4 +269,6 @@ def channel_workspace(payload: ChannelWorkspaceRequest):
         raise HTTPException(502, "Channel facts are temporarily unavailable.") from None
     if result is None:
         raise HTTPException(404, "Channel not found or unavailable.")
+    from core.creator_inquiry import inquiry_plan
+    result["inquiry"] = inquiry_plan(payload.inquiry.model_dump())
     return result
