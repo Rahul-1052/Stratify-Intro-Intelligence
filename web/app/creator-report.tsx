@@ -1,12 +1,12 @@
 type TimelineItem = {time?: string; moment?: string; confidence?: string};
-type Experiment = {title?: string; variable?: string; structural_dimension?: string; change?: string; recommendation?: string; what_stays_constant?: string; how_to_compare?: string; confidence?: string; limitation?: string};
+type Experiment = {title?: string; variable?: string; structural_dimension?: string; change?: string; recommendation?: string; what_stays_constant?: string; how_to_compare?: string; confidence?: string; limitation?: string; supporting_evidence?: Finding[]};
 type CreatorReport = {
   opening_snapshot?: {summary?: string};
   intro_timeline?: TimelineItem[];
   biggest_opportunity?: {title?: string; summary?: string; why_test?: string; limitation?: string; supported?: boolean};
   experiments?: Experiment[];
   confidence_breakdown?: {observation_confidence?: string; interpretation_confidence?: string; recommendation_confidence?: string};
-  confidence_summary?: {plain_language?: string; text_evidence?: string};
+  confidence_summary?: {plain_language?: string; text_evidence?: string; evidence_confidence?: string; recommendation_confidence?: string};
   limitations?: string[];
 };
 type Finding = {finding_id?: string; observation_type?: string; start_time?: number; end_time?: number; measured_value?: unknown; evidence_strength?: string; availability_state?: string; limitations?: string[]};
@@ -24,9 +24,13 @@ export default function CreatorReportView({report}: {report: Report}) {
   const creator = report.creator_report || {};
   const opportunity = creator.biggest_opportunity || {};
   const experiment = opportunity.supported ? creator.experiments?.[0] : undefined;
-  const findings = (report.intelligence_v3?.findings || []).filter(item => item.availability_state === 'available_and_qualified');
+  const findings = (report.intelligence_v3?.findings || creator.experiments?.flatMap(item=>item.supporting_evidence || []) || []).filter(item => item.availability_state === 'available_and_qualified');
   const strongest = findings[0];
-  const confidence = creator.confidence_breakdown || {};
+  const confidence = creator.confidence_breakdown || {
+    observation_confidence: creator.confidence_summary?.evidence_confidence || 'not stored',
+    interpretation_confidence: 'not stored',
+    recommendation_confidence: creator.confidence_summary?.recommendation_confidence || 'not stored',
+  };
   return <section className="creator-report" aria-live="polite">
     <div className="report-kicker">CREATOR REPORT V4</div>
     <div className="report-verdict"><div><span>Opening verdict</span><h2>{opportunity.summary || creator.opening_snapshot?.summary || 'The available evidence does not support a creative change yet.'}</h2></div><strong>{opportunity.supported ? opportunity.title : 'No supported change yet'}</strong></div>
