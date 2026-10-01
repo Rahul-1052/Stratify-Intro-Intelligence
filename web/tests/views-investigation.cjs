@@ -59,3 +59,30 @@ test('small samples stay labeled, positive and equal differences remain possible
  const r=investigateWindow(publicResult,{...evidence,counts:{r1:'300',e1:'100'}});assert.equal(r.difference,200);assert.equal(r.percent,200);assert.equal(r.smallSample,true);assert.equal(r.comparableByCreator,true);
  const equal=investigateWindow(publicResult,{...evidence,counts:{r1:'100',e1:'100'}});assert.equal(equal.difference,0);
 });
+const {suggestNextSteps}=require('../lib/views-investigation.ts');
+const comparable=()=>investigateViews(rows,['r1','r2','r3'],['e1','e2','e3'],collected,'same','same');
+const matched=(extra={})=>investigateWindow(comparable(),{...evidence,...extra});
+test('suggestions cite only existing evidence and preserve provenance',()=>{
+ const plan=suggestNextSteps(matched());assert.equal(plan.suggestions[0].id,'collect_impressions');
+ assert(plan.suggestions.every(s=>s.evidenceIds.every(id=>plan.evidence.some(e=>e.id===id))));
+ assert(plan.evidence.every(e=>e.source==='creator_entered_unverified'));assert.equal(plan.evidence[0].videoIds.length,6);
+});
+test('topic uncertainty and small selection take priority over exposure interpretation',()=>{
+ const publicResult=investigateViews(rows,['r1'],['e1'],collected,'unknown','same');
+ const plan=suggestNextSteps(investigateWindow(publicResult,evidence));assert.deepEqual(plan.suggestions.map(s=>s.id),['review_comparability','review_small_sample']);assert.equal(plan.status,'comparison_needs_review');
+});
+test('lower views and impressions lead to traffic-source investigation, not a cause',()=>{
+ const plan=suggestNextSteps(matched({impressions:{r1:'10',r2:'20',r3:'30',e1:'100',e2:'200',e3:'300'}}));assert.equal(plan.suggestions[0].id,'inspect_exposure');assert.match(plan.suggestions[0].limitation,/not established as causing/);assert.deepEqual(plan.suggestions[0].evidenceIds,['matched_views','matched_impressions']);
+});
+test('equal or higher impressions with lower views never calculate CTR',()=>{
+ for(const value of ['200','500']){
+ const plan=suggestNextSteps(matched({impressions:{r1:value,r2:value,r3:value,e1:'100',e2:'200',e3:'300'}}));assert.equal(plan.suggestions[0].id,'inspect_source_mix');assert.match(plan.suggestions[0].limitation,/not the platform’s impression click-through rate/);assert.equal('ctr' in plan,false);
+ }
+});
+test('equal or higher viewing counts do not presume decline',()=>{
+ for(const value of ['400','900']){const plan=suggestNextSteps(matched({counts:{...evidence.counts,r1:value,r2:value,r3:value}}));assert.equal(plan.suggestions[0].id,'revisit_concern');}
+});
+test('optional impressions require complete valid counts while zero stays valid',()=>{
+ assert.throws(()=>matched({impressions:{r1:'10'}}));assert.throws(()=>matched({impressions:{...evidence.counts,r1:'-1'}}));
+ const r=matched({impressions:Object.fromEntries(rows.map(v=>[v.video_id,'0']))});assert.equal(r.impressions.recentMedian,0);assert.equal(r.impressions.earlierMedian,0);
+});

@@ -25,3 +25,5 @@ button,select{min-height:40px}.table-scroll:focus-visible{outline:2px solid #5b5
 #matched-window,#matched-metric{width:100%;padding:10px;border:1px solid #dddfea;border-radius:7px;background:#fafbfe;color:#30364b;font:inherit}.video-selection:focus-visible{outline:2px solid #5b51dd;outline-offset:2px}
 
 .helper .source{text-decoration:underline;text-underline-offset:3px}
+
+.suggestion{border-top:1px solid #e3e5ee;padding:14px 0}.suggestion h4{font-size:13px;line-height:1.6;margin:0 0 8px}.suggestion p,.suggestion-evidence p{font-size:12px;line-height:1.7;overflow-wrap:anywhere}.suggestion-evidence{padding:10px;border-top:1px solid #e3e5ee}

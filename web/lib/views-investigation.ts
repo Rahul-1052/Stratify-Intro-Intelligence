@@ -40,7 +40,7 @@ export function investigateViews(videos: PublicVideo[], recentIds: string[], ear
     nextStep: 'Compare views for these same videos over the same number of days after publication in your channel analytics. Review impressions and traffic sources before investigating titles, thumbnails or the viewing experience.'};
 }
 
-export type WindowEvidence = {days: number; metric: 'views' | 'engaged_views'; counts: Record<string,string>; confirmed: boolean};
+export type WindowEvidence = {days: number; metric: 'views' | 'engaged_views'; counts: Record<string,string>; confirmed: boolean; impressions?: Record<string,string>};
 export function investigateWindow(publicResult: ReturnType<typeof investigateViews>, evidence: WindowEvidence) {
   if (![1,7,28].includes(evidence.days)) throw new Error('Choose the first 24 hours, 7 days or 28 days.');
   if (!['views','engaged_views'].includes(evidence.metric) || evidence.confirmed !== true)
@@ -48,8 +48,8 @@ export function investigateWindow(publicResult: ReturnType<typeof investigateVie
   if (!publicResult.chronological) throw new Error('Review publication dates and separate recent and earlier groups first.');
   if ([publicResult.recent,publicResult.earlier].some(group=>group.newestDays === null || group.newestDays < evidence.days))
     throw new Error('At least one selected video had not completed this window when public facts were collected. Choose a shorter window or recollect the facts.');
-  const read = (id: string) => {
-    const text = evidence.counts[id]?.trim();
+  const read = (id: string, values = evidence.counts) => {
+    const text = values[id]?.trim();
     if (!text || !/^\d+$/.test(text) || !Number.isSafeInteger(Number(text)))
       throw new Error('Enter a whole, nonnegative count for every selected video. Leave unavailable data out of this comparison; never enter zero for missing data.');
     return Number(text);
@@ -58,11 +58,33 @@ export function investigateWindow(publicResult: ReturnType<typeof investigateVie
   const earlierCounts = publicResult.earlier.rows.map(video=>read(video.video_id));
   const recentMedian = median(recentCounts), earlierMedian = median(earlierCounts);
   const difference = recentMedian-earlierMedian;
-  return {days:evidence.days,metric:evidence.metric,recentMedian,earlierMedian,difference,
+  const impressions = evidence.impressions ? {
+    recentMedian: median(publicResult.recent.rows.map(video=>read(video.video_id,evidence.impressions))),
+    earlierMedian: median(publicResult.earlier.rows.map(video=>read(video.video_id,evidence.impressions))),
+  } : null;
+  return {impressions,videoIds:[...publicResult.recent.rows,...publicResult.earlier.rows].map(video=>video.video_id),days:evidence.days,metric:evidence.metric,recentMedian,earlierMedian,difference,
     percent: earlierMedian === 0 ? null : difference/earlierMedian*100,
     recentCount:recentCounts.length,earlierCount:earlierCounts.length,
     recentAtOrAboveEarlierMedian:recentCounts.filter(value=>value>=earlierMedian).length,
     comparableByCreator: publicResult.topics === 'same' && publicResult.formats === 'same',
     smallSample: recentCounts.length < 3 || earlierCounts.length < 3,
     source:'creator_entered_unverified' as const};
+}
+
+
+export function suggestNextSteps(result: ReturnType<typeof investigateWindow>) {
+  const evidence = [
+    {id:'matched_views', observation:`Selected recent median: ${result.recentMedian}; earlier median: ${result.earlierMedian}. Metric: ${result.metric}. ${result.days === 1 ? 'First 24 hours' : `First ${result.days} days`}.`, source:result.source,videoIds:result.videoIds},
+    {id:'selection_context', observation:`Selected videos: ${result.recentCount} recent and ${result.earlierCount} earlier. Topics/formats described as similar: ${result.comparableByCreator ? 'yes' : 'no or unknown'}.`,source:result.source,videoIds:result.videoIds},
+  ];
+  if (result.impressions) evidence.push({id:'matched_impressions',observation:`Selected recent median registered thumbnail impressions: ${result.impressions.recentMedian}; earlier median: ${result.impressions.earlierMedian}. ${result.days === 1 ? 'First 24 hours' : `First ${result.days} days`}.`,source:result.source,videoIds:result.videoIds});
+  const suggestions: {id:string; action:string; reason:string; evidenceIds:string[]; limitation:string}[]=[];
+  if (!result.comparableByCreator) suggestions.push({id:'review_comparability',action:'Review topic and format differences before interpreting this as a content-performance change.',reason:'The selected groups have different or unknown topics/formats according to your assessment.',evidenceIds:['selection_context'],limitation:'Stratify has not inspected the content or independently verified comparability.'});
+  if (result.smallSample) suggestions.push({id:'review_small_sample',action:'Inspect these videos individually, or add relevant comparable examples if they exist.',reason:'At least one selected group contains fewer than three videos.',evidenceIds:['selection_context','matched_views'],limitation:'Do not add unrelated videos just to increase the sample. A larger selection still does not prove a cause.'});
+  if (suggestions.length) return {evidence,suggestions,status:'comparison_needs_review' as const};
+  if (result.difference >= 0) suggestions.push({id:'revisit_concern',action:'Revisit which videos, metric or viewing window prompted the concern.',reason:'The entered matched-window medians do not show a decrease in this selection.',evidenceIds:['matched_views'],limitation:'Other selections or individual videos may behave differently; this is not a whole-channel conclusion.'});
+  else if (!result.impressions) suggestions.push({id:'collect_impressions',action:'Check registered thumbnail impressions and traffic sources for these same videos over the same windows.',reason:'The entered views median is lower, but exposure evidence has not been supplied.',evidenceIds:['matched_views'],limitation:'A views difference alone cannot distinguish exposure changes from audience-response changes.'});
+  else if (result.impressions.recentMedian < result.impressions.earlierMedian) suggestions.push({id:'inspect_exposure',action:'Inspect the traffic-source breakdown to see where registered thumbnail exposure changed.',reason:'Both the entered views median and registered thumbnail impressions median are lower in the recent selection.',evidenceIds:['matched_views','matched_impressions'],limitation:'These two group-level changes co-occur; one is not established as causing the other. Registered impressions do not cover every source of views.'});
+  else suggestions.push({id:'inspect_source_mix',action:'Review traffic-source mix, then the platform’s source-specific click-through and retention evidence where available.',reason:'The entered views median is lower while the registered thumbnail impressions median is equal or higher.',evidenceIds:['matched_views','matched_impressions'],limitation:'This does not establish worse thumbnails or retention. Total views divided by impressions is not the platform’s impression click-through rate.'});
+  return {evidence,suggestions,status:'investigation_steps_only' as const};
 }
