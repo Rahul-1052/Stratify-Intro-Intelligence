@@ -46,7 +46,9 @@ def test_service_save_reopen_revision_and_experiment():
         assert opened['report']['saved_history']['revision'] == revision['revision']
     experiment = dashboard['experiments'][0]
     service.update_experiment(experiment.id, status='completed', result_summary='Creator-entered result')
-    assert service.dashboard()['experiments'][0].result_summary == 'Creator-entered result'
+    updated = next(item for item in service.dashboard()['experiments'] if item.id == experiment.id)
+    assert updated.result_summary == 'Creator-entered result'
+    assert updated.status == 'completed'
     service.repository.delete_project(first['video_id'])
     assert service.dashboard()['counts'] == {'videos': 0, 'analyses': 0}
     assert service.dashboard()['experiments'] == []
