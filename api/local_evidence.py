@@ -6,6 +6,7 @@ import cv2
 from core.vision_analyzer import analyze_intro_frames
 from core.observers.temporal_evidence import build_temporal_evidence
 from core.intelligence_v3 import build_intelligence_v3
+from core.creator_report import build_creator_report
 
 
 def analyze_owned_intro(path: Path, frame_directory: Path):
@@ -49,20 +50,38 @@ def analyze_owned_intro(path: Path, frame_directory: Path):
     observations = vision.get("frame_observations", [])
     temporal = build_temporal_evidence(observations)
     intelligence = build_intelligence_v3(observations)
+    source_context = {
+        "source_type": "uploaded_file", "provenance": "user_supplied",
+        "metadata_status": "unavailable", "benchmark_context_status": "unavailable",
+    }
+    report = {
+        "status": "partial", "vision": vision, "temporal_evidence": temporal,
+        "intelligence_v3": intelligence, "benchmark": {
+            "status": "unavailable", "benchmark_quality": {"eligible_for_directional_learning": False}
+        },
+        "patterns": {}, "semantic_observation": {}, "creative_structure": {},
+        "creative_understanding": {}, "source_context": source_context,
+        "warnings": [
+            "Only sampled frames from the first 10 seconds were observed; audio and retention were not measured.",
+            "No qualified benchmark comparison or outcome evidence is available.",
+        ],
+    }
+    creator = build_creator_report(report)
+    # V4 intentionally presents at most one experiment. The recovered engine remains unchanged.
+    if creator.get("experiments"):
+        creator["experiments"] = creator["experiments"][:1]
+    report["creator_report"] = creator
+    digest = hashlib.sha256(path.read_bytes()).hexdigest()
     return {
         "status": "partial", "evidence_level": "sampled_visual_observations",
         "engine_revision": "9721883370b5761767f519837a90af62e4122cd8",
-        "asset_sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
-        "sample_count": len(observations), "intro_seconds": duration,
+        "asset_sha256": digest, "sample_count": len(observations), "intro_seconds": duration,
         "samples": [{key: frame.get(key) for key in (
             "timestamp", "brightness_score", "contrast_score", "motion_score",
         )} for frame in observations],
         "temporal_window_count": len(temporal.get("windows", [])),
         "change_event_count": len(intelligence.get("meaningful_change_events", [])),
-        "recommendation": None,
-        "limitations": [
-            "Only sampled frames from the first 10 seconds were observed; audio and retention were not measured.",
-            "Frame differences can reflect cuts, lighting or camera movement; they do not identify viewer attention.",
-            "No qualified benchmark comparison or outcome evidence is available. No experiment is recommended.",
-        ],
+        "report": report, "creator_report": creator,
+        "recommendation": (creator.get("experiments") or [None])[0],
+        "limitations": report["warnings"],
     }
