@@ -12,3 +12,5 @@ button,select{min-height:40px}.table-scroll:focus-visible{outline:2px solid #5b5
 @media(max-width:620px){header{flex-wrap:wrap;height:auto;min-height:65px;padding:14px 0}.section-title{gap:10px}.stats{grid-template-columns:1fr} .timeline li{grid-template-columns:54px minmax(0,1fr)}}
 .nav-label,.aside-bottom small,header,.lede,th,.muted,.limits,footer,.stats span,.report-heading p:not(.eyebrow),.evidence-note li{color:#5d6577}
 .eyebrow,.report-kicker,.number,.experiment-head span{color:#554b9a}footer b,.slash{color:#62697b}
+
+.sample-details{margin-top:16px}.sample-details summary{cursor:pointer;font-size:12px;color:#454b60;padding:10px 0}.sample-details summary:focus-visible{outline:2px solid #5b51dd;outline-offset:3px}.measurement-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:16px 0 0}.measurement-list dt{font-size:12px;color:#5d6577;text-transform:capitalize}.measurement-list dd{font-size:13px;margin:4px 0 0;font-variant-numeric:tabular-nums}@media(max-width:620px){.measurement-list{grid-template-columns:1fr}}
