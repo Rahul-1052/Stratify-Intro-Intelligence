@@ -1,5 +1,5 @@
 'use client';
-import {FormEvent, useRef, useState} from 'react';
+import {FormEvent, useEffect, useRef, useState} from 'react';
 import {investigateViews, type PublicVideo, type Comparability} from '../lib/views-investigation';
 const number = (value: number | null) => value === null ? 'Unavailable' : value.toLocaleString(undefined,{maximumFractionDigits:1});
 export default function ViewsInvestigation({videos, fetchedAt}: {videos: PublicVideo[]; fetchedAt: string}) {
@@ -9,12 +9,12 @@ export default function ViewsInvestigation({videos, fetchedAt}: {videos: PublicV
   const [result,setResult] = useState<ReturnType<typeof investigateViews> | null>(null);
   const [error,setError] = useState('');
   const heading = useRef<HTMLHeadingElement>(null);
+  useEffect(()=>{if (result) heading.current?.focus();},[result]);
   function invalidate() {setResult(null);setError('');}
   function investigate(event: FormEvent) {
     event.preventDefault();setError('');setResult(null);
     try {
       setResult(investigateViews(videos, videos.filter(v=>selection[v.video_id]==='recent').map(v=>v.video_id), videos.filter(v=>selection[v.video_id]==='earlier').map(v=>v.video_id), fetchedAt, topics, formats));
-      requestAnimationFrame(()=>heading.current?.focus());
     } catch (failure) {setError(failure instanceof Error ? failure.message : 'Review your selection.');}
   }
   return <section className="report-section" aria-labelledby="views-investigation-title">

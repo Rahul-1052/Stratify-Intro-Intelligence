@@ -56,6 +56,7 @@ await page.getByLabel('Comparison group for A deliberately long public video tit
 await page.getByLabel('Comparison group for Earlier tutorial').selectOption('earlier');
 await page.getByRole('button',{name:'Compare selected public facts'}).click();
 await page.getByRole('heading',{name:'What the selected videos show',exact:true}).waitFor();
+await page.waitForFunction(()=>document.activeElement?.id==='views-result-title');
 assert.equal(await page.locator(':focus').innerText(),'What the selected videos show');
 await page.getByText('These public facts cannot establish a decline over equal viewing time or explain its cause.',{exact:true}).waitFor();
 await page.getByText(/Difference: -100 views/).waitFor();
