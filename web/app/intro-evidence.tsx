@@ -1,7 +1,8 @@
 'use client';
 import {FormEvent, useState} from 'react';
 import CreatorReportView from './creator-report';
-type Evidence = {sample_count: number; intro_seconds: number; samples: {timestamp: number; brightness_score: number; contrast_score: number; motion_score: number}[]; limitations: string[]; report: Parameters<typeof CreatorReportView>[0]['report']};
+import CreatorMemory from './creator-memory';
+type Evidence = {asset_sha256: string; upload_name: string; sample_count: number; intro_seconds: number; samples: {timestamp: number; brightness_score: number; contrast_score: number; motion_score: number}[]; limitations: string[]; report: Parameters<typeof CreatorReportView>[0]['report']};
 export default function IntroEvidence() {
   const [file, setFile] = useState<File | null>(null);
   const [owned, setOwned] = useState(false);
@@ -29,5 +30,5 @@ export default function IntroEvidence() {
     {error && <p className="error" role="alert">{error}</p>}<div role="status" aria-live="polite">{busy && <p className="loading">Measuring sampled frames and assembling the evidence report…</p>}</div>
     {evidence && <div className="visual-result"><h3>{evidence.sample_count} observed frames · {evidence.intro_seconds.toFixed(1)} seconds</h3><p className="helper">Brightness and contrast use grayscale pixel values. Frame difference measures appearance change between samples.</p>
       <div className="table-scroll"><table><thead><tr><th>Time</th><th>Brightness</th><th>Contrast</th><th>Frame difference</th></tr></thead><tbody>{evidence.samples.map(sample=><tr key={sample.timestamp}><td>{sample.timestamp.toFixed(1)}s</td><td>{sample.brightness_score.toFixed(1)}</td><td>{sample.contrast_score.toFixed(1)}</td><td>{sample.motion_score.toFixed(1)}</td></tr>)}</tbody></table></div></div>}
-  </section>{evidence?.report && <CreatorReportView report={evidence.report}/>}</>;
+  </section>{evidence?.report && <><CreatorReportView report={evidence.report}/><CreatorMemory report={evidence.report} uploadName={evidence.upload_name || file?.name || 'owned-video.mp4'} contentDigest={evidence.asset_sha256}/></>}</>;
 }

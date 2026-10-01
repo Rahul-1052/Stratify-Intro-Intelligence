@@ -8,8 +8,13 @@ from fastapi import FastAPI, Header, HTTPException, Depends, UploadFile, File, F
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from core.youtube_client import get_video_details
+from api.creator_memory import dashboard as memory_dashboard
+from api.creator_memory import reopen_analysis as memory_reopen_analysis
+from api.creator_memory import save_profile as memory_save_profile
+from api.creator_memory import save_uploaded_analysis as memory_save_uploaded_analysis
+from api.creator_memory import update_experiment as memory_update_experiment
 
-app = FastAPI(title="Stratify Evidence API", version="0.1.0")
+app = FastAPI(title="Stratify Evidence API", version="0.2.0")
 
 
 def require_service_token(authorization: str | None = Header(default=None)):
@@ -67,6 +72,27 @@ class AnalysisResponse(BaseModel):
     recommendation: str | None = None
 
 
+class MemoryProfileRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    display_name: str = Field(min_length=1, max_length=120)
+    channel_name: str = Field(min_length=1, max_length=160)
+    niche: str | None = Field(default=None, max_length=120)
+
+
+class MemorySaveRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    report: dict
+    upload_name: str = Field(min_length=1, max_length=255)
+    content_digest: str = Field(pattern=r"^[a-f0-9]{64}$")
+
+
+class ExperimentUpdateRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    status: str | None = Field(default=None, pattern=r"^(suggested|planned|running|completed|rejected|archived)$")
+    creator_notes: str | None = Field(default=None, max_length=2000)
+    result_summary: str | None = Field(default=None, max_length=2000)
+
+
 @app.get("/healthz")
 def health():
     return {"status": "ok"}
@@ -96,13 +122,64 @@ async def intro_evidence(file: UploadFile = File(...), owned: bool = Form(False)
             if not total:
                 raise HTTPException(422, "Upload a readable video file.")
             try:
-                return await run_in_threadpool(analyze_owned_intro, path, root / "frames")
+                result = await run_in_threadpool(analyze_owned_intro, path, root / "frames")
+                result["upload_name"] = file.filename or "owned-video.mp4"
+                return result
             except ValueError as exc:
                 raise HTTPException(422, str(exc)) from None
             except Exception:
                 raise HTTPException(500, "Intro analysis could not complete. Try a different clip.") from None
     finally:
         await file.close()
+
+
+@app.get("/v1/memory", dependencies=[Depends(require_service_token)])
+def creator_memory_dashboard():
+    return memory_dashboard()
+
+
+@app.post("/v1/memory/profile", dependencies=[Depends(require_service_token)])
+def creator_memory_profile(payload: MemoryProfileRequest):
+    try:
+        return memory_save_profile(payload.display_name, payload.channel_name, payload.niche)
+    except (ValueError, OSError):
+        raise HTTPException(422, "Creator Memory profile could not be saved.") from None
+
+
+@app.post("/v1/memory/analyses", dependencies=[Depends(require_service_token)])
+def creator_memory_save(payload: MemorySaveRequest):
+    creator = payload.report.get("creator_report") if isinstance(payload.report, dict) else None
+    if not isinstance(creator, dict):
+        raise HTTPException(422, "A completed Creator Report is required.")
+    try:
+        return memory_save_uploaded_analysis(
+            payload.report, payload.upload_name, payload.content_digest
+        )
+    except ValueError as exc:
+        raise HTTPException(409, str(exc)) from None
+    except (OSError, TypeError):
+        raise HTTPException(422, "This analysis could not be saved to Creator Memory.") from None
+
+
+@app.get("/v1/memory/analyses/{analysis_id}", dependencies=[Depends(require_service_token)])
+def creator_memory_reopen(analysis_id: str):
+    result = memory_reopen_analysis(analysis_id)
+    if result.get("status") == "fallback" and result.get("diagnostics", {}).get("error") == "missing_analysis":
+        raise HTTPException(404, "Saved analysis not found.")
+    return result
+
+
+@app.patch("/v1/memory/experiments/{experiment_id}", dependencies=[Depends(require_service_token)])
+def creator_memory_experiment(experiment_id: str, payload: ExperimentUpdateRequest):
+    if payload.status is None and payload.creator_notes is None and payload.result_summary is None:
+        raise HTTPException(422, "Provide an experiment update.")
+    try:
+        return memory_update_experiment(
+            experiment_id, status=payload.status, creator_notes=payload.creator_notes,
+            result_summary=payload.result_summary,
+        )
+    except (ValueError, OSError):
+        raise HTTPException(422, "Experiment could not be updated.") from None
 
 
 @app.post("/v1/analyses", response_model=AnalysisResponse,
