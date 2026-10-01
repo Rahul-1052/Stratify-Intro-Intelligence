@@ -3,7 +3,7 @@ const assert=require('node:assert/strict');
 const AxeBuilder = require('@axe-core/playwright').default;
 const qa = process.env.STRATIFY_QA_DIR;
 const audit = async page => {const result = await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa']).analyze(); assert.deepEqual(result.violations.map(v=>({id:v.id,nodes:v.nodes.map(n=>n.target)})), []);};
-(async()=>{const browser=await chromium.launch({headless:true,executablePath:process.env.STRATIFY_CHROMIUM_PATH,args:['--no-sandbox']});const page=await browser.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
+(async()=>{const browser=await chromium.launch({headless:true,executablePath:process.env.STRATIFY_CHROMIUM_PATH,args:['--no-sandbox']});const context=await browser.newContext();const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
 await page.goto('http://127.0.0.1:3005');
 await page.getByRole('button',{name:'Create profile',exact:true}).waitFor();
 await page.keyboard.press('Tab');assert.equal(await page.locator(':focus').innerText(),'Skip to workspace');await page.keyboard.press('Enter');assert.equal(await page.locator(':focus').getAttribute('id'),'workspace');
@@ -12,7 +12,7 @@ await page.getByLabel('Video file').setInputFiles(`${qa}/owned.mp4`);await page.
 assert.equal(await page.locator('.creator-report .experiment').count(),1);assert.equal(await page.locator('tbody tr').count(),20);
 await page.getByRole('button',{name:'Save this analysis'}).click();await page.getByRole('button',{name:'Open owned.mp4, revision 1'}).waitFor();
 await page.getByLabel('Experiment status for').first().selectOption('running');await page.getByText('Experiment status saved.',{exact:true}).waitFor();
-for(const width of [1440,768,390,320]){await page.setViewportSize({width,height:1000});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),`overflow at ${width}`);await audit(page);await page.screenshot({path:`${qa}/report-${width}.png`,fullPage:true});}
+for(const width of [1440,768,390,320]){await page.setViewportSize({width,height:1000});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),`overflow at ${width}`);await page.screenshot({path:`${qa}/report-${width}.png`,fullPage:true});await audit(page);}
 await page.reload();await page.getByRole('button',{name:'Open owned.mp4, revision 1'}).click();await page.getByRole('heading',{name:'Saved analysis',exact:true}).waitFor();assert.equal(await page.locator(':focus').innerText(),'Saved analysis');assert.equal(await page.getByLabel('Experiment status for').first().inputValue(),'running');await page.screenshot({path:`${qa}/reopened-320.png`,fullPage:true});
 await page.getByRole('button',{name:'Close saved analysis'}).click();assert.match(await page.locator(':focus').getAttribute('aria-label'),/revision 1/);
 await page.route('**/api/memory',route=>route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({detail:'Memory unavailable for QA'})}));await page.reload();await page.getByRole('alert').filter({hasText:'Memory unavailable for QA'}).waitFor();await page.unroute('**/api/memory');await page.getByRole('button',{name:'Retry saved history'}).click();await page.getByRole('button',{name:'Open owned.mp4, revision 1'}).waitFor();
