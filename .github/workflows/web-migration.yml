@@ -53,3 +53,26 @@ jobs:
         with:
           name: stratify-browser-validation
           path: ${{ runner.temp }}/stratify-browser/*.png
+  postgres:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: stratify_test
+          POSTGRES_PASSWORD: disposable_ci_password
+          POSTGRES_DB: stratify_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U stratify_test -d stratify_test"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-web.txt
+      - run: python -m pytest tests/test_postgres_memory.py -q
+        env:
+          STRATIFY_TEST_POSTGRES_URL: postgresql://stratify_test:disposable_ci_password@127.0.0.1:5432/stratify_test
