@@ -45,8 +45,8 @@ def test_service_save_reopen_revision_and_experiment():
         assert opened['diagnostics']['analysis_pipeline_rerun'] is False
         assert opened['report']['saved_history']['revision'] == revision['revision']
     experiment = dashboard['experiments'][0]
-    service.update_experiment(experiment['id'], status='completed', result_summary='Creator-entered result')
-    assert service.dashboard()['experiments'][0]['result_summary'] == 'Creator-entered result'
+    service.update_experiment(experiment.id, status='completed', result_summary='Creator-entered result')
+    assert service.dashboard()['experiments'][0].result_summary == 'Creator-entered result'
     service.repository.delete_project(first['video_id'])
     assert service.dashboard()['counts'] == {'videos': 0, 'analyses': 0}
     assert service.dashboard()['experiments'] == []
@@ -58,7 +58,7 @@ def test_copy_preserves_ids_payloads_states_and_refuses_overwrite(tmp_path):
     local.save_profile('Creator', 'Channel')
     saved = local.save_report(report(), create_project(upload_name='clip.mp4'), content_digest='b' * 64)
     experiment = local.dashboard()['experiments'][0]
-    local.update_experiment(experiment['id'], status='running', creator_notes='Preserve this note')
+    local.update_experiment(experiment.id, status='running', creator_notes='Preserve this note')
     before = source.read_bytes()
     counts = copy_sqlite(source, URL)
     assert counts['analyses'] == 1
