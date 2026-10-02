@@ -1,0 +1,48 @@
+'use client';
+import {FormEvent, useEffect, useRef, useState} from 'react';
+import {investigateWindow, suggestNextSteps, type investigateViews, type WindowEvidence} from '../lib/views-investigation';
+const number=(value:number)=>value.toLocaleString(undefined,{maximumFractionDigits:1});
+export default function MatchedViews({comparison}: {comparison:ReturnType<typeof investigateViews>}) {
+  const [days,setDays]=useState(7);
+  const [metric,setMetric]=useState<WindowEvidence['metric']>('engaged_views');
+  const [counts,setCounts]=useState<Record<string,string>>({});
+  const [includeImpressions,setIncludeImpressions]=useState(false);
+  const [impressions,setImpressions]=useState<Record<string,string>>({});
+  const [confirmed,setConfirmed]=useState(false);
+  const [error,setError]=useState('');
+  const [answer,setAnswer]=useState<ReturnType<typeof investigateWindow>|null>(null);
+  const heading=useRef<HTMLHeadingElement>(null);
+  useEffect(()=>{if(answer) heading.current?.focus();},[answer]);
+  function invalidate(){setAnswer(null);setError('');setConfirmed(false);}
+  function submit(event:FormEvent){event.preventDefault();setAnswer(null);setError('');try{setAnswer(investigateWindow(comparison,{days,metric,counts,confirmed,impressions:includeImpressions?impressions:undefined}));}catch(failure){setError(failure instanceof Error?failure.message:'Review the entered counts.');}}
+  return <details className="report-section"><summary>I have the creator’s YouTube Studio numbers (optional)</summary><section aria-labelledby="matched-title">
+    <p>Don’t have access to this channel’s analytics? Skip this step. Public view counts cannot fill these boxes.</p><p>For each video, open its analytics in YouTube Studio. Enter the selected metric for the same first 24 hours, 7 days or 28 days after publication. If a number is unavailable, leave it blank; don’t substitute zero.</p>
+    <h3 id="matched-title">Add analytics for the same viewing window</h3>
+    <p className="muted">Optional: enter counts from your channel analytics for these selected videos. These figures stay in this page and are cleared on reload or when the comparison changes. Stratify does not connect to your YouTube account or verify the numbers.</p>
+    <p className="muted"><a className="source" href="https://support.google.com/youtube/answer/16766491" target="_blank" rel="noopener noreferrer">YouTube’s guide to lifespan comparisons ↗</a></p>
+    <form onSubmit={submit}>
+      <label htmlFor="matched-window">Time after each video was published</label><select id="matched-window" value={days} onChange={event=>{setDays(Number(event.target.value));setCounts({});setImpressions({});invalidate();}}><option value={1}>First 24 hours</option><option value={7}>First 7 days</option><option value={28}>First 28 days</option></select>
+      <label className="concern-label" htmlFor="matched-metric">Metric used for every selected video</label><select id="matched-metric" value={metric} onChange={event=>{setMetric(event.target.value as WindowEvidence['metric']);setCounts({});setImpressions({});invalidate();}}><option value="engaged_views">Engaged views</option><option value="views">Views</option></select>
+      <p className="helper">Use the same metric and completed lifespan window for every video—not a shared calendar period. Public view definitions have changed; do not mix counts with different definitions. <a className="source" href="https://support.google.com/youtube/answer/2991785" target="_blank" rel="noopener noreferrer">How YouTube counts engagement ↗</a></p>
+      <div className="video-selection" role="region" aria-label="Matched viewing-window counts" tabIndex={0}>{[{name:'Recent',group:comparison.recent},{name:'Earlier',group:comparison.earlier}].map(({name,group})=><div key={name}><h4>{name} group</h4>{group.rows.map(video=><div key={video.video_id} className="video-selection-row"><label htmlFor={`matched-${video.video_id}`}>{video.title || video.video_id}<span className="muted"> — {name.toLowerCase()} group</span></label><input id={`matched-${video.video_id}`} aria-label={`Window count for ${video.title || video.video_id}`} type="text" inputMode="numeric" pattern="[0-9]+" required maxLength={16} value={counts[video.video_id]||''} onChange={event=>{setCounts({...counts,[video.video_id]:event.target.value});invalidate();}} placeholder="Unavailable? Don’t enter 0"/></div>)}</div>)}</div>
+      <label className="consent"><input type="checkbox" checked={includeImpressions} onChange={event=>{setIncludeImpressions(event.target.checked);setImpressions({});invalidate();}}/>Add registered thumbnail impressions for these same windows (optional)</label>
+      {includeImpressions && <div><p className="helper">Enter this metric for every selected video using the same windows. If it is unavailable, turn this option off. Registered thumbnail impressions do not cover all views. <a className="source" href="https://support.google.com/youtube/answer/9314355" target="_blank" rel="noopener noreferrer">YouTube’s reach metrics ↗</a></p><div className="video-selection" role="region" aria-label="Matched impression counts" tabIndex={0}>{[...comparison.recent.rows,...comparison.earlier.rows].map(video=><div className="video-selection-row" key={video.video_id}><label htmlFor={`impressions-${video.video_id}`}>{video.title || video.video_id}</label><input id={`impressions-${video.video_id}`} aria-label={`Window impressions for ${video.title || video.video_id}`} type="text" inputMode="numeric" pattern="[0-9]+" required maxLength={16} value={impressions[video.video_id]||''} onChange={event=>{setImpressions({...impressions,[video.video_id]:event.target.value});invalidate();}}/></div>)}</div></div>}
+      <label className="consent"><input type="checkbox" checked={confirmed} onChange={event=>{setConfirmed(event.target.checked);setAnswer(null);setError('');}}/>I checked that every count uses this completed window and a consistent definition for its metric.</label>
+      <button className="channel-submit">Review matched-window evidence</button>
+    </form>
+    {error && <p role="alert" className="error">{error}</p>}
+    {answer && <div className="evidence-note" aria-labelledby="matched-result-title">
+      <h3 id="matched-result-title" ref={heading} tabIndex={-1}>Your views investigation</h3>
+      <p><strong>Based on the figures you entered:</strong> the selected recent group has {answer.difference===0?'the same':answer.difference<0?'a lower':'a higher'} median {answer.metric==='views'?'views':'engaged views'} count over the first {answer.days===1?'24 hours':`${answer.days} days`}.</p>
+      <dl className="measurement-list"><div><dt>Recent group</dt><dd>{answer.recentCount} videos · median {number(answer.recentMedian)}</dd></div><div><dt>Earlier group</dt><dd>{answer.earlierCount} videos · median {number(answer.earlierMedian)}</dd></div><div><dt>Difference in medians</dt><dd>{number(answer.difference)}{answer.percent===null?' · percentage unavailable (zero baseline)':` (${number(answer.percent)}%)`}</dd></div></dl>
+      <p>{answer.recentAtOrAboveEarlierMedian} of {answer.recentCount} selected recent videos are at or above the earlier group’s median. The group median does not mean every video changed in the same way.</p>
+      <h3>What that tells us—and what it doesn’t</h3>
+      <ul className="limits"><li>These are creator-entered figures. Stratify has not verified their source, accuracy, window or metric definition.</li>{answer.smallSample && <li>At least one group has fewer than three videos. Treat this as a small sample, not a channel-wide trend.</li>}<li>{answer.comparableByCreator?'You described the topics and formats as similar; that remains your assessment.':'Topics or formats are different or unknown. The numbers describe the selection, but do not establish a like-for-like content comparison.'}</li><li>This describes only the selected videos and metric. It does not establish statistical significance, future performance or the cause of a difference.</li></ul>
+      <h3>Suggestions supported by this evidence</h3>
+      <p className="muted">These are investigation steps, not content-change recommendations or proven causes. All supporting analytics are creator-entered and unverified.</p>
+      {suggestNextSteps(answer).suggestions.map(suggestion=><article className="suggestion" key={suggestion.id}><h4>{suggestion.action}</h4><p><strong>Why this step:</strong> {suggestion.reason}</p><p><strong>What limits it:</strong> {suggestion.limitation}</p><p className="helper">Supporting evidence: {suggestion.evidenceIds.map((id,index)=><span key={id}>{index>0?' · ':''}<a className="source" href={`#suggestion-evidence-${id}`} onClick={()=>{document.getElementById(`suggestion-evidence-${id}`)?.closest('details')?.setAttribute('open',''); requestAnimationFrame(()=>document.getElementById(`suggestion-evidence-${id}`)?.focus());}}>{id==='matched_views'?'Entered viewing-window counts':id==='matched_impressions'?'Entered impressions':'Selected comparison context'}</a></span>)}</p></article>)}
+      <details className="sample-details"><summary>Inspect the evidence behind these suggestions</summary>{suggestNextSteps(answer).evidence.map(item=><div className="suggestion-evidence" id={`suggestion-evidence-${item.id}`} key={item.id} tabIndex={-1}><p>{item.observation}</p><p className="muted">Source: creator-entered, unverified. Videos: {item.videoIds.join(', ')}.</p></div>)}</details>
+      <p className="muted">No evidence here justifies blaming an opening, thumbnail or topic, or prescribing a content change.</p>
+    </div>}
+  </section></details>;
+}
