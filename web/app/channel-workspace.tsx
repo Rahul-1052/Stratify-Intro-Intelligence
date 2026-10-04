@@ -10,9 +10,16 @@ type Workspace = {
 };
 const count = (value: number | null) => value === null ? 'Unavailable' : value.toLocaleString();
 const date = (value: string | null) => value ? value.slice(0, 10) : 'Unavailable';
+function readableDuration(value: string | null) {
+  const match = value?.match(/^P(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?)?$/);
+  if (!match) return 'Unavailable';
+  const seconds = Number(match[1] || 0)*86400 + Number(match[2] || 0)*3600 + Number(match[3] || 0)*60 + Number(match[4] || 0);
+  if (!seconds) return 'Unavailable';
+  return [Math.floor(seconds/3600) ? `${Math.floor(seconds/3600)} hr` : '', Math.floor(seconds%3600/60) ? `${Math.floor(seconds%3600/60)} min` : '', seconds%60 ? `${seconds%60} sec` : ''].filter(Boolean).join(' ');
+}
 const focuses = [
-  ['reach', 'Reaching more people'], ['returning_viewers', 'Getting people to return'],
-  ['subscriptions', 'Turning viewers into subscribers'], ['content_direction', 'Choosing what to create'],
+  ['reach', 'Views — compare recent and earlier videos'], ['returning_viewers', 'Returning viewers — who comes back'],
+  ['subscriptions', 'Subscribers — who subscribes after watching'], ['content_direction', 'Choosing what to create'],
   ['packaging', 'Titles and thumbnails'], ['watching', 'Understanding the viewing experience'],
   ['open_question', 'Something else / help me explore'],
 ];
@@ -66,8 +73,9 @@ export default function ChannelWorkspace() {
       <form onSubmit={collect}>
         <label htmlFor="inquiry-focus">What would you like to investigate first?</label>
         <select id="inquiry-focus" required value={focus} onChange={event => {setFocus(event.target.value); setWorkspace(null);}} disabled={busy}>
-          <option value="" disabled>Choose a starting point</option>{focuses.map(([value,label]) => <option key={value} value={value}>{label}</option>)}
+          <option value="" disabled>Choose what you want to understand</option>{focuses.map(([value,label]) => <option key={value} value={value}>{label}</option>)}
         </select>
+        <p className="helper">Asking whether views changed? Choose “Views — compare recent and earlier videos.” Returning viewers and subscribers are different questions.</p>{focus && focus !== 'reach' && <p className="evidence-note">This starting point currently collects public facts and lists the evidence needed. It does not yet generate an answer for this question.</p>}
         <label className="concern-label" htmlFor="inquiry-question">The question you want Stratify to investigate</label>
         <textarea id="inquiry-question" required maxLength={2000} rows={3} value={question} onChange={event => {setQuestion(event.target.value); setWorkspace(null);}} disabled={busy} aria-describedby="inquiry-help"/>
         <p id="inquiry-help" className="helper">Keep or edit your original words. Include examples or a decision you need help making. Selecting a focus doesn’t establish the cause of a problem.</p>
@@ -98,10 +106,10 @@ export default function ChannelWorkspace() {
       </div>
       </details>
       <details className="sample-details"><summary>Inspect the public video facts ({workspace.videos.length})</summary>
-        <p className="muted">Upload order. Formats have not been classified; counts are not a performance ranking. Duration is the value reported by YouTube (for example, PT5M means five minutes).</p>
+        <p className="muted">Upload order. Formats have not been classified; counts are not a performance ranking. Durations are reported by YouTube. A missing or zero duration is shown as unavailable; it does not identify the video’s format.</p>
         <div className="table-scroll" role="region" aria-label="Channel video facts" tabIndex={0}>
           <table><caption className="sr-only">Public upload sample with source links and available counts</caption><thead><tr>{['Video', 'Published', 'Duration', 'Views', 'Likes', 'Comments'].map(label => <th key={label} scope="col">{label}</th>)}</tr></thead>
-            <tbody>{workspace.videos.map(video => <tr key={video.video_id}><td><a className="source" href={video.source_url} target="_blank" rel="noopener noreferrer">{video.title || 'Untitled video'} ↗</a></td><td>{date(video.published_at)}</td><td>{video.duration || 'Unavailable'}</td><td>{count(video.views)}</td><td>{count(video.likes)}</td><td>{count(video.comments)}</td></tr>)}</tbody>
+            <tbody>{workspace.videos.map(video => <tr key={video.video_id}><td><a className="source" href={video.source_url} target="_blank" rel="noopener noreferrer">{video.title || 'Untitled video'} ↗</a></td><td>{date(video.published_at)}</td><td>{readableDuration(video.duration)}</td><td>{count(video.views)}</td><td>{count(video.likes)}</td><td>{count(video.comments)}</td></tr>)}</tbody>
           </table>
         </div>
       </details>
