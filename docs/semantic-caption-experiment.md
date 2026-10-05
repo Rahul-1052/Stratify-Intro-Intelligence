@@ -15,3 +15,15 @@ Before production grouping, evaluate alternatives against independently reviewed
 ## Second candidate
 
 `BAAI/bge-small-en-v1.5` ranked the intended positive first in six of the same ten unchanged illustrative triples. It still failed negation, the format trap, shared-material wording, and equal-window reasoning. Both reports contain observations from the same seven public captions. Neither model is promoted: these are similarity scores, not validated fair groups. The evaluator accepts `--model BAAI/bge-small-en-v1.5` with a separate cache directory, and the observation record identifies the model actually used.
+
+## Independent checks and real-caption observations
+
+`core/caption_comparison_checks.py` separates exact caption overlap from explicit creator format declarations. Eight-word sequences retain negation and other function words. A conservative, uncalibrated review flag requires at least ten shared unique sequences and 65% containment of the smaller set. No observed overlap does not establish independent recordings. Short shared slogans remain insufficient evidence. Titles and durations are not used to assign formats. Supported creator declarations are clearly unverified; mismatching declarations raise a separate format flag. Every pair still needs comparability review.
+
+On the seven available public captions, all 21 pair formats remain unknown and no pair crosses the exact-overlap review threshold. This does not clear multipart videos as independent material: transcription differences and paraphrased reuse can evade exact matching. The eighth attempted caption timed out. `docs/evaluations/caption-independent-checks.json` preserves retrieval coverage, text hashes, derived observations and limitations, without caption text.
+
+Reproduce with `python tools/evaluate_caption_checks.py --captions-json <retrieval.json> --output <report.json>`. The check evaluator needs no model or additional dependency. The web migration CI now runs the independent-check and semantic-contract tests.
+
+### Remaining rollout gate
+
+These experiments are not wired into the website. Production promotion requires reviewed examples with independently established format, topic and shared-recording relationships. Public caption scores cannot supply that ground truth. Include different titles for shared footage, matching titles for different recordings, transcript paraphrases, series excerpts, compilations and mixed formats. Record source, reviewer, evidence and disagreement for each label; split evaluation by recording/channel so related clips cannot leak across development and held-out examples. Report coverage, false matches and abstentions separately. Set acceptance criteria before tuning a decision threshold. Matched viewing-window analytics remain a separate requirement for performance claims.
