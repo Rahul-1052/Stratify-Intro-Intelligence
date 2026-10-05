@@ -1,0 +1,86 @@
+{
+  "provenance": "Automatically retrieved public captions; unverified transcription. No independent video or footage annotation.",
+  "available_captions": 2,
+  "collection_statuses": [
+    {
+      "video_id": "HVR25ejQY2U",
+      "status": "timeout"
+    },
+    {
+      "video_id": "u97cw5rEvkU",
+      "status": "timeout"
+    },
+    {
+      "video_id": "JDZzcOUr2wA",
+      "status": "available"
+    },
+    {
+      "video_id": "-lH-Fjgcxdc",
+      "status": "available"
+    }
+  ],
+  "text_hashes": {
+    "JDZzcOUr2wA": "657931bb45a4c22623df54f5ba1e17a324bef8e21b8336e754533190142e9004",
+    "-lH-Fjgcxdc": "d18a13b49f7c0657a95b31b3f14a72c4843bac7d0c5c0363bda0b1b0998e74f1"
+  },
+  "pair_count": 1,
+  "possible_shared_text_pairs": 0,
+  "possible_shared_dialogue_pairs": 0,
+  "unknown_format_pairs": 1,
+  "pairs": [
+    {
+      "left": "JDZzcOUr2wA",
+      "right": "-lH-Fjgcxdc",
+      "overlap": {
+        "status": "no_large_exact_overlap_observed",
+        "shared_unique_eight_word_sequences": 0,
+        "fraction_of_smaller_set": 0.0
+      },
+      "format": {
+        "status": "unknown",
+        "source": null
+      },
+      "fair_comparison": "not_established",
+      "review_required": true,
+      "limitations": [
+        "Exact matching can miss paraphrased or differently transcribed reused material.",
+        "Shared scripts, quotations, and branding can produce overlap without shared footage.",
+        "No observed overlap does not prove independent recordings.",
+        "Format declarations are not verified; titles and duration do not determine format.",
+        "Topics, creator intent, publication windows and performance comparability still need review."
+      ],
+      "ordered_alignment": {
+        "status": "no_large_ordered_alignment_observed",
+        "matched_tokens": 0,
+        "fraction_of_smaller_text": 0.0,
+        "supporting_blocks": 0,
+        "longest_block_tokens": 0,
+        "limitations": [
+          "Development review heuristic; thresholds are not independently calibrated.",
+          "Shared scripts or quotations can match without shared recordings.",
+          "Negation or intervening edits can change meaning even when surrounding wording matches.",
+          "Paraphrases, reordered dialogue and transcription errors can evade alignment.",
+          "No alignment does not establish independent footage."
+        ]
+      }
+    }
+  ],
+  "rollout_decision": "not_promoted",
+  "limitations": [
+    "Real caption observations are not independent ground-truth validation.",
+    "Exact-overlap threshold is an uncalibrated review heuristic.",
+    "No pair has established fair performance comparability."
+  ],
+  "fetched_at": "2026-10-05T20:37:52.025181+00:00",
+  "sample_origin": "Video links previously provided by the user for Max Amini. Channel attribution was not independently re-fetched.",
+  "caption_only_review": {
+    "reviewer": "assistant",
+    "left": "JDZzcOUr2wA",
+    "right": "-lH-Fjgcxdc",
+    "shared_dialogue": "not_observed_in_available_text",
+    "reason": "One transcript is a brief audience interaction about family background. The other is a back-and-forth promotional conversation about an upcoming performance, audience interaction and comedy. The text does not show a repeated passage.",
+    "format": "unknown",
+    "shared_footage": "unknown",
+    "limitations": "Transcript-only development observation, not independent video review or an accuracy estimate."
+  }
+}
