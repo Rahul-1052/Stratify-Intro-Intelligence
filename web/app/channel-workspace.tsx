@@ -90,7 +90,7 @@ export default function ChannelWorkspace() {
       <h2 id="channel-result-title" tabIndex={-1} ref={heading}>{workspace.channel.title}</h2>
       <a className="source" href={workspace.channel.source_url} target="_blank" rel="noopener noreferrer">View channel on YouTube ↗</a>
       <div className="report-section"><h3>Your confirmed investigation</h3><p>{workspace.inquiry.question}</p>
-      <details className="sample-details"><summary>Original concern, scope and evidence requirements</summary><p>Original concern: {workspace.concern}</p><p className="muted">Starting point: {focuses.find(([value]) => value === workspace.inquiry.focus)?.[1]}.</p><p className="muted">Requested scope: {workspace.inquiry.period || 'Not specified yet'}.</p><ul className="limits">{workspace.inquiry.evidence_needed.map(item => <li key={item}>{item}</li>)}</ul><p className="muted">These are evidence requirements, not findings. The public facts do not provide all of them.</p></details></div>
+      <details className="sample-details"><summary>Original concern, scope and evidence requirements</summary><p>Original concern: {workspace.concern}</p><p className="muted">Starting point: {focuses.find(([value]) => value === workspace.inquiry.focus)?.[1]}.</p><p className="muted">Requested scope: {workspace.inquiry.period || 'Not specified yet'}.</p><ul className="limits">{workspace.inquiry.evidence_needed.map(item => <li key={item}>{item === 'The concern is recorded in your words; it has not yet been interpreted or answered.' ? 'Collecting public facts alone does not answer your question. Any comparison is limited to its selected videos and available evidence.' : item}</li>)}</ul><p className="muted">These are evidence requirements, not findings. The public facts do not provide all of them.</p></details></div>
       <p className="helper">Sample: {workspace.coverage.videos_available} available videos from {workspace.coverage.entries_checked} upload entries. {workspace.coverage.more_uploads_available ? 'More uploads exist beyond this sample.' : 'Private or unavailable videos are not included.'}</p>
       <details className="sample-details"><summary>Channel facts and collection coverage</summary>
       <dl className="measurement-list">
@@ -114,7 +114,7 @@ export default function ChannelWorkspace() {
         </div>
       </details>
       {workspace.inquiry.focus === 'reach' && <ViewsInvestigation key={workspace.fetched_at} videos={workspace.videos} fetchedAt={workspace.fetched_at}/>}
-      <div className="evidence-note"><h3>What we can’t conclude yet</h3><ul>{workspace.limitations.map(item => <li key={item}>{item}</li>)}</ul></div>
+      <div className="evidence-note"><h3>What we can’t conclude yet</h3><ul>{workspace.limitations.map(item => <li key={item}>{item === 'The concern is recorded in your words; it has not yet been interpreted or answered.' ? 'Collecting public facts alone does not answer your question. Any comparison is limited to its selected videos and available evidence.' : item}</li>)}</ul></div>
     </section>}
   </>;
 }
