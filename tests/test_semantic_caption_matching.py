@@ -38,3 +38,8 @@ def test_incomplete_encoder_output_is_rejected():
 def test_unverified_provenance_is_required():
     with pytest.raises(ValueError):
         semantic_text_observations([dict(record(), source='verified')], lambda texts: [[1]], len)
+
+
+def test_report_identifies_the_actual_model():
+    result = semantic_text_observations([record()], lambda texts: [[1, 2]], len, model_name='BAAI/bge-small-en-v1.5')
+    assert result['model'] == 'BAAI/bge-small-en-v1.5'

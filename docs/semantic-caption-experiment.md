@@ -11,3 +11,7 @@ The implementation processes complete English caption text in bounded chunks rat
 Use a separate virtual environment for `requirements-semantic-eval.txt`; FastEmbed's dependencies differ from the web environment. Run `python tools/evaluate_semantic_captions.py --output /tmp/semantic-evaluation.json`. The first run downloads the public model. No new API key is required.
 
 Before production grouping, evaluate alternatives against independently reviewed real examples, including differently named related clips, multipart uploads, negation, and mixed formats. Keep chronology, format, shared material, and viewing-window checks separate from semantic scores. Do not tune thresholds to make this illustrative benchmark pass.
+
+## Second candidate
+
+`BAAI/bge-small-en-v1.5` ranked the intended positive first in six of the same ten unchanged illustrative triples. It still failed negation, the format trap, shared-material wording, and equal-window reasoning. Both reports contain observations from the same seven public captions. Neither model is promoted: these are similarity scores, not validated fair groups. The evaluator accepts `--model BAAI/bge-small-en-v1.5` with a separate cache directory, and the observation record identifies the model actually used.

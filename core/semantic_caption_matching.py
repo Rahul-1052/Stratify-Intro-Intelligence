@@ -35,7 +35,7 @@ def cosine(a, b):
     return max(-1.0, min(1.0, sum(float(x)*float(y) for x, y in zip(a, b))/denom))
 
 
-def semantic_text_observations(records, encode, token_count):
+def semantic_text_observations(records, encode, token_count, *, model_name=MODEL_NAME):
     """encode is injectable; unsupported language and oversized text abstain."""
     if not 1 <= len(records) <= 12 or len({r['video_id'] for r in records}) != len(records):
         raise ValueError('Use up to twelve unique caption records.')
@@ -68,12 +68,12 @@ def semantic_text_observations(records, encode, token_count):
     for i, left in enumerate(ids):
         for right in ids[i+1:]:
             pairs.append({'left': left, 'right': right, 'cosine_similarity': cosine(vectors[left], vectors[right])})
-    return {'status': 'experimental_text_observations', 'model': MODEL_NAME, 'coverage': coverage, 'pairs': sorted(pairs, key=lambda p: (-p['cosine_similarity'], p['left'], p['right'])), 'limitations': ['Scores are text-similarity observations, not calibrated probabilities or fair-comparison decisions.', 'Format, reused footage, creator intent and comparable viewing windows remain unverified.', 'All text chunks are processed; oversized text abstains rather than analyzing only the opening.']}
+    return {'status': 'experimental_text_observations', 'model': model_name, 'coverage': coverage, 'pairs': sorted(pairs, key=lambda p: (-p['cosine_similarity'], p['left'], p['right'])), 'limitations': ['Scores are text-similarity observations, not calibrated probabilities or fair-comparison decisions.', 'Format, reused footage, creator intent and comparable viewing windows remain unverified.', 'All text chunks are processed; oversized text abstains rather than analyzing only the opening.']}
 
 
-def local_encoder(cache_dir):
+def local_encoder(cache_dir, *, model_name=MODEL_NAME):
     from fastembed import TextEmbedding
-    model = TextEmbedding(model_name=MODEL_NAME, cache_dir=cache_dir, threads=2)
+    model = TextEmbedding(model_name=model_name, cache_dir=cache_dir, threads=2)
     tokenizer = model.model.tokenizer
     tokenizer.no_truncation()
     return lambda texts: model.embed(texts, batch_size=16), lambda text: len(tokenizer.encode(text).ids)
