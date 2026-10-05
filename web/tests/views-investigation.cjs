@@ -109,3 +109,11 @@ test('explicit conflicting title clues prompt review without changing selection 
  assert.equal(comparisonTitleWarnings([{...rows[0],title:'Stand-up Comedy'}, {...rows[1],title:'Standup Comedy'}]).length,0);
  assert.equal(comparisonTitleWarnings([{...rows[0],title:'Interviewing myself'}, {...rows[1],title:'Standup Comedy'}]).length,0);
 });
+
+test('full crowd work show prompts review alongside unlabeled formats without inferring Shorts',()=>{
+ const selected=[{...rows[0],title:'HECKLED BY A DOG!? [Full Crowd Work Show - 24 minutes]'},{...rows[1],title:'GHOST AT MY SHOW! #standupcomedy'}];
+ const warning=comparisonTitleWarnings(selected);assert.equal(warning.length,1);assert.equal(warning[0].label,'full show');assert.match(warning[0].message,/formats are unknown/);
+ assert.equal(comparisonTitleWarnings(selected.map(v=>({...v,title:'Full Show'}))).length,0);
+ assert.equal(comparisonTitleWarnings([{...rows[0],title:'Full of surprises at my show'},selected[1]]).length,0);
+ assert.equal(comparisonTitleWarnings([{...rows[0],title:'Full Show'},{...rows[1],title:'Comedy clip'}])[0].label,'full show');
+});

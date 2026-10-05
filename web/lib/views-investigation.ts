@@ -107,9 +107,11 @@ export function comparisonTitleWarnings(videos: PublicVideo[]) {
   const patterns: [string, RegExp][] = [
     ['interview', /\binterview\b/i], ['stand-up comedy', /\bstand[ -]?up comedy\b/i],
     ['podcast', /\bpodcast\b/i], ['livestream', /\blivestream\b|\blive stream\b/i],
-    ['trailer', /\btrailer\b/i],
+    ['trailer', /\btrailer\b/i], ['full show', /\bfull(?:\s+crowd[ -]work)?\s+show\b/i], ['clip', /\bclips?\b/i],
   ];
   const clues = videos.flatMap(v=>patterns.filter(([,pattern])=>pattern.test(v.title)).map(([label])=>({videoId:v.video_id,title:v.title,label})));
+  const fullShows = clues.filter(c=>c.label === 'full show');
+  if (fullShows.length > 0 && fullShows.length < videos.length) return fullShows.map(c=>({...c,message:'This title says full show; other selected titles do not. Their formats are unknown, so review whether they belong together.'}));
   if (new Set(clues.map(c=>c.label)).size < 2) return [];
   return clues.map(c=>({...c,message:`Title mentions “${c.label}”. Other selected titles use different content labels; check whether they belong in the same comparison.`}));
 }
