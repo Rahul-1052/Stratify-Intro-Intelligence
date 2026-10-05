@@ -138,4 +138,12 @@ await page.route('**/api/public-captions',route=>route.fulfill({status:200,conte
 await page.getByRole('button',{name:'Prepare a comparison for me',exact:true}).click();
 await page.getByText(/8 of 8 candidate uploads have retrieved English captions/).waitFor();
 await page.getByText('Provisional selection using shared caption wording. Topic, format and footage independence are not verified.',{exact:true}).waitFor();
+await page.getByRole('button',{name:'Remove captions',exact:true}).click();
+await page.unroute('**/api/public-captions');
+await page.route('**/api/public-captions',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({results:captionVideos.map((v,i)=>({video_id:v.video_id,status:'available',text:Array.from({length:60},(_,k)=>`topic${i}word${k}`).join(' ')}))})}));
+await page.getByRole('button',{name:'Prepare a comparison for me',exact:true}).click();
+await page.getByText(/No content-based groups were prepared. The current shared-word rules/).waitFor();
+await page.getByText('Why no groups were prepared',{exact:true}).click();
+await page.getByText(/largest shared-word match set had 1 uploads/).waitFor();
+assert.equal(await page.getByRole('heading',{name:'Review the proposed groups',exact:true}).count(),0);
 await audit(page);assert.deepEqual(errors,[]);console.log('PASS: real upload/report/profile/save/reload/reopen/status persistence; 4 widths; skip link; focus return; memory failure/retry; abstention; no browser exceptions');await browser.close();})().catch(e=>{console.error(e);process.exit(1)});
