@@ -96,6 +96,7 @@ assert.equal(await page.getByRole('heading',{name:'Your views investigation',exa
 assert.equal(await page.getByLabel('Window count for Earlier tutorial').inputValue(),'');
 assert.equal(await page.getByLabel('Window impressions for Earlier tutorial').inputValue(),'');
 assert.equal(await page.getByLabel('I checked that every count uses this completed window').isChecked(),false);
+await page.getByText('Check topics and formats (optional)',{exact:true}).click();
 await page.getByLabel('Do the groups use similar formats?').selectOption('different');
 assert.equal(await page.getByRole('heading',{name:'What the selected videos show',exact:true}).count(),0);
 await page.getByLabel('Comparison group for Earlier tutorial').selectOption('');
