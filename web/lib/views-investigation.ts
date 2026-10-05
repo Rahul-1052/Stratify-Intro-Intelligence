@@ -99,7 +99,7 @@ export function proposeComparison(videos: PublicVideo[], fetchedAt: string) {
   const boundary = recent.length ? Date.parse(recent[recent.length-1].published_at!) : NaN;
   const earlier = eligible.filter(v=>Date.parse(v.published_at!) < boundary).slice(0,3);
   if (recent.length !== 3 || earlier.length !== 3) return null;
-  return {recent, earlier, excluded: videos.length-6, reason: 'Three newest uploads at least 7 days old, followed by three uploads strictly older than that group. Date ties use video ID order. Views, titles and durations do not influence selection. Seven days is a setup default, not a statistical reliability threshold.'};
+  return {recent, earlier, cutoff: new Date(collected - 7 * 86400000).toISOString(), excluded: videos.length-6, reason: 'Three newest uploads at least 7 days old, followed by three uploads strictly older than that group. Date ties use video ID order. Views, titles and durations do not influence selection. Seven days is a setup default, not a statistical reliability threshold.'};
 }
 
 // Explicit title clues only. These warnings never classify content or alter groups.
@@ -114,4 +114,16 @@ export function comparisonTitleWarnings(videos: PublicVideo[]) {
   if (fullShows.length > 0 && fullShows.length < videos.length) return fullShows.map(c=>({...c,message:'This title says full show; other selected titles do not. Their formats are unknown, so review whether they belong together.'}));
   if (new Set(clues.map(c=>c.label)).size < 2) return [];
   return clues.map(c=>({...c,message:`Title mentions “${c.label}”. Other selected titles use different content labels; check whether they belong in the same comparison.`}));
+}
+
+// A naming clue, never proof of shared footage or independent observations.
+export function relatedTitleGroups(videos: PublicVideo[]) {
+  const normalize = (title: string) => title.toLowerCase().replace(/\bpart\s*\d+\b/gi, '').replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+  const groups = new Map<string, PublicVideo[]>();
+  for (const video of videos) {
+    const key = normalize(video.title);
+    if (!key) continue;
+    groups.set(key, [...(groups.get(key) || []), video]);
+  }
+  return [...groups.values()].filter(group => group.length > 1 && group.some(video => /\bpart\s*\d+\b/i.test(video.title)));
 }

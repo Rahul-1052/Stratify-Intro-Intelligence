@@ -117,3 +117,19 @@ test('full crowd work show prompts review alongside unlabeled formats without in
  assert.equal(comparisonTitleWarnings([{...rows[0],title:'Full of surprises at my show'},selected[1]]).length,0);
  assert.equal(comparisonTitleWarnings([{...rows[0],title:'Full Show'},{...rows[1],title:'Comedy clip'}])[0].label,'full show');
 });
+
+test('related parts remain a clue and different names never establish independence',()=>{
+ const {relatedTitleGroups}=require('../lib/views-investigation.ts');
+ const named=(id,title)=>({...video(id,'2026-09-01',10),title});
+ const input=[named('a','Learning Gang Signs | Crowd Work part 1'),named('b','LEARNING GANG SIGNS | Crowd Work part 2'),named('c','Learning Gang Signs | Crowd Work'),named('d','Brandon Returns | Crowd Work part 1')];
+ assert.deepEqual(relatedTitleGroups(input).map(group=>group.map(v=>v.video_id)),[['a','b','c']]);
+ assert.deepEqual(relatedTitleGroups([named('a','First story'),named('b','Different story')]),[]);
+ assert.deepEqual(relatedTitleGroups([named('a','Party one'),named('b','Party two')]),[]);
+});
+test('proposal uses 168 hours rather than calendar dates at the cutoff',()=>{
+ const {proposeComparison}=require('../lib/views-investigation.ts');
+ const input=[video('fresh','2026-09-28T18:01:00Z',10),video('edge','2026-09-28T18:00:00Z',10),...Array.from({length:5},(_,i)=>video('old'+i,`2026-09-${27-i}T18:00:00Z`,10))];
+ const proposal=proposeComparison(input,'2026-10-05T18:00:00Z');
+ assert.equal(proposal.cutoff,'2026-09-28T18:00:00.000Z');
+ assert.deepEqual(proposal.recent.map(v=>v.video_id),['edge','old0','old1']);
+});
