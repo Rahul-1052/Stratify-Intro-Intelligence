@@ -1,11 +1,16 @@
 'use client';
+import {prepareCaptionComparison, type CaptionEvidence} from '../lib/caption-comparison';
 import MatchedViews from './matched-views';
 import {FormEvent, useEffect, useRef, useState} from 'react';
 import {relatedTitleGroups, comparisonTitleWarnings, proposeComparison, investigateViews, type PublicVideo, type Comparability} from '../lib/views-investigation';
 const number = (value: number | null) => value === null ? 'Unavailable' : value.toLocaleString(undefined,{maximumFractionDigits:1});
 export default function ViewsInvestigation({videos, fetchedAt}: {videos: PublicVideo[]; fetchedAt: string}) {
   const [manual,setManual] = useState(false);
-  const proposal = proposeComparison(videos,fetchedAt);
+  const [captions,setCaptions] = useState<CaptionEvidence[]>([]);
+  const [captionError,setCaptionError] = useState('');
+  const [captionBusy,setCaptionBusy] = useState(false);
+  const captionProposal = captions.length ? prepareCaptionComparison(videos,fetchedAt,captions) : null;
+  const proposal = captionProposal ? captionProposal.proposal : proposeComparison(videos,fetchedAt);
   const [prepared,setPrepared] = useState(false);
   const [search,setSearch] = useState('');
   const [page,setPage] = useState(0);
@@ -28,6 +33,24 @@ export default function ViewsInvestigation({videos, fetchedAt}: {videos: PublicV
       setResult(investigateViews(videos, videos.filter(v=>selection[v.video_id]==='recent').map(v=>v.video_id), videos.filter(v=>selection[v.video_id]==='earlier').map(v=>v.video_id), fetchedAt, topics, formats));
     } catch (failure) {setError(failure instanceof Error ? failure.message : 'Review your selection.');}
   }
+  async function readCaptions(files: FileList | null) {
+    if (!files?.length) return;
+    setCaptionBusy(true);setCaptionError('');setCaptions([]);setSelection({});setPrepared(false);invalidate();
+    try {
+      const batch=Array.from(files);
+      if(batch.length>100 || batch.reduce((sum,file)=>sum+file.size,0)>2000000) throw new Error('Choose up to 100 caption files, with a combined size below 2 MB.');
+      const evidence:CaptionEvidence[]=[];
+      for(const file of batch) {
+        if(!/\.(srt|vtt|txt)$/i.test(file.name)) throw new Error('Use SRT, VTT or TXT caption files.');
+        const matches=videos.filter(v=>file.name.includes(v.video_id));
+        if(matches.length!==1) throw new Error(`Could not match ${file.name}. Include its YouTube video ID in the filename.`);
+        evidence.push({videoId:matches[0].video_id,text:await file.text(),source:'creator_caption_unverified'});
+      }
+      prepareCaptionComparison(videos,fetchedAt,evidence);
+      setCaptions(evidence);
+    } catch(failure) {setCaptionError(failure instanceof Error ? failure.message : 'Captions could not be read.');}
+    finally {setCaptionBusy(false);}
+  }
   function prepare() {
     if (!proposal) return;
     setSelection(Object.fromEntries([...proposal.recent.map(v=>[v.video_id,'recent']),...proposal.earlier.map(v=>[v.video_id,'earlier'])]));
@@ -44,9 +67,10 @@ export default function ViewsInvestigation({videos, fetchedAt}: {videos: PublicV
   return <section className="report-section" aria-labelledby="views-investigation-title">
     <h3 id="views-investigation-title">Investigate a change in views</h3>
     <p className="muted">Let Stratify prepare a starting comparison, or choose the videos yourself.</p>
-    <button type="button" onClick={prepare} disabled={!proposal}>Prepare a comparison for me</button>{' '}<button type="button" onClick={()=>{setManual(true);}}>Choose videos myself</button>
-    {!proposal && <p className="helper">Not enough dated uploads for two groups of three at least 7 days old. You can choose videos manually.</p>}
-    {prepared && <div className="evidence-note"><h4>Review the proposed groups</h4><p>We picked three recent uploads and three earlier uploads, all at least 7 days old. Check that these videos fit your question.</p><p className="helper">Provisional selection by date. Video content, formats and shared material have not been verified. Matching titles do not establish a fair comparison.</p>{mismatchNote}{relatedNote}<details className="sample-details"><summary>Why these videos?</summary><p>{proposal?.reason}</p><p>Publication cutoff: {proposal?.cutoff.replace('T',' ').replace('.000Z',' UTC')}. Uploads must be at least 168 hours old at collection; the displayed calendar date alone is not enough.</p><p>Your question and requested period have not been interpreted or applied. {proposal?.excluded} other uploads are left out of this selection.</p></details><div className="measurement-list">{['recent','earlier'].map(group=><div key={group}><h4>{group==='recent'?'Recent group':'Earlier group'}</h4><ul>{videos.filter(v=>selection[v.video_id]===group).map(v=><li key={v.video_id}><a className="source" href={v.source_url} target="_blank" rel="noopener noreferrer">{v.title || 'Untitled video'}</a> — {v.published_at?.slice(0,10)}</li>)}</ul></div>)}</div><button type="button" onClick={()=>setManual(true)}>Adjust comparison</button></div>}
+    <details className="sample-details"><summary>Add captions for content-based grouping (optional)</summary><p>Supply caption files for several recent and earlier videos. Stratify can look for shared wording across different titles and screen for substantial text overlap. Captions are creator supplied and unverified; they do not establish the video’s format.</p><label htmlFor="comparison-captions">Caption files (SRT, VTT or TXT)</label><input id="comparison-captions" type="file" multiple accept=".srt,.vtt,.txt" disabled={captionBusy} onChange={event=>{void readCaptions(event.currentTarget.files);event.currentTarget.value='';}}/><p className="helper">Include the YouTube video ID in each filename, for example 5ddEDYTFWTc.srt. Up to 100 files, 2 MB combined. Files stay in this page and are cleared on reload; they are not uploaded or saved.</p>{captionError && <p role="alert" className="error">{captionError}</p>}{captionBusy && <p role="status">Reading captions…</p>}{captionProposal && <><p role="status">{captionProposal.coverage.supplied} supplied; {captionProposal.coverage.usable} have enough text and meet the age cutoff. {captionProposal.coverage.overlapSkipped} screened out for substantial caption overlap.</p><button type="button" onClick={()=>{setCaptions([]);setSelection({});setPrepared(false);invalidate();}}>Remove captions</button></>}</details>
+    <button type="button" onClick={prepare} disabled={!proposal || captionBusy}>Prepare a comparison for me</button>{' '}<button type="button" onClick={()=>{setManual(true);}}>Choose videos myself</button>
+    {!proposal && <p className="helper">{captionProposal ? 'Captions do not support two groups of three using the current matching rules. No content-based groups were prepared. You can add more captions, remove captions for a date-only setup, or choose manually.' : 'Not enough dated uploads for two groups of three at least 7 days old. You can choose videos manually.'}</p>}
+    {prepared && <div className="evidence-note"><h4>Review the proposed groups</h4><p>We picked three recent uploads and three earlier uploads, all at least 7 days old. Check that these videos fit your question.</p><p className="helper">{captionProposal ? 'Provisional selection using shared caption wording. Topic, format and footage independence are not verified.' : 'Provisional selection by date. Video content, formats and shared material have not been verified. Matching titles do not establish a fair comparison.'}</p>{mismatchNote}{relatedNote}<details className="sample-details"><summary>Why these videos?</summary><p>{proposal?.reason}</p>{captionProposal && <ul>{captionProposal.matches.map(match=><li key={match.videoId}>{videos.find(v=>v.video_id===match.videoId)?.title}: shared words — {match.terms.join(', ')}.</li>)}</ul>}<p>Publication cutoff: {proposal?.cutoff.replace('T',' ').replace(/Z$/, ' UTC')}. Uploads must be at least 168 hours old at collection; the displayed calendar date alone is not enough.</p><p>Your question and requested period have not been interpreted or applied. {proposal?.excluded} other uploads are left out of this selection.</p></details><div className="measurement-list">{['recent','earlier'].map(group=><div key={group}><h4>{group==='recent'?'Recent group':'Earlier group'}</h4><ul>{videos.filter(v=>selection[v.video_id]===group).map(v=><li key={v.video_id}><a className="source" href={v.source_url} target="_blank" rel="noopener noreferrer">{v.title || 'Untitled video'}</a> — {v.published_at?.slice(0,10)}</li>)}</ul></div>)}</div><button type="button" onClick={()=>setManual(true)}>Adjust comparison</button></div>}
     {!prepared && <>{mismatchNote}{relatedNote}</>}
     {!videos.length ? <p>No public videos are available to select. A comparison cannot be made.</p> : <form onSubmit={investigate}>
       <details className="sample-details" open={manual} onToggle={event=>setManual(event.currentTarget.open)}><summary>Adjust comparison / select videos manually</summary>
