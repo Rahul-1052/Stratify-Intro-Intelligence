@@ -12,6 +12,8 @@ def test_frozen_review_retains_known_misses_and_unknowns(tmp_path):
     report = json.loads(out.read_text())
     assert report['shared_dialogue_cases'] == 2
     assert report['shared_dialogue_cases_flagged_by_exact_overlap'] == 0
+    assert report['shared_dialogue_cases_flagged_by_ordered_alignment'] == 2
+    assert all(p['ordered_alignment_flag'] != 'possible_shared_dialogue' for p in report['reviewed_pairs'] if p['shared_dialogue'] == 'not_observed_in_available_text')
     assert all(p['format'] == 'unknown' and p['shared_footage'] == 'unknown' and p['fair_comparison'] == 'not_established' for p in report['reviewed_pairs'])
     assert all(m['passes'] == 2 for m in report['models'])
     assert report['rollout_decision'] == 'not_promoted'

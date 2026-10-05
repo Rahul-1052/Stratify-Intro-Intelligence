@@ -46,6 +46,7 @@
   },
   "pair_count": 21,
   "possible_shared_text_pairs": 0,
+  "possible_shared_dialogue_pairs": 2,
   "unknown_format_pairs": 21,
   "pairs": [
     {
@@ -68,7 +69,21 @@
         "No observed overlap does not prove independent recordings.",
         "Format declarations are not verified; titles and duration do not determine format.",
         "Topics, creator intent, publication windows and performance comparability still need review."
-      ]
+      ],
+      "ordered_alignment": {
+        "status": "no_large_ordered_alignment_observed",
+        "matched_tokens": 0,
+        "fraction_of_smaller_text": 0.0,
+        "supporting_blocks": 0,
+        "longest_block_tokens": 0,
+        "limitations": [
+          "Development review heuristic; thresholds are not independently calibrated.",
+          "Shared scripts or quotations can match without shared recordings.",
+          "Negation or intervening edits can change meaning even when surrounding wording matches.",
+          "Paraphrases, reordered dialogue and transcription errors can evade alignment.",
+          "No alignment does not establish independent footage."
+        ]
+      }
     },
     {
       "left": "5ddEDYTFWTc",
@@ -90,7 +105,21 @@
         "No observed overlap does not prove independent recordings.",
         "Format declarations are not verified; titles and duration do not determine format.",
         "Topics, creator intent, publication windows and performance comparability still need review."
-      ]
+      ],
+      "ordered_alignment": {
+        "status": "possible_shared_dialogue",
+        "matched_tokens": 309,
+        "fraction_of_smaller_text": 0.8982558139534884,
+        "supporting_blocks": 15,
+        "longest_block_tokens": 78,
+        "limitations": [
+          "Development review heuristic; thresholds are not independently calibrated.",
+          "Shared scripts or quotations can match without shared recordings.",
+          "Negation or intervening edits can change meaning even when surrounding wording matches.",
+          "Paraphrases, reordered dialogue and transcription errors can evade alignment.",
+          "No alignment does not establish independent footage."
+        ]
+      }
     },
     {
       "left": "5ddEDYTFWTc",
@@ -112,7 +141,21 @@
         "No observed overlap does not prove independent recordings.",
         "Format declarations are not verified; titles and duration do not determine format.",
         "Topics, creator intent, publication windows and performance comparability still need review."
-      ]
+      ],
+      "ordered_alignment": {
+        "status": "no_large_ordered_alignment_observed",
+        "matched_tokens": 0,
+        "fraction_of_smaller_text": 0.0,
+        "supporting_blocks": 0,
+        "longest_block_tokens": 0,
+        "limitations": [
+          "Development review heuristic; thresholds are not independently calibrated.",
+          "Shared scripts or quotations can match without shared recordings.",
+          "Negation or intervening edits can change meaning even when surrounding wording matches.",
+          "Paraphrases, reordered dialogue and transcription errors can evade alignment.",
+          "No alignment does not establish independent footage."
+        ]
+      }
     },
     {
       "left": "5ddEDYTFWTc",
@@ -134,7 +177,21 @@
         "No observed overlap does not prove independent recordings.",
         "Format declarations are not verified; titles and duration do not determine format.",
         "Topics, creator intent, publication windows and performance comparability still need review."
-      ]
+      ],
+      "ordered_alignment": {
+        "status": "no_large_ordered_alignment_observed",
+        "matched_tokens": 0,
+        "fraction_of_smaller_text": 0.0,
+        "supporting_blocks": 0,
+        "longest_block_tokens": 0,
+        "limitations": [
+          "Development review heuristic; thresholds are not independently calibrated.",
+          "Shared scripts or quotations can match without shared recordings.",
+          "Negation or intervening edits can change meaning even when surrounding wording matches.",
+          "Paraphrases, reordered dialogue and transcription errors can evade alignment.",
+          "No alignment does not establish independent footage."
+        ]
+      }
     },
     {
       "left": "5ddEDYTFWTc",
@@ -156,7 +213,21 @@
         "No observed overlap does not prove independent recordings.",
         "Format declarations are not verified; titles and duration do not determine format.",
         "Topics, creator intent, publication windows and performance comparability still need review."
-      ]
+      ],
+      "ordered_alignment": {
+        "status": "no_large_ordered_alignment_observed",
+        "matched_tokens": 0,
+        "fraction_of_smaller_text": 0.0,
+        "supporting_blocks": 0,
+        "longest_block_tokens": 0,
+        "limitations": [
+          "Development review heuristic; thresholds are not independently calibrated.",
+          "Shared scripts or quotations can match without shared recordings.",
+          "Negation or intervening edits can change meaning even when surrounding wording matches.",
+          "Paraphrases, reordered dialogue and transcription errors can evade alignment.",
+          "No alignment does not establish independent footage."
+        ]
+      }
     },
     {
       "left": "5ddEDYTFWTc",
@@ -178,7 +249,21 @@
         "No observed overlap does not prove independent recordings.",
         "Format declarations are not verified; titles and duration do not determine format.",
         "Topics, creator intent, publication windows and performance comparability still need review."
-      ]
+      ],
+      "ordered_alignment": {
+        "status": "no_large_ordered_alignment_observed",
+        "matched_tokens": 0,
+        "fraction_of_smaller_text": 0.0,
+        "supporting_blocks": 0,
+        "longest_block_tokens": 0,
+        "limitations": [
+          "Development review heuristic; thresholds are not independently calibrated.",
+          "Shared scripts or quotations can match without shared recordings.",
+          "Negation or intervening edits can change meaning even when surrounding wording matches.",
+          "Paraphrases, reordered dialogue and transcription errors can evade alignment.",
+          "No alignment does not establish independent footage."
+        ]
+      }
     },
     {
       "left": "EJl6J3MFfb0",
@@ -200,7 +285,21 @@
         "No observed overlap does not prove independent recordings.",
         "Format declarations are not verified; titles and duration do not determine format.",
         "Topics, creator intent, publication windows and performance comparability still need review."
-      ]
+      ],
+      "ordered_alignment": {
+        "status": "possible_shared_dialogue",
+        "matched_tokens": 74,
+        "fraction_of_smaller_text": 0.8809523809523809,
+        "supporting_blocks": 4,
+        "longest_block_tokens": 38,
+        "limitations": [
+          "Development review heuristic; thresholds are not independently calibrated.",
+          "Shared scripts or quotations can match without shared recordings.",
+          "Negation or intervening edits can change meaning even when surrounding wording matches.",
+          "Paraphrases, reordered dialogue and transcription errors can evade alignment.",
+          "No alignment does not establish independent footage."
+        ]
+      }
     },
     {
       "left": "EJl6J3MFfb0",
@@ -222,7 +321,21 @@
         "No observed overlap does not prove independent recordings.",
         "Format declarations are not verified; titles and duration do not determine format.",
         "Topics, creator intent, publication windows and performance comparability still need review."
-      ]
+      ],
+      "ordered_alignment": {
+        "status": "no_large_ordered_alignment_observed",
+        "matched_tokens": 0,
+        "fraction_of_smaller_text": 0.0,
+        "supporting_blocks": 0,
+        "longest_block_tokens": 0,
+        "limitations": [
+          "Development review heuristic; thresholds are not independently calibrated.",
+          "Shared scripts or quotations can match without shared recordings.",
+          "Negation or intervening edits can change meaning even when surrounding wording matches.",
+          "Paraphrases, reordered dialogue and transcription errors can evade alignment.",
+          "No alignment does not establish independent footage."
+        ]
+      }
     },
     {
       "left": "EJl6J3MFfb0",
@@ -244,7 +357,21 @@
         "No observed overlap does not prove independent recordings.",
         "Format declarations are not verified; titles and duration do not determine format.",
         "Topics, creator intent, publication windows and performance comparability still need review."
-      ]
+      ],
+      "ordered_alignment": {
+        "status": "no_large_ordered_alignment_observed",
+        "matched_tokens": 0,
+        "fraction_of_smaller_text": 0.0,
+        "supporting_blocks": 0,
+        "longest_block_tokens": 0,
+        "limitations": [
+          "Development review heuristic; thresholds are not independently calibrated.",
+          "Shared scripts or quotations can match without shared recordings.",
+          "Negation or intervening edits can change meaning even when surrounding wording matches.",
+          "Paraphrases, reordered dialogue and transcription errors can evade alignment.",
+          "No alignment does not establish independent footage."
+        ]
+      }
     },
     {
       "left": "EJl6J3MFfb0",
@@ -266,7 +393,21 @@
         "No observed overlap does not prove independent recordings.",
         "Format declarations are not verified; titles and duration do not determine format.",
         "Topics, creator intent, publication windows and performance comparability still need review."
-      ]
+      ],
+      "ordered_alignment": {
+        "status": "no_large_ordered_alignment_observed",
+        "matched_tokens": 0,
+        "fraction_of_smaller_text": 0.0,
+        "supporting_blocks": 0,
+        "longest_block_tokens": 0,
+        "limitations": [
+          "Development review heuristic; thresholds are not independently calibrated.",
+          "Shared scripts or quotations can match without shared recordings.",
+          "Negation or intervening edits can change meaning even when surrounding wording matches.",
+          "Paraphrases, reordered dialogue and transcription errors can evade alignment.",
+          "No alignment does not establish independent footage."
+        ]
+      }
     },
     {
       "left": "EJl6J3MFfb0",
@@ -288,7 +429,21 @@
         "No observed overlap does not prove independent recordings.",
         "Format declarations are not verified; titles and duration do not determine format.",
         "Topics, creator intent, publication windows and performance comparability still need review."
-      ]
+      ],
+      "ordered_alignment": {
+        "status": "no_large_ordered_alignment_observed",
+        "matched_tokens": 0,
+        "fraction_of_smaller_text": 0.0,
+        "supporting_blocks": 0,
+        "longest_block_tokens": 0,
+        "limitations": [
+          "Development review heuristic; thresholds are not independently calibrated.",
+          "Shared scripts or quotations can match without shared recordings.",
+          "Negation or intervening edits can change meaning even when surrounding wording matches.",
+          "Paraphrases, reordered dialogue and transcription errors can evade alignment.",
+          "No alignment does not establish independent footage."
+        ]
+      }
     },
     {
       "left": "EiKq-iUjHVw",
@@ -310,7 +465,21 @@
         "No observed overlap does not prove independent recordings.",
         "Format declarations are not verified; titles and duration do not determine format.",
         "Topics, creator intent, publication windows and performance comparability still need review."
-      ]
+      ],
+      "ordered_alignment": {
+        "status": "no_large_ordered_alignment_observed",
+        "matched_tokens": 0,
+        "fraction_of_smaller_text": 0.0,
+        "supporting_blocks": 0,
+        "longest_block_tokens": 0,
+        "limitations": [
+          "Development review heuristic; thresholds are not independently calibrated.",
+          "Shared scripts or quotations can match without shared recordings.",
+          "Negation or intervening edits can change meaning even when surrounding wording matches.",
+          "Paraphrases, reordered dialogue and transcription errors can evade alignment.",
+          "No alignment does not establish independent footage."
+        ]
+      }
     },
     {
       "left": "EiKq-iUjHVw",
@@ -332,7 +501,21 @@
         "No observed overlap does not prove independent recordings.",
         "Format declarations are not verified; titles and duration do not determine format.",
         "Topics, creator intent, publication windows and performance comparability still need review."
-      ]
+      ],
+      "ordered_alignment": {
+        "status": "no_large_ordered_alignment_observed",
+        "matched_tokens": 0,
+        "fraction_of_smaller_text": 0.0,
+        "supporting_blocks": 0,
+        "longest_block_tokens": 0,
+        "limitations": [
+          "Development review heuristic; thresholds are not independently calibrated.",
+          "Shared scripts or quotations can match without shared recordings.",
+          "Negation or intervening edits can change meaning even when surrounding wording matches.",
+          "Paraphrases, reordered dialogue and transcription errors can evade alignment.",
+          "No alignment does not establish independent footage."
+        ]
+      }
     },
     {
       "left": "EiKq-iUjHVw",
@@ -354,7 +537,21 @@
         "No observed overlap does not prove independent recordings.",
         "Format declarations are not verified; titles and duration do not determine format.",
         "Topics, creator intent, publication windows and performance comparability still need review."
-      ]
+      ],
+      "ordered_alignment": {
+        "status": "no_large_ordered_alignment_observed",
+        "matched_tokens": 0,
+        "fraction_of_smaller_text": 0.0,
+        "supporting_blocks": 0,
+        "longest_block_tokens": 0,
+        "limitations": [
+          "Development review heuristic; thresholds are not independently calibrated.",
+          "Shared scripts or quotations can match without shared recordings.",
+          "Negation or intervening edits can change meaning even when surrounding wording matches.",
+          "Paraphrases, reordered dialogue and transcription errors can evade alignment.",
+          "No alignment does not establish independent footage."
+        ]
+      }
     },
     {
       "left": "EiKq-iUjHVw",
@@ -376,7 +573,21 @@
         "No observed overlap does not prove independent recordings.",
         "Format declarations are not verified; titles and duration do not determine format.",
         "Topics, creator intent, publication windows and performance comparability still need review."
-      ]
+      ],
+      "ordered_alignment": {
+        "status": "no_large_ordered_alignment_observed",
+        "matched_tokens": 0,
+        "fraction_of_smaller_text": 0.0,
+        "supporting_blocks": 0,
+        "longest_block_tokens": 0,
+        "limitations": [
+          "Development review heuristic; thresholds are not independently calibrated.",
+          "Shared scripts or quotations can match without shared recordings.",
+          "Negation or intervening edits can change meaning even when surrounding wording matches.",
+          "Paraphrases, reordered dialogue and transcription errors can evade alignment.",
+          "No alignment does not establish independent footage."
+        ]
+      }
     },
     {
       "left": "Mcoz8o3ZiTU",
@@ -398,7 +609,21 @@
         "No observed overlap does not prove independent recordings.",
         "Format declarations are not verified; titles and duration do not determine format.",
         "Topics, creator intent, publication windows and performance comparability still need review."
-      ]
+      ],
+      "ordered_alignment": {
+        "status": "no_large_ordered_alignment_observed",
+        "matched_tokens": 0,
+        "fraction_of_smaller_text": 0.0,
+        "supporting_blocks": 0,
+        "longest_block_tokens": 0,
+        "limitations": [
+          "Development review heuristic; thresholds are not independently calibrated.",
+          "Shared scripts or quotations can match without shared recordings.",
+          "Negation or intervening edits can change meaning even when surrounding wording matches.",
+          "Paraphrases, reordered dialogue and transcription errors can evade alignment.",
+          "No alignment does not establish independent footage."
+        ]
+      }
     },
     {
       "left": "Mcoz8o3ZiTU",
@@ -420,7 +645,21 @@
         "No observed overlap does not prove independent recordings.",
         "Format declarations are not verified; titles and duration do not determine format.",
         "Topics, creator intent, publication windows and performance comparability still need review."
-      ]
+      ],
+      "ordered_alignment": {
+        "status": "no_large_ordered_alignment_observed",
+        "matched_tokens": 0,
+        "fraction_of_smaller_text": 0.0,
+        "supporting_blocks": 0,
+        "longest_block_tokens": 0,
+        "limitations": [
+          "Development review heuristic; thresholds are not independently calibrated.",
+          "Shared scripts or quotations can match without shared recordings.",
+          "Negation or intervening edits can change meaning even when surrounding wording matches.",
+          "Paraphrases, reordered dialogue and transcription errors can evade alignment.",
+          "No alignment does not establish independent footage."
+        ]
+      }
     },
     {
       "left": "Mcoz8o3ZiTU",
@@ -442,7 +681,21 @@
         "No observed overlap does not prove independent recordings.",
         "Format declarations are not verified; titles and duration do not determine format.",
         "Topics, creator intent, publication windows and performance comparability still need review."
-      ]
+      ],
+      "ordered_alignment": {
+        "status": "no_large_ordered_alignment_observed",
+        "matched_tokens": 0,
+        "fraction_of_smaller_text": 0.0,
+        "supporting_blocks": 0,
+        "longest_block_tokens": 0,
+        "limitations": [
+          "Development review heuristic; thresholds are not independently calibrated.",
+          "Shared scripts or quotations can match without shared recordings.",
+          "Negation or intervening edits can change meaning even when surrounding wording matches.",
+          "Paraphrases, reordered dialogue and transcription errors can evade alignment.",
+          "No alignment does not establish independent footage."
+        ]
+      }
     },
     {
       "left": "JQF5JCwEJ64",
@@ -464,7 +717,21 @@
         "No observed overlap does not prove independent recordings.",
         "Format declarations are not verified; titles and duration do not determine format.",
         "Topics, creator intent, publication windows and performance comparability still need review."
-      ]
+      ],
+      "ordered_alignment": {
+        "status": "no_large_ordered_alignment_observed",
+        "matched_tokens": 0,
+        "fraction_of_smaller_text": 0.0,
+        "supporting_blocks": 0,
+        "longest_block_tokens": 0,
+        "limitations": [
+          "Development review heuristic; thresholds are not independently calibrated.",
+          "Shared scripts or quotations can match without shared recordings.",
+          "Negation or intervening edits can change meaning even when surrounding wording matches.",
+          "Paraphrases, reordered dialogue and transcription errors can evade alignment.",
+          "No alignment does not establish independent footage."
+        ]
+      }
     },
     {
       "left": "JQF5JCwEJ64",
@@ -486,7 +753,21 @@
         "No observed overlap does not prove independent recordings.",
         "Format declarations are not verified; titles and duration do not determine format.",
         "Topics, creator intent, publication windows and performance comparability still need review."
-      ]
+      ],
+      "ordered_alignment": {
+        "status": "no_large_ordered_alignment_observed",
+        "matched_tokens": 0,
+        "fraction_of_smaller_text": 0.0,
+        "supporting_blocks": 0,
+        "longest_block_tokens": 0,
+        "limitations": [
+          "Development review heuristic; thresholds are not independently calibrated.",
+          "Shared scripts or quotations can match without shared recordings.",
+          "Negation or intervening edits can change meaning even when surrounding wording matches.",
+          "Paraphrases, reordered dialogue and transcription errors can evade alignment.",
+          "No alignment does not establish independent footage."
+        ]
+      }
     },
     {
       "left": "gjQwKJLN_EE",
@@ -508,7 +789,21 @@
         "No observed overlap does not prove independent recordings.",
         "Format declarations are not verified; titles and duration do not determine format.",
         "Topics, creator intent, publication windows and performance comparability still need review."
-      ]
+      ],
+      "ordered_alignment": {
+        "status": "no_large_ordered_alignment_observed",
+        "matched_tokens": 0,
+        "fraction_of_smaller_text": 0.0,
+        "supporting_blocks": 0,
+        "longest_block_tokens": 0,
+        "limitations": [
+          "Development review heuristic; thresholds are not independently calibrated.",
+          "Shared scripts or quotations can match without shared recordings.",
+          "Negation or intervening edits can change meaning even when surrounding wording matches.",
+          "Paraphrases, reordered dialogue and transcription errors can evade alignment.",
+          "No alignment does not establish independent footage."
+        ]
+      }
     }
   ],
   "rollout_decision": "not_promoted",

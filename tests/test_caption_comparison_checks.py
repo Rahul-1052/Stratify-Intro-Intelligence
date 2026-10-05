@@ -46,3 +46,33 @@ def test_invalid_evidence_fails(change):
     a.update(change)
     with pytest.raises(ValueError):
         compare_caption_evidence(a, row('bcdefghijkl', 'caption'))
+
+
+def test_alignment_tolerates_cue_annotations_and_intervening_edits():
+    from core.caption_comparison_checks import ordered_passage_alignment
+    words = [f'word{i}' for i in range(90)]
+    changed = ' '.join(words[:30] + ['different', 'transcription'] + words[30:60] + ['[laughter]'] + words[60:])
+    result = ordered_passage_alignment(' '.join(words), 'new opening ' + changed)
+    assert result['status'] == 'possible_shared_dialogue'
+    assert result['matched_tokens'] == 90
+
+
+def test_alignment_does_not_promote_shared_script_to_recording_verification():
+    from core.caption_comparison_checks import ordered_passage_alignment
+    script = ' '.join(f'word{i}' for i in range(90))
+    result = ordered_passage_alignment(script, script)
+    assert result['status'] == 'possible_shared_dialogue'
+    assert any('without shared recordings' in s for s in result['limitations'])
+
+
+def test_alignment_abstains_on_complete_oversized_documents():
+    from core.caption_comparison_checks import ordered_passage_alignment
+    result = ordered_passage_alignment('word ' * 1100, 'word ' * 1100)
+    assert result['status'] == 'insufficient_or_oversized_text'
+    assert result['matched_tokens'] is None
+
+
+def test_unrelated_dialogue_is_not_flagged():
+    from core.caption_comparison_checks import ordered_passage_alignment
+    result = ordered_passage_alignment(' '.join(f'alpha{i}' for i in range(90)), ' '.join(f'beta{i}' for i in range(90)))
+    assert result['status'] == 'no_large_ordered_alignment_observed'

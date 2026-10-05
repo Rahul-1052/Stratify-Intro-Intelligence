@@ -3,6 +3,7 @@
 These checks can flag review needs. Passing them never verifies independent footage.
 """
 import re
+from difflib import SequenceMatcher
 
 
 def _tokens(text):
@@ -49,4 +50,31 @@ def compare_caption_evidence(left, right):
         'fair_comparison': 'not_established',
         'review_required': True,
         'limitations': ['Exact matching can miss paraphrased or differently transcribed reused material.', 'Shared scripts, quotations, and branding can produce overlap without shared footage.', 'No observed overlap does not prove independent recordings.', 'Format declarations are not verified; titles and duration do not determine format.', 'Topics, creator intent, publication windows and performance comparability still need review.'],
+    }
+
+
+def ordered_passage_alignment(left_text, right_text):
+    """Experimental ordered exact-token blocks tolerate intervening ASR edits.
+
+    This measures shared wording, not meaning, source recording or footage.
+    Limits apply to complete documents; no opening-only fallback is used.
+    """
+    def normalized(text):
+        _tokens(text)  # Validate before removing caption cue annotations.
+        return _tokens(re.sub(r"\[[^\]]*\]", " ", text))
+    left, right = normalized(left_text), normalized(right_text)
+    smaller = min(len(left), len(right))
+    if not smaller or len(left) * len(right) > 1000000:
+        return {'status': 'insufficient_or_oversized_text', 'matched_tokens': None, 'fraction_of_smaller_text': None}
+    blocks = SequenceMatcher(None, left, right, autojunk=False).get_matching_blocks()
+    supported = [b for b in blocks if b.size >= 6]
+    matched = sum(b.size for b in supported)
+    fraction = matched / smaller
+    return {
+        'status': 'possible_shared_dialogue' if matched >= 40 and fraction >= .65 else 'no_large_ordered_alignment_observed',
+        'matched_tokens': matched,
+        'fraction_of_smaller_text': fraction,
+        'supporting_blocks': len(supported),
+        'longest_block_tokens': max((b.size for b in supported), default=0),
+        'limitations': ['Development review heuristic; thresholds are not independently calibrated.', 'Shared scripts or quotations can match without shared recordings.', 'Negation or intervening edits can change meaning even when surrounding wording matches.', 'Paraphrases, reordered dialogue and transcription errors can evade alignment.', 'No alignment does not establish independent footage.'],
     }

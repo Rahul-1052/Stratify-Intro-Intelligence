@@ -11,7 +11,8 @@
       "format": "unknown",
       "shared_footage": "unknown",
       "exact_overlap_flag": "no_large_exact_overlap_observed",
-      "fair_comparison": "not_established"
+      "fair_comparison": "not_established",
+      "ordered_alignment_flag": "possible_shared_dialogue"
     },
     {
       "left": "EJl6J3MFfb0",
@@ -21,7 +22,8 @@
       "format": "unknown",
       "shared_footage": "unknown",
       "exact_overlap_flag": "no_large_exact_overlap_observed",
-      "fair_comparison": "not_established"
+      "fair_comparison": "not_established",
+      "ordered_alignment_flag": "possible_shared_dialogue"
     },
     {
       "left": "5ddEDYTFWTc",
@@ -31,7 +33,8 @@
       "format": "unknown",
       "shared_footage": "unknown",
       "exact_overlap_flag": "no_large_exact_overlap_observed",
-      "fair_comparison": "not_established"
+      "fair_comparison": "not_established",
+      "ordered_alignment_flag": "no_large_ordered_alignment_observed"
     },
     {
       "left": "JQF5JCwEJ64",
@@ -41,7 +44,8 @@
       "format": "unknown",
       "shared_footage": "unknown",
       "exact_overlap_flag": "no_large_exact_overlap_observed",
-      "fair_comparison": "not_established"
+      "fair_comparison": "not_established",
+      "ordered_alignment_flag": "no_large_ordered_alignment_observed"
     },
     {
       "left": "gjQwKJLN_EE",
@@ -51,7 +55,8 @@
       "format": "unknown",
       "shared_footage": "unknown",
       "exact_overlap_flag": "no_large_exact_overlap_observed",
-      "fair_comparison": "not_established"
+      "fair_comparison": "not_established",
+      "ordered_alignment_flag": "no_large_ordered_alignment_observed"
     },
     {
       "left": "EiKq-iUjHVw",
@@ -61,7 +66,8 @@
       "format": "unknown",
       "shared_footage": "unknown",
       "exact_overlap_flag": "no_large_exact_overlap_observed",
-      "fair_comparison": "not_established"
+      "fair_comparison": "not_established",
+      "ordered_alignment_flag": "no_large_ordered_alignment_observed"
     },
     {
       "left": "EiKq-iUjHVw",
@@ -71,11 +77,13 @@
       "format": "unknown",
       "shared_footage": "unknown",
       "exact_overlap_flag": "no_large_exact_overlap_observed",
-      "fair_comparison": "not_established"
+      "fair_comparison": "not_established",
+      "ordered_alignment_flag": "no_large_ordered_alignment_observed"
     }
   ],
   "shared_dialogue_cases": 2,
   "shared_dialogue_cases_flagged_by_exact_overlap": 0,
+  "shared_dialogue_cases_flagged_by_ordered_alignment": 2,
   "models": [
     {
       "model": "sentence-transformers/all-MiniLM-L6-v2",
