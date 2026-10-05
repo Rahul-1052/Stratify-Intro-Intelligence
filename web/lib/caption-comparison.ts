@@ -45,18 +45,22 @@ export function prepareCaptionComparison(videos: PublicVideo[], fetchedAt: strin
     if(distinct.some(other=>overlap(video,other))) skipped.add(video.video_id);
     else distinct.push(video);
   }
+  let largestMatchSet = 0;
+  let bestEarlierCount = 0;
   for(const anchor of distinct) {
     const matches=distinct.filter(v=>{
       const match=similarity(anchor,v);
       return match.shared>=4 && match.score>=0.15;
     });
+    largestMatchSet = Math.max(largestMatchSet,matches.length);
     const recent=matches.slice(0,3);
-    if(recent.length!==3 || recent[0].video_id!==anchor.video_id) continue;
+    if(recent.length!==3) continue;
     const boundary=Date.parse(recent[2].published_at!);
     const earlier=matches.filter(v=>Date.parse(v.published_at!)<boundary).slice(0,3);
+    bestEarlierCount = Math.max(bestEarlierCount,earlier.length);
     if(earlier.length!==3) continue;
     const selected=[...recent,...earlier];
-    return {proposal:{recent,earlier,excluded:videos.length-6,cutoff:new Date(Date.parse(fetchedAt)-7*86400000).toISOString(),reason:'Groups use shared words in supplied captions, then publication order. Titles, views and durations do not affect selection. Substantial caption overlap is screened out. These are unvalidated selection heuristics, not proof of topic, format or independent footage.'}, coverage:{supplied:evidence.length,usable:usable.length,overlapSkipped:skipped.size}, matches:selected.map(v=>({videoId:v.video_id,terms:similarity(anchor,v).terms})), status:'caption_clues' as const};
+    return {diagnostics:{distinct:distinct.length,largestMatchSet,bestEarlierCount,referenceVideoId:anchor.video_id},proposal:{recent,earlier,excluded:videos.length-6,cutoff:new Date(Date.parse(fetchedAt)-7*86400000).toISOString(),reason:'Groups use shared words in available captions, then publication order. Titles, views and durations do not affect selection. Substantial caption overlap is screened out. These are unvalidated selection heuristics, not proof of topic, format or independent footage.'}, coverage:{supplied:evidence.length,usable:usable.length,overlapSkipped:skipped.size}, matches:selected.map(v=>({videoId:v.video_id,terms:similarity(anchor,v).terms})), status:'caption_clues' as const};
   }
-  return {proposal:null,coverage:{supplied:evidence.length,usable:usable.length,overlapSkipped:skipped.size},matches:[],status:'insufficient_caption_evidence' as const};
+  return {diagnostics:{distinct:distinct.length,largestMatchSet,bestEarlierCount,referenceVideoId:null},proposal:null,coverage:{supplied:evidence.length,usable:usable.length,overlapSkipped:skipped.size},matches:[],status:'insufficient_caption_evidence' as const};
 }

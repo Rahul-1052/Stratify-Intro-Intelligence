@@ -125,7 +125,7 @@ await page.getByLabel('Caption files (SRT, VTT or TXT)').setInputFiles({name:'un
 await page.getByRole('alert').filter({hasText:'Could not match unmatched.srt'}).waitFor();
 const vocabulary='budget expenses savings income spending planning debt loans cash reserve goals strategy monthly balance costs payments invest accounts emergency needs'.split(' ');
 await page.getByLabel('Caption files (SRT, VTT or TXT)').setInputFiles(captionVideos.map((v,i)=>({name:`${v.video_id}.txt`,mimeType:'text/plain',buffer:Buffer.from(Array.from({length:3},(_,j)=>vocabulary.map((w,k)=>`${vocabulary[(k*(2*i+1)+j)%20]} detail${i}section${j}`).join(' ')).join('\n'))})));
-await page.getByText(/8 supplied; 8 have enough text/).waitFor();
+await page.getByText(/8 captions available .*8 have enough text/).waitFor();
 await page.getByRole('button',{name:'Prepare a comparison for me',exact:true}).click();
 await page.getByText('Provisional selection using shared caption wording. Topic, format and footage independence are not verified.',{exact:true}).waitFor();
 await page.getByText('Why these videos?',{exact:true}).click();

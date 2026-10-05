@@ -48,3 +48,22 @@ test('caption matching does not claim format or verified provenance',()=>{
  assert.match(result.proposal.reason,/not proof/);
  assert.equal('formats' in result.proposal,false);
 });
+test('an older caption can provide the reference without excluding newer matches',()=>{
+ const six=videos.slice(0,6);
+ const terms=Array.from({length:5},(_,i)=>Array.from({length:12},(_,j)=>`concept${i}word${j}`));
+ const supplied=six.map((v,i)=>({videoId:v.video_id,source:'creator_caption_unverified',text:i<5?Array(4).fill(terms[i].join(' ')).join(' '):Array.from({length:12},(_,j)=>terms.map(t=>t[j]).join(' ')).join(' ')}));
+ const result=prepareCaptionComparison(six,fetched,supplied);
+ assert(result.proposal);
+ assert.equal(result.diagnostics.referenceVideoId,six[5].video_id);
+ assert.deepEqual(result.proposal.recent.map(v=>v.video_id),six.slice(0,3).map(v=>v.video_id));
+ assert.equal(result.proposal.earlier.length,3);
+});
+test('abstention explains a small match set without declaring content unrelated',()=>{
+ const unrelated=evidence.map((e,i)=>({...e,text:Array.from({length:60},(_,k)=>`topic${i}word${k}`).join(' ')}));
+ const result=prepareCaptionComparison(videos,fetched,unrelated);
+ assert.equal(result.proposal,null);
+ assert.equal(result.diagnostics.distinct,8);
+ assert.equal(result.diagnostics.largestMatchSet,1);
+ assert.equal(result.diagnostics.bestEarlierCount,0);
+ assert.equal(result.diagnostics.referenceVideoId,null);
+});
