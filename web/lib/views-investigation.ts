@@ -101,3 +101,15 @@ export function proposeComparison(videos: PublicVideo[], fetchedAt: string) {
   if (recent.length !== 3 || earlier.length !== 3) return null;
   return {recent, earlier, excluded: videos.length-6, reason: 'Three newest uploads at least 7 days old, followed by three uploads strictly older than that group. Date ties use video ID order. Views, titles and durations do not influence selection. Seven days is a setup default, not a statistical reliability threshold.'};
 }
+
+// Explicit title clues only. These warnings never classify content or alter groups.
+export function comparisonTitleWarnings(videos: PublicVideo[]) {
+  const patterns: [string, RegExp][] = [
+    ['interview', /\binterview\b/i], ['stand-up comedy', /\bstand[ -]?up comedy\b/i],
+    ['podcast', /\bpodcast\b/i], ['livestream', /\blivestream\b|\blive stream\b/i],
+    ['trailer', /\btrailer\b/i],
+  ];
+  const clues = videos.flatMap(v=>patterns.filter(([,pattern])=>pattern.test(v.title)).map(([label])=>({videoId:v.video_id,title:v.title,label})));
+  if (new Set(clues.map(c=>c.label)).size < 2) return [];
+  return clues.map(c=>({...c,message:`Title mentions “${c.label}”. Other selected titles use different content labels; check whether they belong in the same comparison.`}));
+}

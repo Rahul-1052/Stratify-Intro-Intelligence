@@ -1,7 +1,7 @@
 'use client';
 import MatchedViews from './matched-views';
 import {FormEvent, useEffect, useRef, useState} from 'react';
-import {proposeComparison, investigateViews, type PublicVideo, type Comparability} from '../lib/views-investigation';
+import {comparisonTitleWarnings, proposeComparison, investigateViews, type PublicVideo, type Comparability} from '../lib/views-investigation';
 const number = (value: number | null) => value === null ? 'Unavailable' : value.toLocaleString(undefined,{maximumFractionDigits:1});
 export default function ViewsInvestigation({videos, fetchedAt}: {videos: PublicVideo[]; fetchedAt: string}) {
   const [manual,setManual] = useState(false);
@@ -12,6 +12,7 @@ export default function ViewsInvestigation({videos, fetchedAt}: {videos: PublicV
   const filtered = videos.filter(video => `${video.title} ${video.published_at || ''}`.toLowerCase().includes(search.toLowerCase()));
   const visible = filtered.slice(page * 10, page * 10 + 10);
   const [selection,setSelection] = useState<Record<string,string>>({});
+  const warnings = comparisonTitleWarnings(videos.filter(v=>selection[v.video_id]==='recent' || selection[v.video_id]==='earlier'));
   const [topics,setTopics] = useState<Comparability>('unknown');
   const [formats,setFormats] = useState<Comparability>('unknown');
   const [result,setResult] = useState<ReturnType<typeof investigateViews> | null>(null);
@@ -35,7 +36,7 @@ export default function ViewsInvestigation({videos, fetchedAt}: {videos: PublicV
     <p className="muted">Let Stratify prepare a starting comparison, or choose the videos yourself.</p>
     <button type="button" onClick={prepare} disabled={!proposal}>Prepare a comparison for me</button>{' '}<button type="button" onClick={()=>{setManual(true);}}>Choose videos myself</button>
     {!proposal && <p className="helper">Not enough dated uploads for two groups of three at least 7 days old. You can choose videos manually.</p>}
-    {prepared && <div className="evidence-note"><h4>Review the proposed groups</h4><p>{proposal?.reason}</p><p><strong>Topics and formats are unverified. This proposal does not interpret your question or requested period.</strong> Review whether these videos fit your concern before comparing.</p><p>{proposal?.excluded} other uploads are left out of this starting selection, including newer or undated uploads and any ties at the group boundary.</p><div className="measurement-list">{['recent','earlier'].map(group=><div key={group}><h4>{group==='recent'?'Recent group':'Earlier group'}</h4><ul>{videos.filter(v=>selection[v.video_id]===group).map(v=><li key={v.video_id}><a className="source" href={v.source_url} target="_blank" rel="noopener noreferrer">{v.title || 'Untitled video'}</a> — {v.published_at?.slice(0,10)}</li>)}</ul></div>)}</div><button type="button" onClick={()=>setManual(true)}>Adjust comparison</button></div>}
+    {prepared && <div className="evidence-note"><h4>Review the proposed groups</h4><p>We picked three recent uploads and three earlier uploads, all at least 7 days old. Check that these videos fit your question.</p><p className="helper">Topics and formats still need review.</p><details className="sample-details"><summary>Why these videos?</summary><p>{proposal?.reason}</p><p>Your question and requested period have not been interpreted or applied. {proposal?.excluded} other uploads are left out of this selection.</p></details><div className="measurement-list">{['recent','earlier'].map(group=><div key={group}><h4>{group==='recent'?'Recent group':'Earlier group'}</h4><ul>{videos.filter(v=>selection[v.video_id]===group).map(v=><li key={v.video_id}><a className="source" href={v.source_url} target="_blank" rel="noopener noreferrer">{v.title || 'Untitled video'}</a> — {v.published_at?.slice(0,10)}</li>)}</ul></div>)}</div><button type="button" onClick={()=>setManual(true)}>Adjust comparison</button></div>}
     {!videos.length ? <p>No public videos are available to select. A comparison cannot be made.</p> : <form onSubmit={investigate}>
       <details className="sample-details" open={manual} onToggle={event=>setManual(event.currentTarget.open)}><summary>Adjust comparison / select videos manually</summary>
         <label htmlFor="comparison-search">Find a video by title or date</label><input id="comparison-search" type="search" value={search} onChange={event=>{setSearch(event.target.value);setPage(0);}} placeholder="For example: Guardian or 2026-09"/><p className="helper">Showing {filtered.length ? page*10+1 : 0}–{Math.min(page*10+10,filtered.length)} of {filtered.length} matches. Selections stay selected across searches and pages.</p><div className="video-selection" role="region" aria-label="Videos available for comparison" tabIndex={0}>{visible.map(video=><div key={video.video_id} className="video-selection-row">
@@ -44,6 +45,7 @@ export default function ViewsInvestigation({videos, fetchedAt}: {videos: PublicV
         </div>)}</div>
         <button type="button" disabled={page===0} onClick={()=>setPage(page-1)}>Previous videos</button>{' '}<button type="button" disabled={(page+1)*10>=filtered.length} onClick={()=>setPage(page+1)}>Next videos</button>
       </details>
+      {warnings.length > 0 && <div className="evidence-note" role="status"><h4>Possible content mismatch</h4><p>Selected titles use different labels. This is a clue to review, not verified video analysis. Adjust the groups if needed.</p><ul>{warnings.map(w=><li key={`${w.videoId}-${w.label}`}><a className="source" href={videos.find(v=>v.video_id===w.videoId)!.source_url} target="_blank" rel="noopener noreferrer">{w.title}</a>: title mentions “{w.label}”.</li>)}</ul></div>}
       <p className="helper">Selected: {Object.values(selection).filter(v=>v==='recent').length} recent, {Object.values(selection).filter(v=>v==='earlier').length} earlier. Each video belongs to one group.</p>
       <details className="sample-details"><summary>Check topics and formats (optional)</summary><p className="helper">If you haven’t checked, leave both as “I’m not sure.”</p><label htmlFor="view-topics">Are the selected groups about similar topics?</label><select id="view-topics" value={topics} onChange={event=>{setTopics(event.target.value as Comparability);invalidate();}}><option value="unknown">I’m not sure</option><option value="same">Yes, similar topics</option><option value="different">No, different topics</option></select>
       <label className="concern-label" htmlFor="view-formats">Do the groups use similar formats?</label><select id="view-formats" value={formats} onChange={event=>{setFormats(event.target.value as Comparability);invalidate();}}><option value="unknown">I’m not sure</option><option value="same">Yes, similar formats</option><option value="different">No, different formats</option></select>
@@ -59,7 +61,7 @@ export default function ViewsInvestigation({videos, fetchedAt}: {videos: PublicV
       })}</dl>
       <p>{result.difference === null ? 'The difference between groups is withheld because counts or publication order do not support it.' : `Recent median lifetime views are ${result.difference === 0 ? 'equal to' : result.difference < 0 ? 'lower than' : 'higher than'} the earlier median. Difference: ${number(result.difference)} views${result.percent === null ? ' (percentage unavailable because the earlier median is zero)' : ` (${number(result.percent)}%)`}.`}</p>
       <h3>Limits of this comparison</h3><ul className="limits">{result.checks.map(check=><li key={check}>{check}</li>)}</ul>
-      </details><p><strong>{result.conclusion}</strong></p><h3>What to do next</h3><p>{result.nextStep}</p><p className="muted">Stratify has not retrieved those private analytics. No content change or experiment is justified by this comparison alone.</p>
+      </details><h3>What to do next</h3><p>{result.nextStep}</p><p className="muted">Stratify has not retrieved those private analytics. No content change or experiment is justified by this comparison alone.</p>
       <MatchedViews comparison={result}/>
     </div>}
   </section>;

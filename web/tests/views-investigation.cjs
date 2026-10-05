@@ -99,3 +99,13 @@ test('proposal excludes fresh invalid future dates and refuses insufficient sepa
  assert.equal(proposeComparison(rows.map(v=>({...v,published_at:'2026-09-20'})),collected),null);
  assert.throws(()=>proposeComparison([...rows,rows[0]],collected));assert.throws(()=>proposeComparison(rows,'bad'));
 });
+
+const {comparisonTitleWarnings}=require('../lib/views-investigation.ts');
+test('explicit conflicting title clues prompt review without changing selection or proving formats',()=>{
+ const selected=[{...rows[0],title:'Half Filipino | Standup Comedy'},{...rows[1],title:'Good Day LA interview'}];
+ const before=JSON.stringify(selected), warnings=comparisonTitleWarnings(selected);
+ assert.equal(warnings.length,2);assert.deepEqual(warnings.map(w=>w.label),['stand-up comedy','interview']);assert.equal(JSON.stringify(selected),before);
+ assert.equal(comparisonTitleWarnings([{...rows[0],title:'LIVE Proposal!'}, {...rows[1],title:'A funny story'}]).length,0);
+ assert.equal(comparisonTitleWarnings([{...rows[0],title:'Stand-up Comedy'}, {...rows[1],title:'Standup Comedy'}]).length,0);
+ assert.equal(comparisonTitleWarnings([{...rows[0],title:'Interviewing myself'}, {...rows[1],title:'Standup Comedy'}]).length,0);
+});
