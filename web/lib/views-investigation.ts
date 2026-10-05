@@ -88,3 +88,16 @@ export function suggestNextSteps(result: ReturnType<typeof investigateWindow>) {
   else suggestions.push({id:'inspect_source_mix',action:'Review traffic-source mix, then the platform’s source-specific click-through and retention evidence where available.',reason:'The entered views median is lower while the registered thumbnail impressions median is equal or higher.',evidenceIds:['matched_views','matched_impressions'],limitation:'This does not establish worse thumbnails or retention. Total views divided by impressions is not the platform’s impression click-through rate.'});
   return {evidence,suggestions,status:'investigation_steps_only' as const};
 }
+
+// A date-only starting point, not topic/format classification or a performance ranking.
+export function proposeComparison(videos: PublicVideo[], fetchedAt: string) {
+  const collected = Date.parse(fetchedAt);
+  if (!Number.isFinite(collected) || new Set(videos.map(v=>v.video_id)).size !== videos.length) throw new Error('Collect a valid, unique video inventory before preparing groups.');
+  const eligible = videos.filter(v=>v.published_at && Number.isFinite(Date.parse(v.published_at)) && (collected-Date.parse(v.published_at))/86400000 >= 7)
+    .sort((a,b)=>Date.parse(b.published_at!)-Date.parse(a.published_at!) || a.video_id.localeCompare(b.video_id));
+  const recent = eligible.slice(0,3);
+  const boundary = recent.length ? Date.parse(recent[recent.length-1].published_at!) : NaN;
+  const earlier = eligible.filter(v=>Date.parse(v.published_at!) < boundary).slice(0,3);
+  if (recent.length !== 3 || earlier.length !== 3) return null;
+  return {recent, earlier, excluded: videos.length-6, reason: 'Three newest uploads at least 7 days old, followed by three uploads strictly older than that group. Date ties use video ID order. Views, titles and durations do not influence selection. Seven days is a setup default, not a statistical reliability threshold.'};
+}

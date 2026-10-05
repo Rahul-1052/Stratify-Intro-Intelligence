@@ -86,3 +86,16 @@ test('optional impressions require complete valid counts while zero stays valid'
  assert.throws(()=>matched({impressions:{r1:'10'}}));assert.throws(()=>matched({impressions:{...evidence.counts,r1:'-1'}}));
  const r=matched({impressions:Object.fromEntries(rows.map(v=>[v.video_id,'0']))});assert.equal(r.impressions.recentMedian,0);assert.equal(r.impressions.earlierMedian,0);
 });
+
+const {proposeComparison}=require('../lib/views-investigation.ts');
+test('prepared groups ignore performance and input order and preserve unknown metrics',()=>{
+ const a=proposeComparison(rows,collected),b=proposeComparison([...rows].reverse().map(v=>({...v,views:null,title:'changed',duration:null})),collected);
+ assert.deepEqual(a.recent.map(v=>v.video_id),b.recent.map(v=>v.video_id));assert.deepEqual(a.earlier.map(v=>v.video_id),b.earlier.map(v=>v.video_id));assert.equal(a.recent.length,3);assert.equal(a.earlier.length,3);
+});
+test('proposal excludes fresh invalid future dates and refuses insufficient separate groups',()=>{
+ assert.equal(proposeComparison(rows.slice(0,5),collected),null);
+ const extra=[video('fresh','2026-09-30',999999),video('future','2027-01-01',0),video('missing',null,0)];
+ assert.equal(proposeComparison([...rows,...extra],collected).excluded,3);
+ assert.equal(proposeComparison(rows.map(v=>({...v,published_at:'2026-09-20'})),collected),null);
+ assert.throws(()=>proposeComparison([...rows,rows[0]],collected));assert.throws(()=>proposeComparison(rows,'bad'));
+});

@@ -1,9 +1,12 @@
 'use client';
 import MatchedViews from './matched-views';
 import {FormEvent, useEffect, useRef, useState} from 'react';
-import {investigateViews, type PublicVideo, type Comparability} from '../lib/views-investigation';
+import {proposeComparison, investigateViews, type PublicVideo, type Comparability} from '../lib/views-investigation';
 const number = (value: number | null) => value === null ? 'Unavailable' : value.toLocaleString(undefined,{maximumFractionDigits:1});
 export default function ViewsInvestigation({videos, fetchedAt}: {videos: PublicVideo[]; fetchedAt: string}) {
+  const [manual,setManual] = useState(false);
+  const proposal = proposeComparison(videos,fetchedAt);
+  const [prepared,setPrepared] = useState(false);
   const [search,setSearch] = useState('');
   const [page,setPage] = useState(0);
   const filtered = videos.filter(video => `${video.title} ${video.published_at || ''}`.toLowerCase().includes(search.toLowerCase()));
@@ -22,21 +25,29 @@ export default function ViewsInvestigation({videos, fetchedAt}: {videos: PublicV
       setResult(investigateViews(videos, videos.filter(v=>selection[v.video_id]==='recent').map(v=>v.video_id), videos.filter(v=>selection[v.video_id]==='earlier').map(v=>v.video_id), fetchedAt, topics, formats));
     } catch (failure) {setError(failure instanceof Error ? failure.message : 'Review your selection.');}
   }
+  function prepare() {
+    if (!proposal) return;
+    setSelection(Object.fromEntries([...proposal.recent.map(v=>[v.video_id,'recent']),...proposal.earlier.map(v=>[v.video_id,'earlier'])]));
+    setTopics('unknown');setFormats('unknown');setPrepared(true);setManual(false);invalidate();
+  }
   return <section className="report-section" aria-labelledby="views-investigation-title">
     <h3 id="views-investigation-title">Investigate a change in views</h3>
-    <p className="muted">Choose recent and earlier videos to compare. Search by title or date. Start with similar content where possible; leave other videos out.</p>
+    <p className="muted">Let Stratify prepare a starting comparison, or choose the videos yourself.</p>
+    <button type="button" onClick={prepare} disabled={!proposal}>Prepare a comparison for me</button>{' '}<button type="button" onClick={()=>{setManual(true);}}>Choose videos myself</button>
+    {!proposal && <p className="helper">Not enough dated uploads for two groups of three at least 7 days old. You can choose videos manually.</p>}
+    {prepared && <div className="evidence-note"><h4>Review the proposed groups</h4><p>{proposal?.reason}</p><p><strong>Topics and formats are unverified. This proposal does not interpret your question or requested period.</strong> Review whether these videos fit your concern before comparing.</p><p>{proposal?.excluded} other uploads are left out of this starting selection, including newer or undated uploads and any ties at the group boundary.</p><div className="measurement-list">{['recent','earlier'].map(group=><div key={group}><h4>{group==='recent'?'Recent group':'Earlier group'}</h4><ul>{videos.filter(v=>selection[v.video_id]===group).map(v=><li key={v.video_id}><a className="source" href={v.source_url} target="_blank" rel="noopener noreferrer">{v.title || 'Untitled video'}</a> — {v.published_at?.slice(0,10)}</li>)}</ul></div>)}</div><button type="button" onClick={()=>setManual(true)}>Adjust comparison</button></div>}
     {!videos.length ? <p>No public videos are available to select. A comparison cannot be made.</p> : <form onSubmit={investigate}>
-      <details className="sample-details" open><summary>Select videos for the comparison</summary>
+      <details className="sample-details" open={manual} onToggle={event=>setManual(event.currentTarget.open)}><summary>Adjust comparison / select videos manually</summary>
         <label htmlFor="comparison-search">Find a video by title or date</label><input id="comparison-search" type="search" value={search} onChange={event=>{setSearch(event.target.value);setPage(0);}} placeholder="For example: Guardian or 2026-09"/><p className="helper">Showing {filtered.length ? page*10+1 : 0}–{Math.min(page*10+10,filtered.length)} of {filtered.length} matches. Selections stay selected across searches and pages.</p><div className="video-selection" role="region" aria-label="Videos available for comparison" tabIndex={0}>{visible.map(video=><div key={video.video_id} className="video-selection-row">
           <div><a className="source" href={video.source_url} target="_blank" rel="noopener noreferrer">{video.title || 'Untitled video'} ↗</a><p className="muted">Published: {video.published_at?.slice(0,10) || 'Unavailable'} · Public views: {number(video.views)}</p></div>
-          <label><span className="sr-only">Comparison group for {video.title || video.video_id}</span><select value={selection[video.video_id] || ''} onChange={event=>{setSelection({...selection,[video.video_id]:event.target.value});invalidate();}}><option value="">Leave out</option><option value="recent">Recent group</option><option value="earlier">Earlier group</option></select></label>
+          <label><span className="sr-only">Comparison group for {video.title || video.video_id}</span><select value={selection[video.video_id] || ''} onChange={event=>{setSelection({...selection,[video.video_id]:event.target.value});setPrepared(false);invalidate();}}><option value="">Leave out</option><option value="recent">Recent group</option><option value="earlier">Earlier group</option></select></label>
         </div>)}</div>
         <button type="button" disabled={page===0} onClick={()=>setPage(page-1)}>Previous videos</button>{' '}<button type="button" disabled={(page+1)*10>=filtered.length} onClick={()=>setPage(page+1)}>Next videos</button>
       </details>
       <p className="helper">Selected: {Object.values(selection).filter(v=>v==='recent').length} recent, {Object.values(selection).filter(v=>v==='earlier').length} earlier. Each video belongs to one group.</p>
-      <label htmlFor="view-topics">Are the selected groups about similar topics?</label><select id="view-topics" value={topics} onChange={event=>{setTopics(event.target.value as Comparability);invalidate();}}><option value="unknown">I’m not sure</option><option value="same">Yes, similar topics</option><option value="different">No, different topics</option></select>
+      <details className="sample-details"><summary>Check topics and formats (optional)</summary><p className="helper">If you haven’t checked, leave both as “I’m not sure.”</p><label htmlFor="view-topics">Are the selected groups about similar topics?</label><select id="view-topics" value={topics} onChange={event=>{setTopics(event.target.value as Comparability);invalidate();}}><option value="unknown">I’m not sure</option><option value="same">Yes, similar topics</option><option value="different">No, different topics</option></select>
       <label className="concern-label" htmlFor="view-formats">Do the groups use similar formats?</label><select id="view-formats" value={formats} onChange={event=>{setFormats(event.target.value as Comparability);invalidate();}}><option value="unknown">I’m not sure</option><option value="same">Yes, similar formats</option><option value="different">No, different formats</option></select>
-      <button className="channel-submit">Compare selected public facts</button>
+      </details><button className="channel-submit">Compare selected public facts</button>
     </form>}
     {error && <p className="error" role="alert">{error}</p>}
     {result && <div className="evidence-note" aria-labelledby="views-result-title">

@@ -54,6 +54,7 @@ await page.getByText('Inspect the public video facts (2)',{exact:true}).click();
 assert.equal(await page.getByRole('region',{name:'Channel video facts'}).getByText('Unavailable',{exact:true}).count(),2);
 await page.getByRole('button',{name:'Compare selected public facts'}).click();
 await page.getByRole('alert').filter({hasText:'Select at least one recent video and one earlier video.'}).waitFor();
+await page.getByRole('button',{name:'Choose videos myself',exact:true}).click();
 await page.getByLabel('Comparison group for A deliberately long public video title to verify narrow screens').selectOption('recent');
 await page.getByLabel('Comparison group for Earlier tutorial').selectOption('earlier');
 await page.getByRole('button',{name:'Compare selected public facts'}).click();
