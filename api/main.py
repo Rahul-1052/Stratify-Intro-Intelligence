@@ -272,3 +272,25 @@ def channel_workspace(payload: ChannelWorkspaceRequest):
     from core.creator_inquiry import inquiry_plan
     result["inquiry"] = inquiry_plan(payload.inquiry.model_dump())
     return result
+
+
+class PublicCaptionsRequest(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+    video_ids: list[str] = Field(min_length=1, max_length=12)
+
+    @field_validator('video_ids')
+    @classmethod
+    def valid_video_ids(cls, values):
+        import re
+        if len(set(values)) != len(values) or any(not re.fullmatch(r'[A-Za-z0-9_-]{11}', value) for value in values):
+            raise ValueError('Use unique YouTube video IDs.')
+        return values
+
+
+@app.post('/v1/public-captions', dependencies=[Depends(require_service_token)])
+def public_captions(payload: PublicCaptionsRequest):
+    from core.public_captions import collect_public_captions
+    try:
+        return collect_public_captions(payload.video_ids)
+    except ImportError:
+        raise HTTPException(503, 'Caption retrieval is not installed. Update the project requirements.') from None

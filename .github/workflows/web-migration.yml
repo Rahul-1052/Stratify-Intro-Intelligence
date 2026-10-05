@@ -11,7 +11,7 @@ jobs:
         with:
           python-version: '3.12'
       - run: pip install -r requirements-web.txt
-      - run: python -m pytest tests/test_channel_workspace.py tests/test_web_api.py tests/test_web_memory_api.py tests/test_local_evidence_api.py tests/test_creator_memory.py tests/test_temporal_evidence_v2.py tests/test_stratify_intelligence_v3.py tests/test_observation_calibration_v1.py -q
+      - run: python -m pytest tests/test_public_captions.py tests/test_channel_workspace.py tests/test_web_api.py tests/test_web_memory_api.py tests/test_local_evidence_api.py tests/test_creator_memory.py tests/test_temporal_evidence_v2.py tests/test_stratify_intelligence_v3.py tests/test_observation_calibration_v1.py -q
   web:
     runs-on: ubuntu-latest
     defaults:

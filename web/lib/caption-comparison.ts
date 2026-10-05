@@ -1,5 +1,5 @@
 import type {PublicVideo} from './views-investigation';
-export type CaptionEvidence = {videoId: string; text: string; source: 'creator_caption_unverified'};
+export type CaptionEvidence = {videoId: string; text: string; source: 'creator_caption_unverified' | 'public_caption_unverified'};
 const stop = new Set('a an the this that these those and or but for of to in on at by with is are was were be been it its we you i they he she our your my their from as not can do does did have has had will would all so just'.split(' '));
 export function captionText(raw: string) {
   return raw.replace(/^\uFEFF/, '').split(/\r?\n/).filter(line => {
@@ -16,7 +16,7 @@ function shingles(text: string) {
 export function prepareCaptionComparison(videos: PublicVideo[], fetchedAt: string, evidence: CaptionEvidence[]) {
   if(!Number.isFinite(Date.parse(fetchedAt)) || new Set(videos.map(v=>v.video_id)).size!==videos.length) throw new Error('Collect a valid, unique video inventory before preparing groups.');
   const ids=new Set(videos.map(v=>v.video_id));
-  if(evidence.length>100 || new Set(evidence.map(e=>e.videoId)).size!==evidence.length || evidence.some(e=>!ids.has(e.videoId) || e.source!=='creator_caption_unverified' || typeof e.text!=='string' || e.text.length>200000)) throw new Error('Use one caption file per known video, up to 100 files and 200,000 characters per video.');
+  if(evidence.length>100 || new Set(evidence.map(e=>e.videoId)).size!==evidence.length || evidence.some(e=>!ids.has(e.videoId) || !['creator_caption_unverified','public_caption_unverified'].includes(e.source) || typeof e.text!=='string' || e.text.length>200000)) throw new Error('Use one caption file per known video, up to 100 files and 200,000 characters per video.');
   const cleaned=evidence.map(e=>({...e,text:captionText(e.text)}));
   // Remove identical repeated lines found in at least half of this caption sample.
   const lineCounts=new Map<string,number>();

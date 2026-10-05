@@ -116,6 +116,10 @@ await page.route('**/api/channel-workspace',route=>route.fulfill({status:200,con
 await page.getByLabel('What would you like to investigate first?').selectOption('reach');
 await page.getByRole('button',{name:'Confirm question and collect facts'}).click();
 await page.getByRole('heading',{name:'Caption fixture',exact:true}).waitFor();
+await page.route('**/api/public-captions', route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({results:captionVideos.map(v=>({video_id:v.video_id,status:'blocked',text:null}))})}));
+await page.getByRole('button',{name:'Prepare a comparison for me',exact:true}).click();
+await page.getByText(/This setup uses dates only; no content match was established/).waitFor();
+await page.getByText('Provisional selection by date. Video content, formats and shared material have not been verified. Matching titles do not establish a fair comparison.',{exact:true}).waitFor();
 await page.getByText('Add captions for content-based grouping (optional)',{exact:true}).click();
 await page.getByLabel('Caption files (SRT, VTT or TXT)').setInputFiles({name:'unmatched.srt',mimeType:'text/plain',buffer:Buffer.from('hello')});
 await page.getByRole('alert').filter({hasText:'Could not match unmatched.srt'}).waitFor();
@@ -129,4 +133,9 @@ await page.getByText(/Different title 0: shared words/).waitFor();
 for(const width of [1440,768,390,320]) {await page.setViewportSize({width,height:1000});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await audit(page);}
 await page.getByRole('button',{name:'Remove captions',exact:true}).click();
 assert.equal(await page.getByRole('heading',{name:'Review the proposed groups',exact:true}).count(),0);
+await page.unroute('**/api/public-captions');
+await page.route('**/api/public-captions',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({results:captionVideos.map((v,i)=>({video_id:v.video_id,status:'available',text:Array.from({length:3},(_,j)=>vocabulary.map((w,k)=>`${vocabulary[(k*(2*i+1)+j)%20]} detail${i}section${j}`).join(' ')).join('\n')}))})}));
+await page.getByRole('button',{name:'Prepare a comparison for me',exact:true}).click();
+await page.getByText(/8 of 8 candidate uploads have retrieved English captions/).waitFor();
+await page.getByText('Provisional selection using shared caption wording. Topic, format and footage independence are not verified.',{exact:true}).waitFor();
 await audit(page);assert.deepEqual(errors,[]);console.log('PASS: real upload/report/profile/save/reload/reopen/status persistence; 4 widths; skip link; focus return; memory failure/retry; abstention; no browser exceptions');await browser.close();})().catch(e=>{console.error(e);process.exit(1)});

@@ -1,6 +1,6 @@
 # Caption evidence for provisional comparisons
 
-The existing API key collector provides public metadata. It does not retrieve captions or watch videos. YouTube's official caption download requires an authorized user with permission to edit the video: https://developers.google.com/youtube/v3/docs/captions/download . Connecting an owned channel or a separately evaluated caption provider is future acquisition work.
+The existing API key collector provides public metadata. It does not retrieve captions or watch videos. YouTube's official caption download requires an authorized user with permission to edit the video: https://developers.google.com/youtube/v3/docs/captions/download . The private workspace now attempts experimental public retrieval through youtube-transcript-api 1.2.4 when preparing a comparison. This unofficial source can fail or be blocked; official owner-authorized integration remains future work.
 
 The private web workspace accepts a batch of SRT, VTT or TXT captions, matched to known inventory IDs in filenames. Processing is entirely in the browser; captions are not uploaded, persisted, used for training or sent to an AI provider. Limits: 100 files, 2 MB combined, 200,000 characters per video. Invalid/duplicate/unknown IDs reject the batch. Removing captions, changing channel or reloading clears the evidence. Every imported caption is creator supplied and unverified.
 
@@ -11,3 +11,11 @@ These thresholds are uncalibrated. Shared wording is lexical evidence, not seman
 This is a working evidence-input and provisional grouping path, not complete automatic public-channel diagnosis. Owner-authorized acquisition, format evidence, question/scope interpretation and evaluation on independently reviewed real examples remain necessary before stronger claims or default autonomous grouping.
 
 Validation includes title/view invariance, timing parsing, empty/short/boilerplate abstention, text overlap, unrelated text, time boundaries and invalid provenance. Browser CI covers batch import, invalid filenames, explanation, removal and accessibility at four viewport widths using synthetic fixtures. These tests establish implementation behavior, not real-world grouping accuracy.
+
+## Automatic public retrieval pilot
+
+Preparing groups without supplied captions requests the twelve newest inventory uploads at least 168 hours old. The authenticated development-only bridge accepts IDs, never arbitrary URLs. The server requests English captions sequentially with a 30-second start budget, at most four seconds per underlying HTTP request, and no retries/proxies/cookie login/block bypass. A blocked response stops remaining requests. Each transcript retains video identity, language, generated-caption flag and timestamped segments; text is capped at 200,000 characters and 10,000 segments. English-only scope is explicit. Empty, missing, timeout, blocked, oversize and failure statuses are distinct. Exception details are withheld.
+
+If no captions arrive, the interface clearly labels its date-only fallback. If some arrive but do not support two groups, the caption path abstains. Retrieved captions are marked public_caption_unverified and stay in the current page; they are not saved in Creator Memory. They are not ground-truth speech or proof of footage independence. External retrieval is not called by metadata collection or CI fixtures.
+
+A live retrieval check on 2026-10-05 obtained 105 segments for EiKq-iUjHVw; two preceding Matt Rife requests timed out. This demonstrates access, not consistent coverage or grouping accuracy. No fair-comparison benchmark has yet been established from independently reviewed real videos. Browser CI separately tests mocked success and blocked fallback, without treating synthetic fixtures as live evidence.
