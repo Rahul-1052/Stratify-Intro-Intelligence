@@ -28,6 +28,7 @@ jobs:
       - run: npm run build
       - run: npm run typecheck
       - run: node --test tests/views-investigation.cjs tests/caption-comparison.cjs tests/creator-inquiry.cjs tests/views-brief.cjs tests/video-length-evidence.cjs tests/named-series.cjs
+      - run: node --experimental-strip-types ../tools/evaluate_grouping.cjs --output /tmp/grouping-development.json
   browser:
     runs-on: ubuntu-latest
     timeout-minutes: 10
