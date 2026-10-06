@@ -17,6 +17,11 @@ function readableDuration(value: string | null) {
   if (!seconds) return 'Unavailable';
   return [Math.floor(seconds/3600) ? `${Math.floor(seconds/3600)} hr` : '', Math.floor(seconds%3600/60) ? `${Math.floor(seconds%3600/60)} min` : '', seconds%60 ? `${seconds%60} sec` : ''].filter(Boolean).join(' ');
 }
+const starterQuestions = [
+  'Are my recent videos getting fewer views?',
+  'Which content should I make more of?',
+  'Why aren’t viewers coming back?',
+];
 const focuses = [
   ['reach', 'Views — compare recent and earlier videos'], ['returning_viewers', 'Returning viewers — who comes back'],
   ['subscriptions', 'Subscribers — who subscribes after watching'], ['content_direction', 'Choosing what to create'],
@@ -35,6 +40,7 @@ export default function ChannelWorkspace() {
   const [error, setError] = useState('');
   const [workspace, setWorkspace] = useState<Workspace | null>(null);
   const channelInput = useRef<HTMLInputElement>(null);
+  const concernInput = useRef<HTMLTextAreaElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   async function collect(event: FormEvent) {
     event.preventDefault(); setBusy(true); setError(''); setWorkspace(null);
@@ -59,8 +65,12 @@ export default function ChannelWorkspace() {
         <label htmlFor="channel-link">YouTube channel link or @handle</label>
         <input ref={channelInput} id="channel-link" required maxLength={2048} placeholder="https://www.youtube.com/@yourchannel" value={channel} onChange={event => setChannel(event.target.value)} disabled={busy || reviewing}/>
         <label className="concern-label" htmlFor="channel-concern">What would you like help understanding about your channel?</label>
-        <textarea id="channel-concern" required maxLength={2000} rows={3} aria-describedby="concern-help" placeholder="My recent videos are getting fewer views. What should I investigate?" value={concern} onChange={event => setConcern(event.target.value)} disabled={busy || reviewing}/>
+        <textarea ref={concernInput} id="channel-concern" required maxLength={2000} rows={3} aria-describedby="concern-help" placeholder="My recent videos are getting fewer views. What should I investigate?" value={concern} onChange={event => setConcern(event.target.value)} disabled={busy || reviewing}/>
         <p id="concern-help" className="helper">You can ask about a problem, a new direction, or what’s working. Up to 2,000 characters.</p>
+        <div role="group" aria-labelledby="starter-questions-title">
+          <p id="starter-questions-title" className="helper">Need a starting point?</p>
+          <div className="inquiry-actions">{starterQuestions.map(starter => <button key={starter} type="button" className="secondary" disabled={busy || reviewing} onClick={() => {setConcern(starter); concernInput.current?.focus();}}>{starter}</button>)}</div>
+        </div>
         <button className="channel-submit" disabled={busy || reviewing}>Review my question</button>
       </form>
       <p className="helper">First confirm what you want investigated. Then collect public facts for up to 100 upload entries.</p>
