@@ -101,10 +101,13 @@ assert.equal(await page.getByRole('heading',{name:'Your views investigation',exa
 assert.equal(await page.getByLabel('Window count for Earlier tutorial').inputValue(),'');
 assert.equal(await page.getByLabel('Window impressions for Earlier tutorial').inputValue(),'');
 assert.equal(await page.getByLabel('I checked that every count uses this completed window').isChecked(),false);
+await page.getByRole('button',{name:'Review selected videos',exact:true}).click();
+await page.waitForFunction(()=>document.activeElement?.id==='comparison-search');
+assert.equal(await page.getByLabel('Show selected videos only').isChecked(),true);
+assert.equal(await page.getByText('Adjust selected videos',{exact:true}).evaluate(node=>node.parentElement.open),true);
 await page.getByText('Check topics and formats (optional)',{exact:true}).click();
 await page.getByLabel('Do the groups use similar formats?').selectOption('different');
 assert.equal(await page.getByRole('heading',{name:'What the selected videos show',exact:true}).count(),0);
-await page.getByText('Adjust selected videos',{exact:true}).click();
 await page.getByLabel('Comparison group for Earlier tutorial').selectOption('');
 await page.getByRole('button',{name:'Compare selected public facts'}).click();
 await page.getByRole('alert').filter({hasText:'Select at least one recent video and one earlier video.'}).waitFor();
