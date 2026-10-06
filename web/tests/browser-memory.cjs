@@ -68,6 +68,8 @@ await page.route('**/api/channel-workspace', route => route.fulfill({status:200,
 })}));
 await page.getByRole('button',{name:'Confirm question and collect facts'}).click();
 await page.getByRole('heading',{name:'Fixture channel',exact:true}).waitFor();
+assert.equal(await page.getByRole('button',{name:'Prepare a comparison for me',exact:true}).isDisabled(),true);
+await page.getByText('Choose videos that match your requested period. Stratify has not applied that scope automatically.',{exact:true}).waitFor();
 assert.equal(await page.locator('.workflow-step').first().getAttribute('open'),null);
 assert.equal(await page.locator('.workflow-step').nth(1).getAttribute('open'),null);
 assert.equal(await page.locator(':focus').innerText(), 'Fixture channel');
@@ -79,6 +81,7 @@ await page.getByRole('alert').filter({hasText:'Select at least one recent video 
 await page.getByRole('button',{name:'Choose videos myself',exact:true}).click();
 await page.getByLabel('Comparison group for A deliberately long public video title to verify narrow screens').selectOption('recent');
 await page.getByLabel('Comparison group for Earlier tutorial').selectOption('earlier');
+await page.getByLabel('I checked that these selected videos match my requested period.').check();
 await page.getByRole('button',{name:'Compare selected public facts'}).click();
 await page.getByRole('heading',{name:'What the selected videos show',exact:true}).waitFor();
 await page.waitForFunction(()=>document.activeElement?.id==='views-result-title');
@@ -177,4 +180,19 @@ await page.getByText(/No content-based groups were prepared. The current shared-
 await page.getByText('Why no groups were prepared',{exact:true}).click();
 await page.getByText(/largest shared-word match set had 1 uploads/).waitFor();
 assert.equal(await page.getByRole('heading',{name:'Review the proposed groups',exact:true}).count(),0);
+// Requested upload counts reach the actual selection; this is still date-only evidence.
+await page.getByRole('button',{name:'Edit channel or original concern'}).click();
+await page.getByLabel('What would you like help understanding about your channel?').fill('Why did my views drop?');
+await page.getByRole('button',{name:'Review my question'}).click();
+await page.getByLabel('Which period or videos do you mean? (optional)').fill('last 3 uploads vs previous 3 uploads');
+await page.unroute('**/api/channel-workspace');
+await page.route('**/api/channel-workspace',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({concern:'Why did my views drop?',fetched_at:'2026-10-05T18:00:00Z',inquiry:{question:'Why did my views drop?',focus:'reach',period:'last 3 uploads vs previous 3 uploads',evidence_needed:[]},channel:{title:'Scoped fixture',source_url:'https://www.youtube.com/@fixture',created_at:null,subscribers:null,video_count:8},coverage:{entries_checked:8,videos_available:8,unavailable_entries:0,more_uploads_available:false,uploads_playlist_available:true,oldest_published_at:'2026-09-21',newest_published_at:'2026-09-28'},videos:captionVideos,limitations:[]})}));
+await page.getByRole('button',{name:'Confirm question and collect facts'}).click();
+await page.getByRole('heading',{name:'Scoped fixture',exact:true}).waitFor();
+await page.getByRole('button',{name:'Prepare a comparison for me',exact:true}).click();
+await page.getByText(/We picked 3 recent and 3 earlier available uploads from your requested scope/).waitFor();
+await page.getByRole('button',{name:'Compare selected public facts',exact:true}).click();
+await page.getByText('These public counts cannot explain why views changed.',{exact:true}).waitFor();
+await page.getByText('See details',{exact:true}).click();
+await page.getByRole('heading',{name:'Selected source videos',exact:true}).waitFor();
 await audit(page);assert.deepEqual(errors,[]);console.log('PASS: real upload/report/profile/save/reload/reopen/status persistence; 4 widths; skip link; focus return; memory failure/retry; abstention; no browser exceptions');await browser.close();})().catch(e=>{console.error(e);process.exit(1)});

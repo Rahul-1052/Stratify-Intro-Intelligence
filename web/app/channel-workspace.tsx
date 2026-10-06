@@ -96,8 +96,8 @@ export default function ChannelWorkspace() {
         <textarea id="inquiry-question" required maxLength={2000} rows={3} value={question} onChange={event => {setQuestion(event.target.value); setWorkspace(null); setSuggestion(''); setFocus(''); setClarification('Your question changed. What should we investigate first?');}} disabled={busy} aria-describedby="inquiry-help"/>
         <p id="inquiry-help" className="helper">Keep or edit your original words. Include examples or a decision you need help making. Selecting a focus doesn’t establish the cause of a problem.</p>
         <label className="concern-label" htmlFor="inquiry-period">Which period or videos do you mean? (optional)</label>
-        <input id="inquiry-period" maxLength={200} value={period} onChange={event => {setPeriod(event.target.value); setWorkspace(null);}} disabled={busy} placeholder="For example: my last six uploads, compared with earlier tutorials"/>
-        <p className="helper">This describes your intended scope. The public upload sample may not cover it, and has not yet been filtered to match it.</p>
+        <input id="inquiry-period" maxLength={200} value={period} onChange={event => {setPeriod(event.target.value); setWorkspace(null);}} disabled={busy} placeholder="For example: last 3 uploads vs previous 3 uploads"/>
+        <p className="helper">For views comparisons, paired upload counts can guide selection. Other periods need manual selection; the sample may not cover them.</p>
         <div className="inquiry-actions"><button disabled={busy}>{busy ? 'Collecting channel facts…' : 'Confirm question and collect facts'}</button>{!workspace && <button type="button" className="secondary" onClick={editIntake} disabled={busy}>Edit channel or original concern</button>}</div>
       </form>
     </details>}
@@ -129,7 +129,7 @@ export default function ChannelWorkspace() {
           </table>
         </div>
       </details>
-      {workspace.inquiry.focus === 'reach' && <ViewsInvestigation key={workspace.fetched_at} videos={workspace.videos} fetchedAt={workspace.fetched_at}/>}
+      {workspace.inquiry.focus === 'reach' && <ViewsInvestigation key={workspace.fetched_at} videos={workspace.videos} fetchedAt={workspace.fetched_at} question={workspace.inquiry.question} period={workspace.inquiry.period}/>}
       <details className="sample-details"><summary>Channel evidence limits</summary><ul>{workspace.limitations.map(item => <li key={item}>{item === 'The concern is recorded in your words; it has not yet been interpreted or answered.' ? 'Collecting public facts alone does not answer your question. Any comparison is limited to its selected videos and available evidence.' : item}</li>)}</ul></details>
     </section>}
   </>;

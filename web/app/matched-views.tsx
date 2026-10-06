@@ -2,7 +2,7 @@
 import {FormEvent, useEffect, useRef, useState} from 'react';
 import {investigateWindow, suggestNextSteps, type investigateViews, type WindowEvidence} from '../lib/views-investigation';
 const number=(value:number)=>value.toLocaleString(undefined,{maximumFractionDigits:1});
-export default function MatchedViews({comparison}: {comparison:ReturnType<typeof investigateViews>}) {
+export default function MatchedViews({comparison, question = '', scopeMatch = true}: {comparison:ReturnType<typeof investigateViews>; question?: string; scopeMatch?: boolean | null}) {
   const [days,setDays]=useState(7);
   const [metric,setMetric]=useState<WindowEvidence['metric']>('engaged_views');
   const [counts,setCounts]=useState<Record<string,string>>({});
@@ -33,6 +33,7 @@ export default function MatchedViews({comparison}: {comparison:ReturnType<typeof
     {error && <p role="alert" className="error">{error}</p>}
     {answer && <div className="evidence-note" aria-labelledby="matched-result-title">
       <h3 id="matched-result-title" ref={heading} tabIndex={-1}>Your views investigation</h3>
+      {scopeMatch !== true ? <p><strong>These numbers describe your selection. Its match to your requested scope has not been established.</strong></p> : /\bwhy\b|\b(?:cause|causing|reason)\b/i.test(question) ? <p><strong>The equal-time numbers describe a difference; they do not explain its cause.</strong></p> : /\b(?:increase|improve|grow|boost)\b|\bhow\b.{0,35}\b(?:get|gain|reach)\b/i.test(question) ? <p><strong>These numbers support an investigation step, not a proven way to increase views.</strong></p> : null}
       <p><strong>Based on the figures you entered:</strong> the selected recent group has {answer.difference===0?'the same':answer.difference<0?'a lower':'a higher'} median {answer.metric==='views'?'views':'engaged views'} count over the first {answer.days===1?'24 hours':`${answer.days} days`}.</p>
       <dl className="measurement-list"><div><dt>Recent group</dt><dd>{answer.recentCount} videos · median {number(answer.recentMedian)}</dd></div><div><dt>Earlier group</dt><dd>{answer.earlierCount} videos · median {number(answer.earlierMedian)}</dd></div><div><dt>Difference in medians</dt><dd>{number(answer.difference)}{answer.percent===null?' · percentage unavailable (zero baseline)':` (${number(answer.percent)}%)`}</dd></div></dl>
       <p>{answer.recentAtOrAboveEarlierMedian} of {answer.recentCount} selected recent videos are at or above the earlier group’s median. The group median does not mean every video changed in the same way.</p>
