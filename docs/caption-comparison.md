@@ -50,3 +50,8 @@ Automatic proposals with the existing large-duration-spread flag now require rev
 ### Caption-unavailable length fallback (2026-10-06)
 
 When no captions are retrieved and default date groups trigger the existing duration review flag, preparation can use measured durations and publication dates. It searches ranges with a longest/shortest ratio strictly below four, excludes unknown durations, retains the seven-day age cutoff and strict recent/earlier chronology, and prefers 3+3 over 3+2. Among equal-sized proposals it favors newer recent groups deterministically. Titles and views never drive selection. The screen labels this date-and-length fallback, exposes excluded counts and the selection reason, and keeps all content/format/footage assertions unknown. Explicit upload scopes and partial-but-insufficient caption evidence never take this fallback. If no measured proposal is possible, existing date groups retain the review requirement. These heuristics are not validated content matching.
+
+
+### Optional named-series replacement (2026-10-06)
+
+A default date-and-length proposal that includes at least two explicitly numbered episodes plus outside titles can offer a one-click series-only replacement. Prefixes must be explicitly followed by Ep/Episode and a number. Five dated, age-eligible episodes are required; repeated episode numbers and tied group boundaries abstain. The creator chooses the replacement; no title-only selection silently asserts content comparability. The actual replacement reason, excluded count and small sample are shown, and old selections/results/comparability answers are replaced. Unlabeled or differently named related videos are not inferred; explicit requested scopes are preserved.
