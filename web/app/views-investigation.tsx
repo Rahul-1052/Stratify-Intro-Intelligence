@@ -108,14 +108,20 @@ export default function ViewsInvestigation({videos, fetchedAt}: {videos: PublicV
     {error && <p className="error" role="alert">{error}</p>}
     {result && <div className="evidence-note" aria-labelledby="views-result-title">
       <h3 id="views-result-title" tabIndex={-1} ref={heading}>What the selected videos show</h3>
-      <p className="muted">Source: this channel’s public facts collected on {fetchedAt.slice(0,10)} (UTC). This selection does not represent every video on the channel.</p>
+      <h4>What we found</h4>
       <p><strong>{result.difference === null ? 'We can’t establish a difference from this selection.' : result.difference < 0 ? 'The selected recent videos have a lower middle lifetime view count. This alone does not prove a performance decline.' : result.difference > 0 ? 'The selected recent videos have a higher middle lifetime view count. This selection does not show fewer public views.' : 'The selected groups have the same middle lifetime view count.'}</strong></p>
-      <p><strong>{result.difference === null ? "We don’t have enough consistent facts to compare these groups." : `The middle lifetime view count is ${number(result.recent.medianViews)} for your recent videos and ${number(result.earlier.medianViews)} for your earlier videos.`}</strong></p><p>Older videos have had more time to collect views. These totals alone don’t show whether recent videos performed worse over the same amount of time.</p><details className="sample-details"><summary>See the numbers and comparison limits</summary><dl className="measurement-list">{[{label:'Recent',value:result.recent},{label:'Earlier',value:result.earlier}].map(({label,value})=>{
+      <h4>Evidence behind it</h4>
+      <p><strong>{result.difference === null ? "We don’t have enough consistent facts to compare these groups." : `The middle lifetime view count is ${number(result.recent.medianViews)} for your recent videos and ${number(result.earlier.medianViews)} for your earlier videos.`}</strong></p>
+      <p className="muted">Based on {result.recent.count} selected recent videos and {result.earlier.count} selected earlier videos. Public facts collected on {fetchedAt.slice(0,10)} (UTC). This is a selected sample, not a finding about the whole channel.</p>
+      <details className="sample-details"><summary>See the numbers and comparison limits</summary><dl className="measurement-list">{[{label:'Recent',value:result.recent},{label:'Earlier',value:result.earlier}].map(({label,value})=>{
         return <div key={label}><dt>{label} group</dt><dd>{value.count} videos; {value.available} available view counts</dd><dd>Median lifetime views: {number(value.medianViews)}</dd><dd>Age at collection: {value.newestDays === null ? 'Unavailable' : `${number(value.newestDays)}–${number(value.oldestDays)} days`}</dd></div>;
       })}</dl>
       <p>{result.difference === null ? 'The difference between groups is withheld because counts or publication order do not support it.' : `Recent median lifetime views are ${result.difference === 0 ? 'equal to' : result.difference < 0 ? 'lower than' : 'higher than'} the earlier median. Difference: ${number(result.difference)} views${result.percent === null ? ' (percentage unavailable because the earlier median is zero)' : ` (${number(result.percent)}%)`}.`}</p>
-      <h3>Limits of this comparison</h3><ul className="limits">{result.checks.map(check=><li key={check}>{check}</li>)}</ul>
-      </details><h3>What to do next</h3><p>{result.nextStep}</p><p className="muted">Stratify has not retrieved those private analytics. No content change or experiment is justified by this comparison alone.</p>
+      <ul className="limits">{result.checks.map(check=><li key={check}>{check}</li>)}</ul>
+      </details>
+      <h4>What remains unknown</h4>
+      <p>These are lifetime view totals. They don’t establish how the groups performed over the same time after publication or explain why views differ. Similar content, formats and independent footage have not been verified.</p>
+      <h4>Your next step</h4><p>{result.nextStep}</p><p className="muted">Stratify has not retrieved those private analytics. No content change or experiment is justified by this comparison alone.</p>
       <MatchedViews comparison={result}/>
     </div>}
   </section>;

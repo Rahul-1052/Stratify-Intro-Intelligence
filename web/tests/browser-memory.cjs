@@ -62,6 +62,10 @@ await page.getByRole('heading',{name:'What the selected videos show',exact:true}
 await page.waitForFunction(()=>document.activeElement?.id==='views-result-title');
 assert.equal(await page.locator(':focus').innerText(),'What the selected videos show');
 await page.getByText('The selected recent videos have a lower middle lifetime view count. This alone does not prove a performance decline.',{exact:true}).waitFor();
+for (const name of ['What we found','Evidence behind it','What remains unknown','Your next step']) {
+  assert.equal(await page.getByRole('heading',{name,exact:true}).count(),1);
+}
+assert.equal(await page.getByText('See the numbers and comparison limits',{exact:true}).evaluate(node=>node.parentElement.open),false);
 await page.getByText('See the numbers and comparison limits',{exact:true}).click();
 await page.getByText(/Difference: -100 views/).waitFor();
 assert.equal(await page.getByLabel('Window count for Earlier tutorial').isVisible(),false);
