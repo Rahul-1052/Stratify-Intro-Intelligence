@@ -42,3 +42,6 @@ Validation: 66 caption/channel/API/memory/local-media tests and 53 JavaScript in
 ### Small-group fallback (2026-10-06)
 
 Caption preparation prefers three recent and three strictly older matches across all candidate references. If no complete comparison exists, it can offer three recent and two strictly older matches for review. Fewer than five qualifying uploads still abstains. Language, shared-word, overlap and seven-day rules are unchanged. Prepared groups and results visibly label the small sample; no reliability threshold or verified content match is claimed. Excluded-upload counts use the actual selection size.
+
+
+Automatic proposals with the existing large-duration-spread flag now require review before comparison. A direct review action opens only selected videos. The creator can adjust the groups or explicitly keep the differing lengths; changing the selection clears that acknowledgment. This never asserts format or content comparability and preserves explicit requested groups.

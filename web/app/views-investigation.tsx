@@ -32,12 +32,13 @@ export default function ViewsInvestigation({videos, fetchedAt, question = '', pe
   const relatedNote = related.length > 0 && <div className="evidence-note"><h4>Possible related parts</h4><p>These titles may refer to parts of the same material. Check before treating them as separate examples.</p>{related.map(group=><ul key={group[0].video_id}>{group.map(video=><li key={video.video_id}>{video.title}</li>)}</ul>)}<p className="helper">Names alone cannot confirm shared material. Different names can also refer to related videos.</p></div>;
   const [topics,setTopics] = useState<Comparability>('unknown');
   const [formats,setFormats] = useState<Comparability>('unknown');
+  const [lengthsReviewed,setLengthsReviewed] = useState(false);
   const [result,setResult] = useState<ReturnType<typeof investigateViews> | null>(null);
   const [error,setError] = useState('');
   const scopeMatch = result ? scope.kind === 'manual' && scopeConfirmed ? true : scopeMatchesSelection(scope,videos,fetchedAt,result) : null;
   const heading = useRef<HTMLHeadingElement>(null);
   useEffect(()=>{if (result) heading.current?.focus();},[result]);
-  function invalidate() {setResult(null);setError('');setScopeConfirmed(false);}
+  function invalidate() {setResult(null);setError('');setScopeConfirmed(false);setLengthsReviewed(false);}
   function reviewSelected() {
     setSelectedOnly(true);setSearch('');setPage(0);setManual(true);
     if (comparisonControls.current) comparisonControls.current.open = true;
@@ -52,6 +53,7 @@ export default function ViewsInvestigation({videos, fetchedAt, question = '', pe
   function investigate(event: FormEvent) {
     event.preventDefault();setError('');setResult(null);
     try {
+      if(lengths.needsReview && !lengthsReviewed) throw new Error('Review the large difference in video lengths before comparing these groups.');
       setResult(investigateViews(videos, videos.filter(v=>selection[v.video_id]==='recent').map(v=>v.video_id), videos.filter(v=>selection[v.video_id]==='earlier').map(v=>v.video_id), fetchedAt, topics, formats));
     } catch (failure) {setError(failure instanceof Error ? failure.message : 'Review your selection.');}
   }
@@ -128,7 +130,7 @@ export default function ViewsInvestigation({videos, fetchedAt, question = '', pe
       <p className="helper">Selected: {Object.values(selection).filter(v=>v==='recent').length} recent, {Object.values(selection).filter(v=>v==='earlier').length} earlier. Each video belongs to one group.</p>
       <details className="sample-details"><summary>Check topics and formats (optional)</summary><p className="helper">If you haven’t checked, leave both as “I’m not sure.”</p><label htmlFor="view-topics">Are the selected groups about similar topics?</label><select id="view-topics" value={topics} onChange={event=>{setTopics(event.target.value as Comparability);invalidate();}}><option value="unknown">I’m not sure</option><option value="same">Yes, similar topics</option><option value="different">No, different topics</option></select>
       <label className="concern-label" htmlFor="view-formats">Do the groups use similar formats?</label><select id="view-formats" value={formats} onChange={event=>{setFormats(event.target.value as Comparability);invalidate();}}><option value="unknown">I’m not sure</option><option value="same">Yes, similar formats</option><option value="different">No, different formats</option></select>
-      </details>{scope.kind === 'manual' && <label className="consent"><input type="checkbox" checked={scopeConfirmed} onChange={event=>{setScopeConfirmed(event.target.checked);setResult(null);setError('');}}/>I checked that these selected videos match my requested period.</label>}<button className="channel-submit">Compare selected public facts</button>
+      </details>{scope.kind === 'manual' && <label className="consent"><input type="checkbox" checked={scopeConfirmed} onChange={event=>{setScopeConfirmed(event.target.checked);setResult(null);setError('');}}/>I checked that these selected videos match my requested period.</label>}<>{lengths.needsReview && <div className="evidence-note"><p>Review these groups before comparing. Similar lengths alone do not establish similar content.</p><button type="button" onClick={reviewSelected}>Review selected videos</button><label className="consent"><input type="checkbox" checked={lengthsReviewed} onChange={event=>{setLengthsReviewed(event.target.checked);setResult(null);setError('');}}/>Keep these videos despite their different lengths</label></div>}<button className="channel-submit" disabled={lengths.needsReview && !lengthsReviewed}>Compare selected public facts</button></>
     </form>}
     {error && <p className="error" role="alert">{error}</p>}
     </details>

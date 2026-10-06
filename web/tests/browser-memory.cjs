@@ -200,6 +200,8 @@ await page.getByRole('heading',{name:'Scoped fixture',exact:true}).waitFor();
 await page.getByRole('button',{name:'Prepare a comparison for me',exact:true}).click();
 await page.getByText(/We picked 3 recent and 3 earlier available uploads from your requested scope/).waitFor();
 await page.getByRole('heading',{name:'Video lengths differ',exact:true}).waitFor();
+assert.equal(await page.getByRole('button',{name:'Compare selected public facts',exact:true}).isDisabled(),true);
+await page.getByLabel('Keep these videos despite their different lengths').check();
 await page.getByRole('button',{name:'Compare selected public facts',exact:true}).click();
 await page.getByText('These public counts cannot explain why views changed.',{exact:true}).waitFor();
 await page.getByText('Selected video lengths: 35 sec to 24 min. Formats remain unverified.',{exact:true}).waitFor();
