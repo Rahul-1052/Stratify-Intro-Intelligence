@@ -23,3 +23,24 @@ export function displayLength(seconds: number) {
   const rounded = Math.round(seconds);
   return rounded < 60 ? `${rounded} sec` : rounded < 3600 ? `${Math.floor(rounded/60)} min${rounded%60 ? ` ${rounded%60} sec` : ''}` : `${Math.floor(rounded/3600)} hr ${Math.floor(rounded%3600/60)} min`;
 }
+
+export function proposeLengthComparison(videos: PublicVideo[], fetchedAt: string) {
+  const collected=Date.parse(fetchedAt);
+  if(!Number.isFinite(collected) || new Set(videos.map(v=>v.video_id)).size!==videos.length) return null;
+  const eligible=videos.flatMap(video=>{
+    const seconds=durationSeconds(video.duration), published=Date.parse(video.published_at || '');
+    return seconds!==null && Number.isFinite(published) && collected-published>=7*86400000 ? [{video,seconds}] : [];
+  }).sort((a,b)=>a.seconds-b.seconds || a.video.video_id.localeCompare(b.video.video_id));
+  const proposals=[];
+  for(const minimum of eligible) {
+    // A measured-length window, not a content or format classification.
+    const ordered=eligible.filter(row=>row.seconds>=minimum.seconds && row.seconds<minimum.seconds*4).map(row=>row.video).sort((a,b)=>Date.parse(b.published_at!)-Date.parse(a.published_at!) || a.video_id.localeCompare(b.video_id));
+    const recent=ordered.slice(0,3);
+    if(recent.length!==3) continue;
+    const earlier=ordered.filter(v=>Date.parse(v.published_at!)<Date.parse(recent[2].published_at!)).slice(0,3);
+    if(earlier.length<2) continue;
+    proposals.push({recent,earlier,excluded:videos.length-recent.length-earlier.length,cutoff:new Date(collected-7*86400000).toISOString(),reason:'Captions were unavailable. These groups use publication dates and measured durations within a less-than-fourfold length range. Unknown durations are excluded. Titles and view counts do not influence selection. This provisional rule does not establish similar topics, formats or independent footage; older matching uploads may replace newer uploads outside the length range.'});
+  }
+  proposals.sort((a,b)=>b.earlier.length-a.earlier.length || Date.parse(b.recent[0].published_at!)-Date.parse(a.recent[0].published_at!) || Date.parse(b.recent[2].published_at!)-Date.parse(a.recent[2].published_at!) || a.recent.map(v=>v.video_id).join().localeCompare(b.recent.map(v=>v.video_id).join()));
+  return proposals[0] || null;
+}

@@ -1,7 +1,7 @@
 'use client';
 import {prepareCaptionComparison, type CaptionEvidence} from '../lib/caption-comparison';
 import MatchedViews from './matched-views';
-import {selectedLengthEvidence, displayLength} from '../lib/video-length-evidence';
+import {selectedLengthEvidence, displayLength, proposeLengthComparison} from '../lib/video-length-evidence';
 import {parseViewsScope, proposeScopedViews, scopeMatchesSelection, answerViewsConcern} from '../lib/views-brief';
 import {FormEvent, useEffect, useRef, useState} from 'react';
 import {relatedTitleGroups, comparisonTitleWarnings, proposeComparison, investigateViews, type PublicVideo, type Comparability} from '../lib/views-investigation';
@@ -19,6 +19,8 @@ export default function ViewsInvestigation({videos, fetchedAt, question = '', pe
   const scope = parseViewsScope(period);
   const proposal = scope.kind === 'uploads' ? proposeScopedViews(videos,fetchedAt,scope) : scope.kind === 'manual' ? null : captionProposal ? captionProposal.proposal : proposeComparison(videos,fetchedAt);
   const [prepared,setPrepared] = useState(false);
+  const [lengthFallback,setLengthFallback] = useState(false);
+  const activeProposal=lengthFallback ? proposeLengthComparison(videos,fetchedAt) : proposal;
   const [scopeConfirmed,setScopeConfirmed] = useState(false);
   const [search,setSearch] = useState('');
   const [page,setPage] = useState(0);
@@ -77,6 +79,14 @@ export default function ViewsInvestigation({videos, fetchedAt, question = '', pe
   }
   async function prepare() {
     let chosen = proposal;
+    let usedLengthFallback=false;
+    function fallbackDescription() {
+      if(chosen && selectedLengthEvidence([...chosen.recent,...chosen.earlier]).needsReview) {
+        const measured=proposeLengthComparison(videos,fetchedAt);
+        if(measured) {chosen=measured;usedLengthFallback=true;}
+      }
+      return usedLengthFallback ? 'This setup uses dates and measured lengths; no content match was established.' : 'This setup uses dates only; no content match was established.';
+    }
     if (!captions.length && scope.kind === 'default') {
       setCaptionBusy(true);setRetrievalNotice('Checking available captions…');invalidate();
       const candidates = videos.filter(v=>v.published_at && Date.parse(fetchedAt)-Date.parse(v.published_at)>=7*86400000).sort((a,b)=>Date.parse(b.published_at!)-Date.parse(a.published_at!) || a.video_id.localeCompare(b.video_id)).slice(0,12);
@@ -88,12 +98,13 @@ export default function ViewsInvestigation({videos, fetchedAt, question = '', pe
         const matched=prepareCaptionComparison(videos,fetchedAt,evidence);
         const languages=[...new Set(evidence.map(item=>item.languageCode || 'unreported'))].join(', ');
         const blocked=data.results.some((r:{status:string})=>r.status==='blocked');
-        setRetrievalNotice(`${evidence.length} of ${candidates.length} candidate uploads have retrieved captions. ${evidence.length ? `Languages: ${languages}. ` : ''}${blocked ? 'Retrieval was blocked; remaining requests were stopped. ' : ''}${evidence.length ? 'Caption accuracy remains unverified.' : 'This setup uses dates only; no content match was established.'}`);
+        setRetrievalNotice(`${evidence.length} of ${candidates.length} candidate uploads have retrieved captions. ${evidence.length ? `Languages: ${languages}. ` : ''}${blocked ? 'Retrieval was blocked; remaining requests were stopped. ' : ''}${evidence.length ? 'Caption accuracy remains unverified.' : fallbackDescription()}`);
         if(evidence.length) {setCaptions(evidence);chosen=matched.proposal;}
       } catch(failure) {
-        setRetrievalNotice(`${failure instanceof Error ? failure.message : 'Caption retrieval failed.'} This setup uses dates only; no content match was established.`);
+        setRetrievalNotice(`${failure instanceof Error ? failure.message : 'Caption retrieval failed.'} ${fallbackDescription()}`);
       } finally {setCaptionBusy(false);}
     }
+    setLengthFallback(usedLengthFallback);
     if (!chosen) {setSelection({});setPrepared(false);return;}
     setSelection(Object.fromEntries([...chosen.recent.map(v=>[v.video_id,'recent']),...chosen.earlier.map(v=>[v.video_id,'earlier'])]));
     setTopics('unknown');setFormats('unknown');setPrepared(true);setManual(false);invalidate();
@@ -117,7 +128,7 @@ export default function ViewsInvestigation({videos, fetchedAt, question = '', pe
     {retrievalNotice && <p role="status" className="helper">{retrievalNotice}</p>}
     {captionProposal && !captionProposal.proposal && <details className="sample-details"><summary>Why no groups were prepared</summary><p>{captionProposal.diagnostics.distinct} uploads remained after text-overlap screening. The largest shared-word match set had {captionProposal.diagnostics.largestMatchSet} uploads; the best earlier group had {captionProposal.diagnostics.bestEarlierCount} strictly older matches after selecting three recent uploads.</p><p>Matching thresholds are provisional. Different wording, timing ties and unavailable captions can prevent a selection; no performance finding follows.</p></details>}
     {!proposal && scope.kind !== 'manual' && <p className="helper">{scope.kind === 'uploads' ? 'The available dates or upload coverage cannot establish your requested groups. Choose videos manually or collect a broader inventory.' : captionProposal ? 'No content-based groups were prepared. The current shared-word rules did not find three recent and at least two strictly older matches. This does not establish that your videos are unrelated.' : 'Not enough dated uploads for two groups of three at least 7 days old. You can choose videos manually.'}</p>}
-    {prepared && <div className="evidence-note"><h4>Review the proposed groups</h4><p>{scope.kind === 'uploads' ? `We picked ${scope.recent} recent and ${scope.earlier} earlier available uploads from your requested scope. Fresh uploads are included.` : `We picked ${proposal?.recent.length} recent uploads and ${proposal?.earlier.length} earlier uploads, all at least 7 days old.`} Check that these videos fit your question.</p>{proposal && proposal.earlier.length<3 && <p className="helper">Small sample: three recent videos and two earlier videos. Individual videos can strongly affect the result.</p>}<p className="helper">{captionProposal ? 'Provisional selection using shared caption wording. Topic, format and footage independence are not verified.' : 'Provisional selection by date. Video content, formats and shared material have not been verified. Matching titles do not establish a fair comparison.'}</p>{lengthNote}{mismatchNote}{relatedNote}<details className="sample-details"><summary>Why these videos?</summary><p>{proposal?.reason}</p>{captionProposal && <p>Caption reference: {videos.find(v=>v.video_id===captionProposal.diagnostics.referenceVideoId)?.title || 'Unavailable'}. Shared words below are measured against this reference, which may be an earlier upload.</p>}{captionProposal && <ul>{captionProposal.matches.map(match=><li key={match.videoId}>{videos.find(v=>v.video_id===match.videoId)?.title}: shared words — {match.terms.join(', ')}.</li>)}</ul>}{proposal?.cutoff && <p>Publication cutoff: {proposal.cutoff.replace('T',' ').replace(/Z$/, ' UTC')}. Uploads must be at least 168 hours old at collection; the displayed calendar date alone is not enough.</p>}<p>{scope.kind === 'uploads' ? 'The paired upload counts were applied to this public inventory. The question’s content requirements have not been interpreted.' : 'No specific period was requested. This is a default selection; the question’s content requirements have not been interpreted.'} {proposal?.excluded} other uploads are left out of this selection.</p></details><div className="measurement-list">{['recent','earlier'].map(group=><div key={group}><h4>{group==='recent'?'Recent group':'Earlier group'}</h4><ul>{videos.filter(v=>selection[v.video_id]===group).map(v=><li key={v.video_id}><a className="source" href={v.source_url} target="_blank" rel="noopener noreferrer">{v.title || 'Untitled video'}</a> — {v.published_at?.slice(0,10)}</li>)}</ul></div>)}</div><button type="button" onClick={()=>setManual(true)}>Adjust comparison</button></div>}
+    {prepared && <div className="evidence-note"><h4>Review the proposed groups</h4><p>{scope.kind === 'uploads' ? `We picked ${scope.recent} recent and ${scope.earlier} earlier available uploads from your requested scope. Fresh uploads are included.` : `We picked ${activeProposal?.recent.length} recent uploads and ${activeProposal?.earlier.length} earlier uploads, all at least 7 days old.`} Check that these videos fit your question.</p>{activeProposal && activeProposal.earlier.length<3 && <p className="helper">Small sample: three recent videos and two earlier videos. Individual videos can strongly affect the result.</p>}<p className="helper">{captionProposal ? 'Provisional selection using shared caption wording. Topic, format and footage independence are not verified.' : lengthFallback ? 'Provisional selection by date and measured length. Topics, formats and independent footage remain unverified.' : 'Provisional selection by date. Video content, formats and shared material have not been verified. Matching titles do not establish a fair comparison.'}</p>{lengthNote}{mismatchNote}{relatedNote}<details className="sample-details"><summary>Why these videos?</summary><p>{activeProposal?.reason}</p>{captionProposal && <p>Caption reference: {videos.find(v=>v.video_id===captionProposal.diagnostics.referenceVideoId)?.title || 'Unavailable'}. Shared words below are measured against this reference, which may be an earlier upload.</p>}{captionProposal && <ul>{captionProposal.matches.map(match=><li key={match.videoId}>{videos.find(v=>v.video_id===match.videoId)?.title}: shared words — {match.terms.join(', ')}.</li>)}</ul>}{activeProposal?.cutoff && <p>Publication cutoff: {activeProposal.cutoff.replace('T',' ').replace(/Z$/, ' UTC')}. Uploads must be at least 168 hours old at collection; the displayed calendar date alone is not enough.</p>}<p>{scope.kind === 'uploads' ? 'The paired upload counts were applied to this public inventory. The question’s content requirements have not been interpreted.' : 'No specific period was requested. This is a default selection; the question’s content requirements have not been interpreted.'} {activeProposal?.excluded} other uploads are left out of this selection.</p></details><div className="measurement-list">{['recent','earlier'].map(group=><div key={group}><h4>{group==='recent'?'Recent group':'Earlier group'}</h4><ul>{videos.filter(v=>selection[v.video_id]===group).map(v=><li key={v.video_id}><a className="source" href={v.source_url} target="_blank" rel="noopener noreferrer">{v.title || 'Untitled video'}</a> — {v.published_at?.slice(0,10)}</li>)}</ul></div>)}</div><button type="button" onClick={()=>setManual(true)}>Adjust comparison</button></div>}
     {!prepared && <>{lengthNote}{mismatchNote}{relatedNote}</>}
     {!videos.length ? <p>No public videos are available to select. A comparison cannot be made.</p> : <form onSubmit={investigate}>
       <details className="sample-details" open={manual} onToggle={event=>setManual(event.currentTarget.open)}><summary>Adjust comparison / select videos manually</summary>
