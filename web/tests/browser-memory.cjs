@@ -136,6 +136,14 @@ assert.equal(await page.getByRole('heading',{name:'What the selected videos show
 await page.getByLabel('Comparison group for Earlier tutorial').selectOption('');
 await page.getByRole('button',{name:'Compare selected public facts'}).click();
 await page.getByRole('alert').filter({hasText:'Select at least one recent video and one earlier video.'}).waitFor();
+await page.getByRole('button',{name:'Start a new comparison',exact:true}).click();
+await page.waitForFunction(()=>document.activeElement?.id==='comparison-search');
+assert.equal(await page.getByLabel('Show selected videos only').isChecked(),false);
+assert.equal(await page.getByLabel('Find a video by title or date').inputValue(),'');
+assert.equal(await page.getByLabel('Comparison group for Earlier tutorial').inputValue(),'');
+assert.equal(await page.getByLabel('Do the groups use similar formats?').inputValue(),'unknown');
+assert.equal(await page.getByRole('alert').count(),0);
+assert.equal(await page.getByRole('button',{name:'Start a new comparison',exact:true}).count(),0);
 await page.getByRole('button',{name:'Edit channel or original concern'}).click();
 assert.equal(await page.getByRole('heading',{name:'Fixture channel',exact:true}).count(),0);
 await page.getByLabel('What would you like help understanding about your channel?').fill('I want to grow');

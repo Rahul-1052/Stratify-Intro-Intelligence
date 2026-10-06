@@ -43,6 +43,12 @@ export default function ViewsInvestigation({videos, fetchedAt, question = '', pe
     if (comparisonControls.current) comparisonControls.current.open = true;
     requestAnimationFrame(()=>comparisonSearch.current?.focus());
   }
+  function startNewComparison() {
+    setSelection({});setPrepared(false);setTopics('unknown');setFormats('unknown');
+    setSelectedOnly(false);setSearch('');setPage(0);setManual(true);invalidate();
+    if (comparisonControls.current) comparisonControls.current.open = true;
+    requestAnimationFrame(()=>comparisonSearch.current?.focus());
+  }
   function investigate(event: FormEvent) {
     event.preventDefault();setError('');setResult(null);
     try {
@@ -99,6 +105,7 @@ export default function ViewsInvestigation({videos, fetchedAt, question = '', pe
     <p className="helper">Title clues only; formats are unverified. Use “Adjust comparison” to leave out a video if needed.</p>
     <details className="sample-details"><summary>See all title clues</summary><ul>{warnings.map(w=><li key={`${w.videoId}-${w.label}`}>{w.title} — “{w.label}”.</li>)}</ul></details></div>;
   return <section className="report-section" aria-labelledby="views-investigation-title">
+    {Object.values(selection).some(group=>group==='recent' || group==='earlier') && <button type="button" disabled={captionBusy} onClick={startNewComparison}>Start a new comparison</button>}
     <details ref={comparisonControls} className="sample-details" open={!result}><summary>{result ? 'Adjust selected videos' : 'Choose comparison videos'}</summary>
     <h3 id="views-investigation-title">Investigate a change in views</h3>
     <p className="muted">Let Stratify prepare a starting comparison, or choose the videos yourself.</p>
