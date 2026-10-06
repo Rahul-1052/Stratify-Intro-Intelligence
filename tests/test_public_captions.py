@@ -1,7 +1,7 @@
 from types import SimpleNamespace
 import pytest
 import requests
-from core.public_captions import collect_public_captions
+from core.public_captions import collect_public_captions, select_caption_track
 
 IDS=['abcdefghijk','bcdefghijkl','cdefghijklm']
 def transcript(video_id, *, language='en', generated=False, text='Caption evidence'):
@@ -43,7 +43,7 @@ def test_timeout_and_missing_do_not_invent_captions():
     assert all(r['text'] is None for r in result['results'])
 
 def test_identity_language_and_size_are_checked():
-    for fetch in [lambda id,**_:transcript('wrong'),lambda id,**_:transcript(id,language='de')]:
+    for fetch in [lambda id,**_:transcript('wrong'),lambda id,**_:transcript(id,language='invalid code')]:
         assert collect_public_captions(IDS[:1],fetch=fetch)['results'][0]['status']=='retrieval_failed'
     row=collect_public_captions(IDS[:1],fetch=lambda id,**_:transcript(id,text='x'*200001))['results'][0]
     assert row['status']=='too_large' and row['text'] is None
@@ -67,3 +67,41 @@ def test_private_endpoint_validation_and_missing_dependency(monkeypatch):
     monkeypatch.setattr(module,'collect_public_captions',missing)
     r=client.post('/v1/public-captions',json={'video_ids':IDS},headers=headers)
     assert r.status_code==503 and 'secret' not in r.text
+
+
+def test_non_english_tracks_preserve_language_without_translation():
+    row=collect_public_captions(IDS[:1],fetch=lambda id:transcript(id,language='hi',text='यह हिन्दी कैप्शन है'))['results'][0]
+    assert row['status']=='available' and row['language_code']=='hi'
+    assert row['text']=='यह हिन्दी कैप्शन है'
+
+def test_track_selection_is_stable_and_prefers_available_evidence():
+    tracks=[SimpleNamespace(language_code='hi',is_generated=False),SimpleNamespace(language_code='de',is_generated=True)]
+    assert select_caption_track(tracks).language_code=='hi'
+    tracks.append(SimpleNamespace(language_code='en-US',is_generated=True))
+    assert select_caption_track(list(reversed(tracks))).language_code=='en-US'
+    tracks.append(SimpleNamespace(language_code='en',is_generated=False))
+    assert select_caption_track(tracks).is_generated is False
+    assert select_caption_track([]) is None
+
+
+def test_default_provider_lists_and_fetches_one_selected_track(monkeypatch):
+    import youtube_transcript_api
+    calls=[]
+    class Track:
+        def __init__(self, code, generated):
+            self.language_code=code;self.is_generated=generated
+        def fetch(self):
+            calls.append(('fetch',self.language_code))
+            return transcript(IDS[0],language=self.language_code)
+        def translate(self,*_):
+            pytest.fail('Translation is not permitted in this evidence path')
+    class Provider:
+        def __init__(self, **_):pass
+        def list(self, video_id):
+            calls.append(('list',video_id))
+            return [Track('hi',False),Track('de',True)]
+    monkeypatch.setattr(youtube_transcript_api,'YouTubeTranscriptApi',Provider)
+    result=collect_public_captions(IDS[:1])
+    assert calls==[('list',IDS[0]),('fetch','hi')]
+    assert result['results'][0]['language_code']=='hi'
+    assert result['results'][0]['status']=='available'

@@ -1,9 +1,24 @@
-"""Bounded experimental retrieval of public English captions; no bypass or retries."""
+"""Bounded retrieval of an available caption track; no translation or retries."""
 import math
 import re
 import time
 from datetime import datetime, timezone
 import requests
+
+
+def select_caption_track(tracks):
+    """Prefer English, then manual tracks, using stable language ordering."""
+    available = list(tracks)
+    if not available:
+        return None
+    return min(available, key=lambda track: (
+        str(track.language_code).lower().split('-')[0] != 'en',
+        bool(track.is_generated), str(track.language_code),
+    ))
+
+
+class NoAvailableCaptions(Exception):
+    pass
 
 
 def collect_public_captions(video_ids, *, fetch=None, clock=time.monotonic):
@@ -24,15 +39,23 @@ def collect_public_captions(video_ids, *, fetch=None, clock=time.monotonic):
                     kwargs['timeout'] = min(4, remaining)
                     return super().request(method, url, **kwargs)
             session = BoundedSession()
-            fetch = YouTubeTranscriptApi(http_client=session).fetch
+            provider = YouTubeTranscriptApi(http_client=session)
+            def fetch(video_id, **_):
+                track = select_caption_track(provider.list(video_id))
+                if track is None:
+                    raise NoAvailableCaptions()
+                result = track.fetch()
+                if result.language_code != track.language_code:
+                    raise ValueError('Caption track language changed.')
+                return result
         for video_id in video_ids:
             record = {'video_id': video_id, 'source_url': f'https://www.youtube.com/watch?v={video_id}', 'status': 'not_attempted', 'text': None, 'segments': [], 'language_code': None, 'is_generated': None, 'source': 'public_caption_unverified'}
             if stopped or clock() - started >= 30:
                 results.append(record)
                 continue
             try:
-                transcript = fetch(video_id, languages=['en'])
-                if transcript.video_id != video_id or transcript.language_code != 'en':
+                transcript = fetch(video_id)
+                if transcript.video_id != video_id or not isinstance(transcript.language_code, str) or not re.fullmatch(r'[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*', transcript.language_code):
                     raise ValueError('Unexpected transcript identity or language.')
                 segments = []
                 size = 0
@@ -52,7 +75,7 @@ def collect_public_captions(video_ids, *, fetch=None, clock=time.monotonic):
                 if name in {'RequestBlocked', 'IpBlocked'}:
                     record['status'] = 'blocked'
                     stopped = True
-                elif name in {'TranscriptsDisabled', 'NoTranscriptFound', 'VideoUnavailable'}:
+                elif name in {'TranscriptsDisabled', 'NoTranscriptFound', 'VideoUnavailable', 'NoAvailableCaptions'}:
                     record['status'] = 'unavailable'
                 elif isinstance(error, requests.Timeout):
                     record['status'] = 'timeout'
@@ -62,4 +85,4 @@ def collect_public_captions(video_ids, *, fetch=None, clock=time.monotonic):
     finally:
         if session is not None:
             session.close()
-    return {'fetched_at': datetime.now(timezone.utc).isoformat(), 'provider': 'youtube-transcript-api', 'language_requested': 'en', 'results': results, 'limitations': ['Experimental public-caption retrieval can fail or be blocked. No retries or block bypass are used.', 'Only English captions are requested; missing captions are not evidence of missing speech.', 'Caption accuracy, video format and footage independence are unverified.']}
+    return {'fetched_at': datetime.now(timezone.utc).isoformat(), 'provider': 'youtube-transcript-api', 'language_policy': 'prefer_english_then_available_manual_then_generated', 'results': results, 'limitations': ['Experimental public-caption retrieval can fail or be blocked. No retries or block bypass are used.', 'One available track is selected per video; its language is recorded. No translation is requested. Missing captions are not evidence of missing speech.', 'Caption accuracy, video format and footage independence are unverified.']}

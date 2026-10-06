@@ -1,5 +1,5 @@
 import type {PublicVideo} from './views-investigation';
-export type CaptionEvidence = {videoId: string; text: string; source: 'creator_caption_unverified' | 'public_caption_unverified'};
+export type CaptionEvidence = {videoId: string; text: string; source: 'creator_caption_unverified' | 'public_caption_unverified'; languageCode?: string};
 const stop = new Set('a an the this that these those and or but for of to in on at by with is are was were be been it its we you i they he she our your my their from as not can do does did have has had will would all so just'.split(' '));
 export function captionText(raw: string) {
   return raw.replace(/^\uFEFF/, '').split(/\r?\n/).filter(line => {
@@ -7,7 +7,7 @@ export function captionText(raw: string) {
     return s && !/^\d+$/.test(s) && !s.includes('-->') && !/^(WEBVTT|NOTE|STYLE|REGION)(\s|$)/.test(s);
   }).map(line=>line.replace(/<[^>]*>/g,'').trim()).filter((line,i,all)=>i===0 || line!==all[i-1]).join('\n');
 }
-function words(text: string) {return (text.toLowerCase().match(/[\p{L}\p{N}]+/gu) || []).filter(word=>word.length>2 && !stop.has(word));}
+function words(text: string) {return (text.normalize('NFC').toLowerCase().match(/[\p{L}\p{M}\p{N}]+/gu) || []).filter(word=>word.length>2 && !stop.has(word));}
 function shingles(text: string) {
   const tokens=words(text), result=new Set<string>();
   for(let i=0;i+5<=tokens.length;i++) result.add(tokens.slice(i,i+5).join(' '));
@@ -16,13 +16,15 @@ function shingles(text: string) {
 export function prepareCaptionComparison(videos: PublicVideo[], fetchedAt: string, evidence: CaptionEvidence[]) {
   if(!Number.isFinite(Date.parse(fetchedAt)) || new Set(videos.map(v=>v.video_id)).size!==videos.length) throw new Error('Collect a valid, unique video inventory before preparing groups.');
   const ids=new Set(videos.map(v=>v.video_id));
-  if(evidence.length>100 || new Set(evidence.map(e=>e.videoId)).size!==evidence.length || evidence.some(e=>!ids.has(e.videoId) || !['creator_caption_unverified','public_caption_unverified'].includes(e.source) || typeof e.text!=='string' || e.text.length>200000)) throw new Error('Use one caption file per known video, up to 100 files and 200,000 characters per video.');
+  if(evidence.length>100 || new Set(evidence.map(e=>e.videoId)).size!==evidence.length || evidence.some(e=>!ids.has(e.videoId) || !['creator_caption_unverified','public_caption_unverified'].includes(e.source) || typeof e.text!=='string' || e.text.length>200000 || (e.languageCode !== undefined && (typeof e.languageCode !== 'string' || !/^[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*$/.test(e.languageCode))))) throw new Error('Use one caption file per known video, up to 100 files and 200,000 characters per video.');
   const cleaned=evidence.map(e=>({...e,text:captionText(e.text)}));
   // Remove identical repeated lines found in at least half of this caption sample.
   const lineCounts=new Map<string,number>();
   for(const e of cleaned) for(const line of new Set(e.text.split('\n').map(l=>l.toLowerCase().trim()))) lineCounts.set(line,(lineCounts.get(line)||0)+1);
   const texts=new Map(cleaned.map(e=>[e.videoId,e.text.split('\n').filter(l=>(lineCounts.get(l.toLowerCase().trim())||0)<Math.max(3,Math.ceil(cleaned.length/2))).join('\n')]));
   const usable=videos.filter(v=>words(texts.get(v.video_id)||'').length>=40 && v.published_at && Number.isFinite(Date.parse(v.published_at)) && Date.parse(fetchedAt)-Date.parse(v.published_at)>=7*86400000).sort((a,b)=>Date.parse(b.published_at!)-Date.parse(a.published_at!) || a.video_id.localeCompare(b.video_id));
+  const languages = new Map(cleaned.map(e=>[e.videoId,e.languageCode?.toLowerCase().split('-')[0] || 'unknown']));
+  const sameLanguage = (a:PublicVideo,b:PublicVideo) => languages.get(a.video_id) === languages.get(b.video_id);
   const vectors=new Map(usable.map(v=>[v.video_id,new Set(words(texts.get(v.video_id)!))]));
   const prints=new Map(usable.map(v=>[v.video_id,shingles(texts.get(v.video_id)!)]));
   const df=new Map<string,number>();
@@ -42,7 +44,7 @@ export function prepareCaptionComparison(videos: PublicVideo[], fetchedAt: strin
   const skipped=new Set<string>();
   const distinct:PublicVideo[]=[];
   for(const video of usable) {
-    if(distinct.some(other=>overlap(video,other))) skipped.add(video.video_id);
+    if(distinct.some(other=>sameLanguage(video,other) && overlap(video,other))) skipped.add(video.video_id);
     else distinct.push(video);
   }
   let largestMatchSet = 0;
@@ -50,7 +52,7 @@ export function prepareCaptionComparison(videos: PublicVideo[], fetchedAt: strin
   for(const anchor of distinct) {
     const matches=distinct.filter(v=>{
       const match=similarity(anchor,v);
-      return match.shared>=4 && match.score>=0.15;
+      return sameLanguage(anchor,v) && match.shared>=4 && match.score>=0.15;
     });
     largestMatchSet = Math.max(largestMatchSet,matches.length);
     const recent=matches.slice(0,3);

@@ -2,7 +2,7 @@
 import {FormEvent, useEffect, useRef, useState} from 'react';
 import {investigateWindow, suggestNextSteps, type investigateViews, type WindowEvidence} from '../lib/views-investigation';
 const number=(value:number)=>value.toLocaleString(undefined,{maximumFractionDigits:1});
-export default function MatchedViews({comparison, question = '', scopeMatch = true}: {comparison:ReturnType<typeof investigateViews>; question?: string; scopeMatch?: boolean | null}) {
+export default function MatchedViews({comparison, question = '', scopeMatch = true, lengthReview = false}: {comparison:ReturnType<typeof investigateViews>; question?: string; scopeMatch?: boolean | null; lengthReview?: boolean}) {
   const [days,setDays]=useState(7);
   const [metric,setMetric]=useState<WindowEvidence['metric']>('engaged_views');
   const [counts,setCounts]=useState<Record<string,string>>({});
@@ -38,6 +38,7 @@ export default function MatchedViews({comparison, question = '', scopeMatch = tr
       <dl className="measurement-list"><div><dt>Recent group</dt><dd>{answer.recentCount} videos · median {number(answer.recentMedian)}</dd></div><div><dt>Earlier group</dt><dd>{answer.earlierCount} videos · median {number(answer.earlierMedian)}</dd></div><div><dt>Difference in medians</dt><dd>{number(answer.difference)}{answer.percent===null?' · percentage unavailable (zero baseline)':` (${number(answer.percent)}%)`}</dd></div></dl>
       <p>{answer.recentAtOrAboveEarlierMedian} of {answer.recentCount} selected recent videos are at or above the earlier group’s median. The group median does not mean every video changed in the same way.</p>
       <h3>What that tells us—and what it doesn’t</h3>
+      {lengthReview && <p>Selected video lengths differ substantially. That remains a comparability concern even with equal viewing windows; format is unverified.</p>}
       <ul className="limits"><li>These are creator-entered figures. Stratify has not verified their source, accuracy, window or metric definition.</li>{answer.smallSample && <li>At least one group has fewer than three videos. Treat this as a small sample, not a channel-wide trend.</li>}<li>{answer.comparableByCreator?'You described the topics and formats as similar; that remains your assessment.':'Topics or formats are different or unknown. The numbers describe the selection, but do not establish a like-for-like content comparison.'}</li><li>This describes only the selected videos and metric. It does not establish statistical significance, future performance or the cause of a difference.</li></ul>
       <h3>Suggestions supported by this evidence</h3>
       <p className="muted">These are investigation steps, not content-change recommendations or proven causes. All supporting analytics are creator-entered and unverified.</p>

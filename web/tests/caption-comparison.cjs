@@ -67,3 +67,18 @@ test('abstention explains a small match set without declaring content unrelated'
  assert.equal(result.diagnostics.bestEarlierCount,0);
  assert.equal(result.diagnostics.referenceVideoId,null);
 });
+
+test('known languages remain separate even when captions share words',()=>{
+ const mixed=evidence.map((e,i)=>({...e,languageCode:i<4?'en':'hi'}));
+ assert.equal(prepareCaptionComparison(videos,fetched,mixed).proposal,null);
+ const english=evidence.map((e,i)=>({...e,languageCode:i%2?'en-US':'en'}));
+ assert(prepareCaptionComparison(videos,fetched,english).proposal);
+ assert.throws(()=>prepareCaptionComparison(videos,fetched,[{...evidence[0],languageCode:42}]));
+});
+test('Hindi combining marks stay attached to content words',()=>{
+ const vocabulary='बजट खर्च बचत आय योजना कर्ज नकदी लक्ष्य रणनीति मासिक संतुलन भुगतान निवेश खाते आपातकाल जरूरत धन सुरक्षा भविष्य व्यापार'.split(' ');
+ const hindi=evidence.map((e,i)=>({...e,languageCode:'hi',text:Array.from({length:3},(_,j)=>vocabulary.map((w,k)=>`${vocabulary[(k*(2*i+1)+j)%20]} विवरण${i}खंड${j}`).join(' ')).join('\n')}));
+ const result=prepareCaptionComparison(videos,fetched,hindi);
+ assert(result.proposal);
+ assert(result.matches.some(match=>match.terms.includes('रणनीति')));
+});
