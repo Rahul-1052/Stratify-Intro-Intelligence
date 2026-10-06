@@ -13,3 +13,8 @@ Other scope text, such as `September vs August`, `last six uploads` without a co
 The compact report states what it can answer, reports the measured comparison and retains one next step. `See details` includes the confirmed question, requested scope, source-linked selected videos and lifetime counts, collection date, median definition and limitations. Creator-entered equal-window analytics continue to be explicitly unverified and do not establish causal explanations. Scope uncertainty remains visible in that result as well.
 
 Validation: 47 routing, scope, comparison and caption tests passed; strict TypeScript checks and production build passed. Browser script syntax and diff whitespace checks passed. Browser coverage was extended for unsupported scope, creator confirmation, automatic paired groups and causal abstention. Browser execution is pending because Chromium was unavailable after its download returned an invalid archive in the preceding milestone. No backend or private-analytics integration was added; general natural-language period parsing, content verification and channel-wide causal diagnosis remain unfinished.
+
+
+### Creator scope follow-up (2026-10-06)
+
+Views-focused inquiry review now asks “Which videos should we compare?” with explicit options for provisional suggestions, latest three versus previous three, or latest five versus previous five. The existing free-text field accepts custom scope. Choices set the actual confirmed period submitted to the service; they do not rewrite the question. Automatic suggestions disclose exclusions and abstention, while upload-count choices disclose fresh-upload inclusion. This is an explicit scope choice, not general natural-language interpretation.

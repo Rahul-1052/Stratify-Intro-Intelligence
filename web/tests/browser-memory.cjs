@@ -192,7 +192,12 @@ assert.equal(await page.getByRole('heading',{name:'Review the proposed groups',e
 await page.getByRole('button',{name:'Edit channel or original concern'}).click();
 await page.getByLabel('What would you like help understanding about your channel?').fill('Why did my views drop?');
 await page.getByRole('button',{name:'Review my question'}).click();
-await page.getByLabel('Which period or videos do you mean? (optional)').fill('last 3 uploads vs previous 3 uploads');
+await page.getByRole('button',{name:'Latest 5 vs previous 5',exact:true}).click();
+assert.equal(await page.getByLabel('Which period or videos do you mean? (optional)').inputValue(),'last 5 uploads vs previous 5 uploads');
+await page.getByRole('button',{name:'Let Stratify suggest videos',exact:true}).click();
+assert.equal(await page.getByLabel('Which period or videos do you mean? (optional)').inputValue(),'');
+await page.getByRole('button',{name:'Latest 3 vs previous 3',exact:true}).click();
+assert.equal(await page.getByLabel('Which period or videos do you mean? (optional)').inputValue(),'last 3 uploads vs previous 3 uploads');
 await page.unroute('**/api/channel-workspace');
 await page.route('**/api/channel-workspace',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({concern:'Why did my views drop?',fetched_at:'2026-10-05T18:00:00Z',inquiry:{question:'Why did my views drop?',focus:'reach',period:'last 3 uploads vs previous 3 uploads',evidence_needed:[]},channel:{title:'Scoped fixture',source_url:'https://www.youtube.com/@fixture',created_at:null,subscribers:null,video_count:8},coverage:{entries_checked:8,videos_available:8,unavailable_entries:0,more_uploads_available:false,uploads_playlist_available:true,oldest_published_at:'2026-09-21',newest_published_at:'2026-09-28'},videos:captionVideos.map((video,i)=>({...video,duration:i===0?'PT35S':i===1?'PT24M':'PT5M'})),limitations:[]})}));
 await page.getByRole('button',{name:'Confirm question and collect facts'}).click();
