@@ -15,7 +15,7 @@ export default function MatchedViews({comparison}: {comparison:ReturnType<typeof
   useEffect(()=>{if(answer) heading.current?.focus();},[answer]);
   function invalidate(){setAnswer(null);setError('');setConfirmed(false);}
   function submit(event:FormEvent){event.preventDefault();setAnswer(null);setError('');try{setAnswer(investigateWindow(comparison,{days,metric,counts,confirmed,impressions:includeImpressions?impressions:undefined}));}catch(failure){setError(failure instanceof Error?failure.message:'Review the entered counts.');}}
-  return <details className="report-section"><summary>I have the creator’s YouTube Studio numbers (optional)</summary><section aria-labelledby="matched-title">
+  return <details className="report-section"><summary>Add my analytics (optional)</summary><section aria-labelledby="matched-title">
     <p>Don’t have access to this channel’s analytics? Skip this step. Public view counts cannot fill these boxes.</p><p>For each video, open its analytics in YouTube Studio. Enter the selected metric for the same first 24 hours, 7 days or 28 days after publication. If a number is unavailable, leave it blank; don’t substitute zero.</p>
     <h3 id="matched-title">Add analytics for the same viewing window</h3>
     <p className="muted">Optional: enter counts from your channel analytics for these selected videos. These figures stay in this page and are cleared on reload or when the comparison changes. Stratify does not connect to your YouTube account or verify the numbers.</p>

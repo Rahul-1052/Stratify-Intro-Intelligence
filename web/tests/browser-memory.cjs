@@ -61,15 +61,16 @@ await page.getByRole('button',{name:'Compare selected public facts'}).click();
 await page.getByRole('heading',{name:'What the selected videos show',exact:true}).waitFor();
 await page.waitForFunction(()=>document.activeElement?.id==='views-result-title');
 assert.equal(await page.locator(':focus').innerText(),'What the selected videos show');
-await page.getByText('The selected recent videos have a lower middle lifetime view count. This alone does not prove a performance decline.',{exact:true}).waitFor();
-for (const name of ['What we found','Evidence behind it','What remains unknown','Your next step']) {
+await page.getByText('Recent videos in this selection have lower typical lifetime views.',{exact:true}).waitFor();
+assert.equal(await page.getByText('Adjust selected videos',{exact:true}).evaluate(node=>node.parentElement.open),false);
+for (const name of ['Your next step']) {
   assert.equal(await page.getByRole('heading',{name,exact:true}).count(),1);
 }
-assert.equal(await page.getByText('See the numbers and comparison limits',{exact:true}).evaluate(node=>node.parentElement.open),false);
-await page.getByText('See the numbers and comparison limits',{exact:true}).click();
+assert.equal(await page.getByText('See details',{exact:true}).evaluate(node=>node.parentElement.open),false);
+await page.getByText('See details',{exact:true}).click();
 await page.getByText(/Difference: -100 views/).waitFor();
 assert.equal(await page.getByLabel('Window count for Earlier tutorial').isVisible(),false);
-await page.getByText('I have the creator’s YouTube Studio numbers (optional)',{exact:true}).click();
+await page.getByText('Add my analytics (optional)',{exact:true}).click();
 await page.getByLabel('Window count for A deliberately long public video title to verify narrow screens').fill('0');
 await page.getByLabel('Window count for Earlier tutorial').fill('100');
 await page.getByRole('button',{name:'Review matched-window evidence'}).click();
@@ -103,6 +104,7 @@ assert.equal(await page.getByLabel('I checked that every count uses this complet
 await page.getByText('Check topics and formats (optional)',{exact:true}).click();
 await page.getByLabel('Do the groups use similar formats?').selectOption('different');
 assert.equal(await page.getByRole('heading',{name:'What the selected videos show',exact:true}).count(),0);
+await page.getByText('Adjust selected videos',{exact:true}).click();
 await page.getByLabel('Comparison group for Earlier tutorial').selectOption('');
 await page.getByRole('button',{name:'Compare selected public facts'}).click();
 await page.getByRole('alert').filter({hasText:'Select at least one recent video and one earlier video.'}).waitFor();

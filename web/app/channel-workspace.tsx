@@ -114,7 +114,7 @@ export default function ChannelWorkspace() {
         </div>
       </details>
       {workspace.inquiry.focus === 'reach' && <ViewsInvestigation key={workspace.fetched_at} videos={workspace.videos} fetchedAt={workspace.fetched_at}/>}
-      <div className="evidence-note"><h3>What we can’t conclude yet</h3><ul>{workspace.limitations.map(item => <li key={item}>{item === 'The concern is recorded in your words; it has not yet been interpreted or answered.' ? 'Collecting public facts alone does not answer your question. Any comparison is limited to its selected videos and available evidence.' : item}</li>)}</ul></div>
+      <details className="sample-details"><summary>Channel evidence limits</summary><ul>{workspace.limitations.map(item => <li key={item}>{item === 'The concern is recorded in your words; it has not yet been interpreted or answered.' ? 'Collecting public facts alone does not answer your question. Any comparison is limited to its selected videos and available evidence.' : item}</li>)}</ul></details>
     </section>}
   </>;
 }

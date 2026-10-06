@@ -83,6 +83,7 @@ export default function ViewsInvestigation({videos, fetchedAt}: {videos: PublicV
     <p className="helper">Title clues only; formats are unverified. Use “Adjust comparison” to leave out a video if needed.</p>
     <details className="sample-details"><summary>See all title clues</summary><ul>{warnings.map(w=><li key={`${w.videoId}-${w.label}`}>{w.title} — “{w.label}”.</li>)}</ul></details></div>;
   return <section className="report-section" aria-labelledby="views-investigation-title">
+    <details className="sample-details" open={!result}><summary>{result ? 'Adjust selected videos' : 'Choose comparison videos'}</summary>
     <h3 id="views-investigation-title">Investigate a change in views</h3>
     <p className="muted">Let Stratify prepare a starting comparison, or choose the videos yourself.</p>
     <details className="sample-details"><summary>Add captions for content-based grouping (optional)</summary><p>Supply caption files for several recent and earlier videos. Stratify can look for shared wording across different titles and screen for substantial text overlap. Supplied files are creator-provided and unverified. Neither supplied nor retrieved captions establish the video’s format.</p><label htmlFor="comparison-captions">Caption files (SRT, VTT or TXT)</label><input id="comparison-captions" type="file" multiple accept=".srt,.vtt,.txt" disabled={captionBusy} onChange={event=>{void readCaptions(event.currentTarget.files);event.currentTarget.value='';}}/><p className="helper">Include the YouTube video ID in each filename, for example 5ddEDYTFWTc.srt. Up to 100 files, 2 MB combined. Supplied files stay in this page and are cleared on reload; they are not uploaded or saved.</p>{captionError && <p role="alert" className="error">{captionError}</p>}{captionBusy && <p role="status">Reading captions…</p>}{captionProposal && <><p role="status">{captionProposal.coverage.supplied} captions available ({captions.filter(c=>c.source==='public_caption_unverified').length} retrieved automatically, {captions.filter(c=>c.source==='creator_caption_unverified').length} from supplied files); {captionProposal.coverage.usable} have enough text and meet the age cutoff. {captionProposal.coverage.overlapSkipped} screened out for substantial caption overlap.</p><button type="button" onClick={()=>{setCaptions([]);setRetrievalNotice('');setSelection({});setPrepared(false);invalidate();}}>Remove captions</button></>}</details>
@@ -106,22 +107,22 @@ export default function ViewsInvestigation({videos, fetchedAt}: {videos: PublicV
       </details><button className="channel-submit">Compare selected public facts</button>
     </form>}
     {error && <p className="error" role="alert">{error}</p>}
+    </details>
     {result && <div className="evidence-note" aria-labelledby="views-result-title">
       <h3 id="views-result-title" tabIndex={-1} ref={heading}>What the selected videos show</h3>
-      <h4>What we found</h4>
-      <p><strong>{result.difference === null ? 'We can’t establish a difference from this selection.' : result.difference < 0 ? 'The selected recent videos have a lower middle lifetime view count. This alone does not prove a performance decline.' : result.difference > 0 ? 'The selected recent videos have a higher middle lifetime view count. This selection does not show fewer public views.' : 'The selected groups have the same middle lifetime view count.'}</strong></p>
-      <h4>Evidence behind it</h4>
-      <p><strong>{result.difference === null ? "We don’t have enough consistent facts to compare these groups." : `The middle lifetime view count is ${number(result.recent.medianViews)} for your recent videos and ${number(result.earlier.medianViews)} for your earlier videos.`}</strong></p>
-      <p className="muted">Based on {result.recent.count} selected recent videos and {result.earlier.count} selected earlier videos. Public facts collected on {fetchedAt.slice(0,10)} (UTC). This is a selected sample, not a finding about the whole channel.</p>
-      <details className="sample-details"><summary>See the numbers and comparison limits</summary><dl className="measurement-list">{[{label:'Recent',value:result.recent},{label:'Earlier',value:result.earlier}].map(({label,value})=>{
+      <p><strong>{result.difference === null ? 'We can’t establish a difference from this selection.' : result.difference < 0 ? 'Recent videos in this selection have lower typical lifetime views.' : result.difference > 0 ? 'Recent videos in this selection have higher typical lifetime views.' : 'Both selected groups have the same typical lifetime views.'}</strong></p>
+      <p><strong>{result.difference === null ? "We don’t have enough consistent facts to compare these groups." : `Typical lifetime views: ${number(result.recent.medianViews)} recent · ${number(result.earlier.medianViews)} earlier.`}</strong></p>
+      <p className="muted">{result.recent.count} recent videos · {result.earlier.count} earlier videos. Selected videos only.</p>
+      <p className="helper">Lifetime totals aren’t an equal-time comparison and don’t establish a channel-wide decline or its cause.</p>
+      <h4>Your next step</h4>
+      <p>{!result.chronological ? "Adjust the groups so every recent video was published after every earlier video." : result.recent.missing || result.earlier.missing ? "Choose videos with available view counts, or add the missing figures from your YouTube Studio analytics." : result.topics !== 'same' || result.formats !== 'same' ? "Review the selected videos and keep similar content and formats together before interpreting the numbers." : "If you have access to this channel’s YouTube Studio, compare views over the same completed period after each video was published."}</p>
+      <details className="sample-details"><summary>See details</summary><p className="muted">Public facts collected on {fetchedAt.slice(0,10)} (UTC). This selection does not represent the whole channel.</p><p>“Typical” means the median: the middle count after sorting, or the average of the two middle counts for an even-sized group.</p><dl className="measurement-list">{[{label:'Recent',value:result.recent},{label:'Earlier',value:result.earlier}].map(({label,value})=>{
         return <div key={label}><dt>{label} group</dt><dd>{value.count} videos; {value.available} available view counts</dd><dd>Median lifetime views: {number(value.medianViews)}</dd><dd>Age at collection: {value.newestDays === null ? 'Unavailable' : `${number(value.newestDays)}–${number(value.oldestDays)} days`}</dd></div>;
       })}</dl>
       <p>{result.difference === null ? 'The difference between groups is withheld because counts or publication order do not support it.' : `Recent median lifetime views are ${result.difference === 0 ? 'equal to' : result.difference < 0 ? 'lower than' : 'higher than'} the earlier median. Difference: ${number(result.difference)} views${result.percent === null ? ' (percentage unavailable because the earlier median is zero)' : ` (${number(result.percent)}%)`}.`}</p>
       <ul className="limits">{result.checks.map(check=><li key={check}>{check}</li>)}</ul>
+      <p>Content, formats and independent footage have not been verified. {result.nextStep}</p><p className="muted">Stratify has not retrieved private analytics. This comparison alone does not justify a content change.</p>
       </details>
-      <h4>What remains unknown</h4>
-      <p>These are lifetime view totals. They don’t establish how the groups performed over the same time after publication or explain why views differ. Similar content, formats and independent footage have not been verified.</p>
-      <h4>Your next step</h4><p>{result.nextStep}</p><p className="muted">Stratify has not retrieved those private analytics. No content change or experiment is justified by this comparison alone.</p>
       <MatchedViews comparison={result}/>
     </div>}
   </section>;
