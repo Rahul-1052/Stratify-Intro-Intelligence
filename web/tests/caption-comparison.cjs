@@ -82,3 +82,22 @@ test('Hindi combining marks stay attached to content words',()=>{
  assert(result.proposal);
  assert(result.matches.some(match=>match.terms.includes('रणनीति')));
 });
+
+
+test('five matching uploads prepare three recent and two earlier without weakening matching',()=>{
+ const result=prepareCaptionComparison(videos,fetched,evidence.slice(0,5));
+ assert(result.proposal);
+ assert.equal(result.proposal.recent.length,3);
+ assert.equal(result.proposal.earlier.length,2);
+ assert.equal(result.proposal.excluded,3);
+ assert.equal(prepareCaptionComparison(videos,fetched,evidence.slice(0,4)).proposal,null);
+});
+test('a complete older reference wins over a newer three-versus-two candidate',()=>{
+ const six=videos.slice(0,6);
+ const terms=Array.from({length:5},(_,i)=>Array.from({length:12},(_,j)=>`concept${i}word${j}`));
+ const supplied=six.map((v,i)=>({videoId:v.video_id,source:'creator_caption_unverified',text:i<5?Array.from({length:4},(_,k)=>(i===0?[...terms[0],...terms[1],...terms[2],...terms[3]]:terms[i]).map(t=>`${t} unique${i}segment${k}`).join(' ')).join(' '):Array.from({length:12},(_,j)=>terms.map(t=>t[j]).join(' ')).join(' ')}));
+ const result=prepareCaptionComparison(six,fetched,supplied);
+ assert(result.proposal);
+ assert.equal(result.proposal.earlier.length,3);
+ assert.equal(result.diagnostics.referenceVideoId,six[5].video_id);
+});

@@ -49,6 +49,7 @@ export function prepareCaptionComparison(videos: PublicVideo[], fetchedAt: strin
   }
   let largestMatchSet = 0;
   let bestEarlierCount = 0;
+  const candidates: {anchor:PublicVideo;recent:PublicVideo[];earlier:PublicVideo[]}[] = [];
   for(const anchor of distinct) {
     const matches=distinct.filter(v=>{
       const match=similarity(anchor,v);
@@ -60,9 +61,14 @@ export function prepareCaptionComparison(videos: PublicVideo[], fetchedAt: strin
     const boundary=Date.parse(recent[2].published_at!);
     const earlier=matches.filter(v=>Date.parse(v.published_at!)<boundary).slice(0,3);
     bestEarlierCount = Math.max(bestEarlierCount,earlier.length);
-    if(earlier.length!==3) continue;
+    if(earlier.length>=2) candidates.push({anchor,recent,earlier});
+  }
+  // Prefer any complete comparison before falling back to three versus two.
+  const candidate=candidates.find(c=>c.earlier.length===3) || candidates[0];
+  if(candidate) {
+    const {anchor,recent,earlier}=candidate;
     const selected=[...recent,...earlier];
-    return {diagnostics:{distinct:distinct.length,largestMatchSet,bestEarlierCount,referenceVideoId:anchor.video_id},proposal:{recent,earlier,excluded:videos.length-6,cutoff:new Date(Date.parse(fetchedAt)-7*86400000).toISOString(),reason:'Groups use shared words in available captions, then publication order. Titles, views and durations do not affect selection. Substantial caption overlap is screened out. These are unvalidated selection heuristics, not proof of topic, format or independent footage.'}, coverage:{supplied:evidence.length,usable:usable.length,overlapSkipped:skipped.size}, matches:selected.map(v=>({videoId:v.video_id,terms:similarity(anchor,v).terms})), status:'caption_clues' as const};
+    return {diagnostics:{distinct:distinct.length,largestMatchSet,bestEarlierCount,referenceVideoId:anchor.video_id},proposal:{recent,earlier,excluded:videos.length-selected.length,cutoff:new Date(Date.parse(fetchedAt)-7*86400000).toISOString(),reason:'Groups use shared words in available captions, then publication order. Titles, views and durations do not affect selection. Substantial caption overlap is screened out. These are unvalidated selection heuristics, not proof of topic, format or independent footage.'}, coverage:{supplied:evidence.length,usable:usable.length,overlapSkipped:skipped.size}, matches:selected.map(v=>({videoId:v.video_id,terms:similarity(anchor,v).terms})), status:'caption_clues' as const};
   }
   return {diagnostics:{distinct:distinct.length,largestMatchSet,bestEarlierCount,referenceVideoId:null},proposal:null,coverage:{supplied:evidence.length,usable:usable.length,overlapSkipped:skipped.size},matches:[],status:'insufficient_caption_evidence' as const};
 }
