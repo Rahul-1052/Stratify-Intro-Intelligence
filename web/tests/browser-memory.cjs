@@ -26,11 +26,33 @@ await page.route('**/api/channel-workspace', async route => {
   await route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({detail:'Channel facts unavailable for QA'})});
 });
 await page.getByLabel('YouTube channel link or @handle').fill('@fixture');
+// Starter clicks fill editable text without submitting or collecting evidence.
+for (const [starter, expectedFocus] of [
+  ['Are my recent videos getting fewer views?', 'reach'],
+  ['Which content should I make more of?', 'content_direction'],
+  ['Why aren’t viewers coming back?', 'returning_viewers'],
+]) {
+  await page.getByRole('button',{name:starter,exact:true}).click();
+  assert.equal(await page.getByLabel('What would you like help understanding about your channel?').inputValue(),starter);
+  assert.equal(await page.locator('#inquiry-title').count(),0);
+  await page.getByRole('button',{name:'Review my question'}).click();
+  assert.equal(await page.getByLabel('Investigation focus').inputValue(),expectedFocus);
+  assert.equal(await page.getByLabel('The question you want Stratify to investigate').inputValue(),starter);
+  if (expectedFocus !== 'reach') assert.match(await page.locator('#investigation-scope').innerText(), /YouTube Studio|not available yet/);
+  await page.getByRole('button',{name:'Edit channel or original concern'}).click();
+}
+await page.getByLabel('What would you like help understanding about your channel?').fill('Views are down and subscribers are not growing');
+await page.getByRole('button',{name:'Review my question'}).click();
+assert.equal(await page.getByLabel('Investigation focus').inputValue(),'');
+await page.getByText('You mentioned more than one concern. Which should we investigate first?',{exact:true}).waitFor();
+await page.getByRole('button',{name:'Edit channel or original concern'}).click();
 await page.getByLabel('What would you like help understanding about your channel?').fill('Why are my views down?');
 await page.getByRole('button',{name:'Review my question'}).click();
 assert.equal(await page.locator(':focus').innerText(), 'Let’s make sure we understand your question');
-await page.getByLabel('What would you like to investigate first?').selectOption('reach');
+assert.equal(await page.getByLabel('Investigation focus').inputValue(),'reach');
 await page.getByLabel('The question you want Stratify to investigate').fill('Which recent videos lost reach?');
+assert.equal(await page.getByLabel('Investigation focus').inputValue(),'');
+await page.getByLabel('Investigation focus').selectOption('reach');
 await page.getByLabel('Which period or videos do you mean? (optional)').fill('Last six uploads');
 await page.getByRole('button',{name:'Confirm question and collect facts'}).click();
 await page.getByRole('alert').filter({hasText:'Channel facts unavailable for QA'}).waitFor();
@@ -115,14 +137,14 @@ await page.getByRole('button',{name:'Edit channel or original concern'}).click()
 assert.equal(await page.getByRole('heading',{name:'Fixture channel',exact:true}).count(),0);
 await page.getByLabel('What would you like help understanding about your channel?').fill('I want to grow');
 await page.getByRole('button',{name:'Review my question'}).click();
-assert.equal(await page.getByLabel('What would you like to investigate first?').inputValue(),'');
+assert.equal(await page.getByLabel('Investigation focus').inputValue(),'');
 assert.equal(await page.getByLabel('The question you want Stratify to investigate').inputValue(),'I want to grow');
 assert.equal(await page.getByLabel('Which period or videos do you mean? (optional)').inputValue(),'');
 // Caption matching uses synthetic text, never a claim about a live creator's videos.
 await page.unroute('**/api/channel-workspace');
 const captionVideos=Array.from({length:8},(_,i)=>({video_id:`testvideo0${i}x`,title:`Different title ${i}`,source_url:`https://www.youtube.com/watch?v=testvideo0${i}x`,published_at:`2026-09-${28-i}T17:00:00Z`,duration:null,views:i,likes:null,comments:null}));
 await page.route('**/api/channel-workspace',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({concern:'I want to grow',fetched_at:'2026-10-05T18:00:00Z',inquiry:{question:'I want to grow',focus:'reach',period:'',evidence_needed:[]},channel:{title:'Caption fixture',source_url:'https://www.youtube.com/@fixture',created_at:null,subscribers:null,video_count:8},coverage:{entries_checked:8,videos_available:8,unavailable_entries:0,more_uploads_available:false,uploads_playlist_available:true,oldest_published_at:'2026-09-21',newest_published_at:'2026-09-28'},videos:captionVideos,limitations:[]})}));
-await page.getByLabel('What would you like to investigate first?').selectOption('reach');
+await page.getByLabel('Investigation focus').selectOption('reach');
 await page.getByRole('button',{name:'Confirm question and collect facts'}).click();
 await page.getByRole('heading',{name:'Caption fixture',exact:true}).waitFor();
 await page.route('**/api/public-captions', route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({results:captionVideos.map(v=>({video_id:v.video_id,status:'blocked',text:null}))})}));

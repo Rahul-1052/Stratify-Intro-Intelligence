@@ -27,7 +27,7 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npm run typecheck
-      - run: node --test tests/views-investigation.cjs tests/caption-comparison.cjs
+      - run: node --test tests/views-investigation.cjs tests/caption-comparison.cjs tests/creator-inquiry.cjs
   browser:
     runs-on: ubuntu-latest
     timeout-minutes: 10

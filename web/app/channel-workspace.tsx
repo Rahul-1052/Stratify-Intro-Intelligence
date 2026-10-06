@@ -1,5 +1,6 @@
 'use client';
 import ViewsInvestigation from './views-investigation';
+import {routeConcern, investigationScope, type InquiryFocus} from '../lib/creator-inquiry';
 import {FormEvent, useRef, useState} from 'react';
 type Workspace = {
   inquiry: {question: string; focus: string; period: string; evidence_needed: string[]};
@@ -22,13 +23,6 @@ const starterQuestions = [
   'Which content should I make more of?',
   'Why aren’t viewers coming back?',
 ];
-function suggestedFocus(value: string): string {
-  const normalized = value.trim().toLowerCase().replace(/[?!.]+$/, '');
-  if (['are my recent videos getting fewer views', 'are recent videos getting fewer views than earlier videos', 'are this channel’s recent videos getting fewer views than its earlier videos'].includes(normalized)) return 'reach';
-  if (normalized === 'which content should i make more of') return 'content_direction';
-  if (normalized === 'why aren’t viewers coming back' || normalized === "why aren't viewers coming back") return 'returning_viewers';
-  return '';
-}
 const focuses = [
   ['reach', 'Views — compare recent and earlier videos'], ['returning_viewers', 'Returning viewers — who comes back'],
   ['subscriptions', 'Subscribers — who subscribes after watching'], ['content_direction', 'Choosing what to create'],
@@ -41,6 +35,7 @@ export default function ChannelWorkspace() {
   const [reviewing, setReviewing] = useState(false);
   const [focus, setFocus] = useState('');
   const [suggestion, setSuggestion] = useState('');
+  const [clarification, setClarification] = useState('');
   const [question, setQuestion] = useState('');
   const [period, setPeriod] = useState('');
   const reviewHeading = useRef<HTMLHeadingElement>(null);
@@ -62,7 +57,7 @@ export default function ChannelWorkspace() {
     finally {setBusy(false);}
   }
   function review(event: FormEvent) {
-    event.preventDefault(); setWorkspace(null); setError(''); setQuestion(concern.trim()); const proposed = suggestedFocus(concern); setFocus(proposed); setSuggestion(proposed); setPeriod(''); setReviewing(true);
+    event.preventDefault(); setWorkspace(null); setError(''); setQuestion(concern.trim()); const proposed = routeConcern(concern); setFocus(proposed.focus); setSuggestion(proposed.focus); setClarification(proposed.clarification); setPeriod(''); setReviewing(true);
     requestAnimationFrame(() => reviewHeading.current?.focus());
   }
   function editIntake() {setReviewing(false); setWorkspace(null); setError(''); requestAnimationFrame(() => channelInput.current?.focus());}
@@ -90,15 +85,15 @@ export default function ChannelWorkspace() {
       <p className="muted">Check your question and confirm what you want to investigate.</p>
       <form onSubmit={collect}>
         {suggestion && <p>Suggested focus: <strong>{focuses.find(([value]) => value === focus)?.[1] || 'Choose a focus below'}</strong></p>}
-        <details open={!suggestion}><summary>{suggestion ? 'Change focus' : 'What would you like to investigate first?'}</summary>
+        <details open={!suggestion}><summary>{suggestion ? 'Change focus' : clarification || 'What would you like us to investigate first?'}</summary>
         <label htmlFor="inquiry-focus">Investigation focus</label>
-        <select id="inquiry-focus" required value={focus} onChange={event => {setFocus(event.target.value); setWorkspace(null);}} disabled={busy}>
+        <select id="inquiry-focus" required value={focus} onChange={event => {setFocus(event.target.value); setSuggestion(''); setWorkspace(null);}} disabled={busy}>
           <option value="" disabled>Choose what you want to understand</option>{focuses.map(([value,label]) => <option key={value} value={value}>{label}</option>)}
         </select>
         </details>
-        {focus && focus !== 'reach' && <p className="evidence-note">This starting point currently collects public facts and lists the evidence needed. It does not yet generate an answer for this question.</p>}
+        {focus && <p className="helper" id="investigation-scope">{investigationScope[focus as InquiryFocus]}</p>}
         <label className="concern-label" htmlFor="inquiry-question">The question you want Stratify to investigate</label>
-        <textarea id="inquiry-question" required maxLength={2000} rows={3} value={question} onChange={event => {setQuestion(event.target.value); setWorkspace(null); if (suggestion) {setSuggestion(''); setFocus('');}}} disabled={busy} aria-describedby="inquiry-help"/>
+        <textarea id="inquiry-question" required maxLength={2000} rows={3} value={question} onChange={event => {setQuestion(event.target.value); setWorkspace(null); setSuggestion(''); setFocus(''); setClarification('Your question changed. What should we investigate first?');}} disabled={busy} aria-describedby="inquiry-help"/>
         <p id="inquiry-help" className="helper">Keep or edit your original words. Include examples or a decision you need help making. Selecting a focus doesn’t establish the cause of a problem.</p>
         <label className="concern-label" htmlFor="inquiry-period">Which period or videos do you mean? (optional)</label>
         <input id="inquiry-period" maxLength={200} value={period} onChange={event => {setPeriod(event.target.value); setWorkspace(null);}} disabled={busy} placeholder="For example: my last six uploads, compared with earlier tutorials"/>
