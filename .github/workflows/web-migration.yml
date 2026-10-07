@@ -1,0 +1,80 @@
+name: Web migration checks
+on:
+  push:
+  pull_request:
+jobs:
+  api:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-web.txt
+      - run: python -m pytest tests/test_reviewed_caption_evaluation.py tests/test_caption_comparison_checks.py tests/test_semantic_caption_matching.py tests/test_public_captions.py tests/test_channel_workspace.py tests/test_web_api.py tests/test_web_memory_api.py tests/test_local_evidence_api.py tests/test_creator_memory.py tests/test_temporal_evidence_v2.py tests/test_stratify_intelligence_v3.py tests/test_observation_calibration_v1.py -q
+  web:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+      - run: npm run build
+      - run: npm run typecheck
+      - run: node --test tests/views-investigation.cjs tests/caption-comparison.cjs tests/creator-inquiry.cjs tests/views-brief.cjs tests/video-length-evidence.cjs tests/named-series.cjs
+      - run: node --experimental-strip-types ../tools/evaluate_grouping.cjs --output /tmp/grouping-development.json
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: pip install -r requirements-web.txt
+      - run: npm ci
+        working-directory: web
+      - run: npx playwright install --with-deps chromium
+        working-directory: web
+      - run: python tools/verify_browser_memory.py
+        env:
+          STRATIFY_QA_DIR: ${{ runner.temp }}/stratify-browser
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: stratify-browser-validation
+          path: ${{ runner.temp }}/stratify-browser/*.png
+  postgres:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: stratify_test
+          POSTGRES_PASSWORD: disposable_ci_password
+          POSTGRES_DB: stratify_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U stratify_test -d stratify_test"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-web.txt
+      - run: python -m pytest tests/test_postgres_memory.py -q
+        env:
+          STRATIFY_TEST_POSTGRES_URL: postgresql://stratify_test:disposable_ci_password@127.0.0.1:5432/stratify_test

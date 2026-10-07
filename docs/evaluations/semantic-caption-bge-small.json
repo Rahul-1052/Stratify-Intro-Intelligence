@@ -1,0 +1,243 @@
+{
+  "model": "BAAI/bge-small-en-v1.5",
+  "benchmark_provenance": "Assistant-authored, manually inspected illustrative text triples. Not real-video transcripts or an independently annotated benchmark.",
+  "benchmark_sha256": "27d011f3b7b885e736f8f9cf2cb052f5b760dd3cfc909b4c326958f5aca198bb",
+  "cases": [
+    {
+      "id": "budget_paraphrase",
+      "positive_score": 0.7188829466848297,
+      "negative_score": 0.6982888833703484,
+      "positive_ranks_first": true
+    },
+    {
+      "id": "learning_paraphrase",
+      "positive_score": 0.7858360955692468,
+      "negative_score": 0.6623601830023476,
+      "positive_ranks_first": true
+    },
+    {
+      "id": "thumbnail_intent",
+      "positive_score": 0.7966378944435581,
+      "negative_score": 0.6472167781049935,
+      "positive_ranks_first": true
+    },
+    {
+      "id": "audience_return",
+      "positive_score": 0.8066401437141472,
+      "negative_score": 0.6648985604834923,
+      "positive_ranks_first": true
+    },
+    {
+      "id": "negation_hard_case",
+      "positive_score": 0.7910145072582572,
+      "negative_score": 0.9239586242590084,
+      "positive_ranks_first": false
+    },
+    {
+      "id": "format_trap",
+      "positive_score": 0.8040626543917837,
+      "negative_score": 0.8310650073970219,
+      "positive_ranks_first": false
+    },
+    {
+      "id": "topic_shared_words",
+      "positive_score": 0.8355253976621129,
+      "negative_score": 0.7535244779045308,
+      "positive_ranks_first": true
+    },
+    {
+      "id": "series_reuse_trap",
+      "positive_score": 0.6541556219260495,
+      "negative_score": 0.7748558934766058,
+      "positive_ranks_first": false
+    },
+    {
+      "id": "branding_slow_start",
+      "positive_score": 0.6864628228571792,
+      "negative_score": 0.6126679450347137,
+      "positive_ranks_first": true
+    },
+    {
+      "id": "equal_window",
+      "positive_score": 0.7020628075072394,
+      "negative_score": 0.7611309671782276,
+      "positive_ranks_first": false
+    }
+  ],
+  "ranking_passes": 6,
+  "case_count": 10,
+  "rollout_decision": "not_promoted",
+  "limitations": [
+    "Illustrative fixtures are not independent real-video validation.",
+    "Semantic similarity cannot verify format or shared footage. No grouping threshold has been calibrated."
+  ],
+  "live_text_observations": {
+    "status": "experimental_text_observations",
+    "model": "BAAI/bge-small-en-v1.5",
+    "coverage": [
+      {
+        "video_id": "5ddEDYTFWTc",
+        "status": "encoded",
+        "chunks": 3,
+        "source": "public_caption_unverified"
+      },
+      {
+        "video_id": "EJl6J3MFfb0",
+        "status": "encoded",
+        "chunks": 1,
+        "source": "public_caption_unverified"
+      },
+      {
+        "video_id": "EiKq-iUjHVw",
+        "status": "encoded",
+        "chunks": 4,
+        "source": "public_caption_unverified"
+      },
+      {
+        "video_id": "Mcoz8o3ZiTU",
+        "status": "encoded",
+        "chunks": 2,
+        "source": "public_caption_unverified"
+      },
+      {
+        "video_id": "JQF5JCwEJ64",
+        "status": "encoded",
+        "chunks": 3,
+        "source": "public_caption_unverified"
+      },
+      {
+        "video_id": "gjQwKJLN_EE",
+        "status": "encoded",
+        "chunks": 4,
+        "source": "public_caption_unverified"
+      },
+      {
+        "video_id": "zHDK-TZ4gLY",
+        "status": "encoded",
+        "chunks": 2,
+        "source": "public_caption_unverified"
+      }
+    ],
+    "pairs": [
+      {
+        "left": "5ddEDYTFWTc",
+        "right": "EiKq-iUjHVw",
+        "cosine_similarity": 0.9624513969470787
+      },
+      {
+        "left": "EJl6J3MFfb0",
+        "right": "EiKq-iUjHVw",
+        "cosine_similarity": 0.8762054555419927
+      },
+      {
+        "left": "gjQwKJLN_EE",
+        "right": "zHDK-TZ4gLY",
+        "cosine_similarity": 0.8586415144555191
+      },
+      {
+        "left": "JQF5JCwEJ64",
+        "right": "gjQwKJLN_EE",
+        "cosine_similarity": 0.849195014220223
+      },
+      {
+        "left": "EiKq-iUjHVw",
+        "right": "gjQwKJLN_EE",
+        "cosine_similarity": 0.8483725381420839
+      },
+      {
+        "left": "EiKq-iUjHVw",
+        "right": "JQF5JCwEJ64",
+        "cosine_similarity": 0.8409636653163478
+      },
+      {
+        "left": "5ddEDYTFWTc",
+        "right": "gjQwKJLN_EE",
+        "cosine_similarity": 0.8405559506030413
+      },
+      {
+        "left": "JQF5JCwEJ64",
+        "right": "zHDK-TZ4gLY",
+        "cosine_similarity": 0.8384209376388108
+      },
+      {
+        "left": "5ddEDYTFWTc",
+        "right": "JQF5JCwEJ64",
+        "cosine_similarity": 0.8355556840346393
+      },
+      {
+        "left": "5ddEDYTFWTc",
+        "right": "EJl6J3MFfb0",
+        "cosine_similarity": 0.8286621651657131
+      },
+      {
+        "left": "EiKq-iUjHVw",
+        "right": "zHDK-TZ4gLY",
+        "cosine_similarity": 0.8186163764792102
+      },
+      {
+        "left": "EiKq-iUjHVw",
+        "right": "Mcoz8o3ZiTU",
+        "cosine_similarity": 0.8154905070910291
+      },
+      {
+        "left": "5ddEDYTFWTc",
+        "right": "zHDK-TZ4gLY",
+        "cosine_similarity": 0.8116745020602518
+      },
+      {
+        "left": "5ddEDYTFWTc",
+        "right": "Mcoz8o3ZiTU",
+        "cosine_similarity": 0.8093024272777171
+      },
+      {
+        "left": "Mcoz8o3ZiTU",
+        "right": "gjQwKJLN_EE",
+        "cosine_similarity": 0.7907537014889265
+      },
+      {
+        "left": "EJl6J3MFfb0",
+        "right": "JQF5JCwEJ64",
+        "cosine_similarity": 0.7476125237034065
+      },
+      {
+        "left": "EJl6J3MFfb0",
+        "right": "gjQwKJLN_EE",
+        "cosine_similarity": 0.7471538822374719
+      },
+      {
+        "left": "Mcoz8o3ZiTU",
+        "right": "JQF5JCwEJ64",
+        "cosine_similarity": 0.736322725573228
+      },
+      {
+        "left": "EJl6J3MFfb0",
+        "right": "Mcoz8o3ZiTU",
+        "cosine_similarity": 0.7320268223407493
+      },
+      {
+        "left": "Mcoz8o3ZiTU",
+        "right": "zHDK-TZ4gLY",
+        "cosine_similarity": 0.7232398432058005
+      },
+      {
+        "left": "EJl6J3MFfb0",
+        "right": "zHDK-TZ4gLY",
+        "cosine_similarity": 0.695106090781634
+      }
+    ],
+    "limitations": [
+      "Scores are text-similarity observations, not calibrated probabilities or fair-comparison decisions.",
+      "Format, reused footage, creator intent and comparable viewing windows remain unverified.",
+      "All text chunks are processed; oversized text abstains rather than analyzing only the opening."
+    ]
+  },
+  "model_assets": {
+    "models--qdrant--bge-small-en-v1.5-onnx-q/files_metadata.json": "d08f50dd29a16023a9b1496b680addf0b4c01101429ed42b38814947960d0085",
+    "models--qdrant--bge-small-en-v1.5-onnx-q/trees/aa8f8b060edb00e03bfdd08813a2949946c8ba55.json": "4da434babbdfea1afb640c0792caf42f224e06c1cfc4fb152f7b3d27ed6f23c3",
+    "models--qdrant--bge-small-en-v1.5-onnx-q/snapshots/aa8f8b060edb00e03bfdd08813a2949946c8ba55/config.json": "13582bcf2effc85b7bf3d3f5532e686bc1c9ce86bb009d10f0ec33cbe92299dd",
+    "models--qdrant--bge-small-en-v1.5-onnx-q/snapshots/aa8f8b060edb00e03bfdd08813a2949946c8ba55/model_optimized.onnx": "51f1bd0addd6e859e42c2c8021a5e5461385bb676a649f4b269aa445449f2431",
+    "models--qdrant--bge-small-en-v1.5-onnx-q/snapshots/aa8f8b060edb00e03bfdd08813a2949946c8ba55/special_tokens_map.json": "5d5b662e421ea9fac075174bb0688ee0d9431699900b90662acd44b2a350503a",
+    "models--qdrant--bge-small-en-v1.5-onnx-q/snapshots/aa8f8b060edb00e03bfdd08813a2949946c8ba55/tokenizer_config.json": "0b29c7bfc889e53b36d9dd3e686dd4300f6525110eaa98c76a5dafceb2029f53",
+    "models--qdrant--bge-small-en-v1.5-onnx-q/snapshots/aa8f8b060edb00e03bfdd08813a2949946c8ba55/tokenizer.json": "d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66"
+  }
+}
