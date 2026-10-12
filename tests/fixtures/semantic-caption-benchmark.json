@@ -1,0 +1,15 @@
+{
+  "provenance": "Assistant-authored, manually inspected illustrative text triples. Not real-video transcripts or an independently annotated benchmark.",
+  "cases": [
+    {"id":"budget_paraphrase","anchor":"Set aside some of every paycheck to cover unexpected expenses without borrowing.","positive":"Build an emergency fund by saving part of each salary payment for surprise bills.","negative":"Spend your entire wage on luxury purchases and use credit for emergencies."},
+    {"id":"learning_paraphrase","anchor":"Test yourself from memory instead of repeatedly looking over the textbook.","positive":"Practice recalling facts without notes rather than rereading chapters.","negative":"Record textbook publishing costs and calculate the bookstore profit margin."},
+    {"id":"thumbnail_intent","anchor":"Create a clear cover image that explains the video's promise to potential viewers.","positive":"Design the thumbnail so people understand what watching will offer them.","negative":"Study how image compression reduces file sizes without changing the picture."},
+    {"id":"audience_return","anchor":"Find out whether people who watched last month came back for another upload.","positive":"Measure how many previous viewers returned to watch new channel content.","negative":"Count first-time visitors who have never watched the channel before."},
+    {"id":"negation_hard_case","anchor":"The speaker recommends avoiding loans to pay for a vacation.","positive":"The advice is to save for travel and stay out of debt.","negative":"The speaker recommends taking loans to pay for a vacation."},
+    {"id":"format_trap","anchor":"A comedian jokes with an audience member about their job.","positive":"A stand-up performer playfully questions a spectator about their occupation.","negative":"An interviewer seriously questions a comedian about their job."},
+    {"id":"topic_shared_words","anchor":"Check why viewers leave a video before its explanation finishes.","positive":"Investigate audience drop-off during the unfinished explanation.","negative":"Explain why a video editor leaves a job before a contract finishes."},
+    {"id":"series_reuse_trap","anchor":"A shorter excerpt reuses dialogue from a longer recording of the same performance.","positive":"This clip contains material already present in the complete show.","negative":"A new performance covers a similar subject using entirely different dialogue."},
+    {"id":"branding_slow_start","anchor":"The video begins deliberately with the creator's recognizable brand sequence.","positive":"A familiar branded opening starts the upload at an intentional slow pace.","negative":"A malfunction leaves the beginning of the video blank and silent."},
+    {"id":"equal_window","anchor":"Compare each video's views during its first seven days after release.","positive":"Use the same initial week of exposure for every upload's view count.","negative":"Compare older lifetime totals with views on a clip published this morning."}
+  ]
+}

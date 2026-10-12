@@ -16,3 +16,13 @@ temp_uploads/
 *.db-shm
 
 validation/golden_dataset/runs/*/
+
+node_modules/
+.next/
+*.tsbuildinfo
+.env.*
+!.env.*.example
+!.env.example
+.pytest_cache/
+.venv/
+web/next-env.d.ts

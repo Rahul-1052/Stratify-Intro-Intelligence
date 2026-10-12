@@ -1,0 +1,20 @@
+{
+  "status": "experimental_text_observations",
+  "model": "sentence-transformers/all-MiniLM-L6-v2",
+  "coverage": [
+    {
+      "video_id": "fNk_zzaMoSs",
+      "status": "unsupported_language"
+    }
+  ],
+  "pairs": [],
+  "limitations": [
+    "Scores are text-similarity observations, not calibrated probabilities or fair-comparison decisions.",
+    "Format, reused footage, creator intent and comparable viewing windows remain unverified.",
+    "All text chunks are processed; oversized text abstains rather than analyzing only the opening."
+  ],
+  "source_url": "https://github.com/3b1b/captions/blob/9aef876b0ed62ce4f099c0a2f0e7a52e8d1058c9/2016/vectors/hindi/sentence_translations.json",
+  "text_sha256": "c23c7f2803cc3d785636b3eaa77826b967af7424c4792e6bac623f1b706e359d",
+  "translation_reviews": "Published entries have n_reviews metadata; not independently validated in this evaluation.",
+  "interpretation": "English-only adapter abstains; multilingual grouping accuracy is not evaluated."
+}

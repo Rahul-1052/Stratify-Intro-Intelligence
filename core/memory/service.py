@@ -24,8 +24,14 @@ class CreatorMemoryService:
     def __init__(self, database_path=None, now=utc_now):
         self.database_path = Path(database_path or os.getenv("STRATIFY_MEMORY_DB", DEFAULT_DATABASE_PATH))
         self.now = now
-        self.repository = MemoryRepository(self.database_path, now)
-        self.diagnostics = {"database_path": str(self.database_path), "schema_version": SCHEMA_VERSION}
+        database_url = os.getenv("STRATIFY_MEMORY_DATABASE_URL") if database_path is None else None
+        if database_url:
+            from core.memory.postgres import PostgresMemoryRepository
+            self.repository = PostgresMemoryRepository(database_url, now)
+            self.diagnostics = {"storage_backend": "postgresql", "schema_version": SCHEMA_VERSION}
+        else:
+            self.repository = MemoryRepository(self.database_path, now)
+            self.diagnostics = {"database_path": str(self.database_path), "storage_backend": "sqlite", "schema_version": SCHEMA_VERSION}
 
     def profile(self):
         return self.repository.primary_profile()

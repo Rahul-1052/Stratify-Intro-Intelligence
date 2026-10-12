@@ -1,0 +1,17 @@
+{
+  "provenance": "Assistant-reviewed complete public caption text from seven retrieved videos. Development cases, not independent human or video ground truth. Titles were not used as evidence for these labels.",
+  "review_scope": "Dialogue and passage relationships only. Format, identical footage, recording identity and fair performance comparability are unverified.",
+  "cases": [
+    {"left": "5ddEDYTFWTc", "right": "EiKq-iUjHVw", "shared_dialogue": "observed", "reason": "Both transcripts follow the same audience-name, height, care-work, interpreter, couple-meeting and first-date exchange, with transcription variations.", "format": "unknown", "shared_footage": "unknown"},
+    {"left": "EJl6J3MFfb0", "right": "EiKq-iUjHVw", "shared_dialogue": "observed", "reason": "The shorter transcript follows the sign-language exchange occurring near the end of the longer transcript; captions differ in filler and speaker rendering.", "format": "unknown", "shared_footage": "unknown"},
+    {"left": "5ddEDYTFWTc", "right": "EJl6J3MFfb0", "shared_dialogue": "not_observed_in_available_text", "reason": "The texts cover separate passages; recurring participants suggest a possible narrative connection, but do not verify one recording.", "format": "unknown", "shared_footage": "unknown"},
+    {"left": "JQF5JCwEJ64", "right": "gjQwKJLN_EE", "shared_dialogue": "not_observed_in_available_text", "reason": "Both discuss a returning audience member and a jacket; the passages cover different exchanges. This supports possible related narrative, not verified shared footage.", "format": "unknown", "shared_footage": "unknown"},
+    {"left": "gjQwKJLN_EE", "right": "zHDK-TZ4gLY", "shared_dialogue": "not_observed_in_available_text", "reason": "The second passage shifts from a drink interaction to a conversation about dogs with the same named participant. Continuity is possible, but recording identity is unverified.", "format": "unknown", "shared_footage": "unknown"},
+    {"left": "EiKq-iUjHVw", "right": "Mcoz8o3ZiTU", "shared_dialogue": "not_observed_in_available_text", "reason": "One text concerns audience introductions and an interpreter; the other concerns an audience interruption and stage safety. Broad audience-interaction style does not establish matching topics or format.", "format": "unknown", "shared_footage": "unknown"},
+    {"left": "EiKq-iUjHVw", "right": "gjQwKJLN_EE", "shared_dialogue": "not_observed_in_available_text", "reason": "The interpreter exchange and the returning-participant, jacket and drink exchange contain different dialogue despite common conversational vocabulary.", "format": "unknown", "shared_footage": "unknown"}
+  ],
+  "ranking_probes": [
+    {"anchor": "EiKq-iUjHVw", "closer_dialogue": "5ddEDYTFWTc", "different_dialogue": "gjQwKJLN_EE"},
+    {"anchor": "EiKq-iUjHVw", "closer_dialogue": "EJl6J3MFfb0", "different_dialogue": "gjQwKJLN_EE"}
+  ]
+}

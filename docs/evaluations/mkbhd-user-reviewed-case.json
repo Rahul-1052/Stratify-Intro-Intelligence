@@ -1,0 +1,67 @@
+{
+  "case_id": "mkbhd-headphones-versus-laptop",
+  "channel_url": "https://www.youtube.com/@mkbhd",
+  "review_provenance": "Rahul supplied these links and described videos 1 and 2 as headphones and video 3 as laptop reviews. This is user-reported content judgment, not an independently verified video review.",
+  "reviewer_statement": "1 and 2 are headphones and 3 is laptop reviews",
+  "ranking_expectation": {
+    "anchor": "GB0b6KFZVq0",
+    "closer": "rayrrXot17M",
+    "different": "kBX5WH9b4M4"
+  },
+  "content_labels": [
+    {
+      "video_id": "GB0b6KFZVq0",
+      "source_url": "https://www.youtube.com/watch?v=GB0b6KFZVq0",
+      "user_reported_category": "headphone review",
+      "video_format": "unverified",
+      "independent_footage": "unverified"
+    },
+    {
+      "video_id": "rayrrXot17M",
+      "source_url": "https://www.youtube.com/watch?v=rayrrXot17M",
+      "user_reported_category": "headphone review",
+      "video_format": "unverified",
+      "independent_footage": "unverified"
+    },
+    {
+      "video_id": "kBX5WH9b4M4",
+      "source_url": "https://www.youtube.com/watch?v=kBX5WH9b4M4",
+      "user_reported_category": "laptop review",
+      "video_format": "unverified",
+      "independent_footage": "unverified"
+    }
+  ],
+  "retrieval": {
+    "fetched_at": "2026-10-07T01:41:05.390949+00:00",
+    "provider": "youtube-transcript-api",
+    "results": [
+      {
+        "video_id": "GB0b6KFZVq0",
+        "status": "timeout",
+        "language_code": null,
+        "available_segments": 0
+      },
+      {
+        "video_id": "rayrrXot17M",
+        "status": "timeout",
+        "language_code": null,
+        "available_segments": 0
+      },
+      {
+        "video_id": "kBX5WH9b4M4",
+        "status": "blocked",
+        "language_code": null,
+        "available_segments": 0
+      }
+    ]
+  },
+  "evaluation_status": "pending_complete_transcripts",
+  "model_result": null,
+  "limitations": [
+    "No transcript content was obtained; no semantic score or grouping result was produced.",
+    "The three-video task evaluates a relative topical relationship, not recent-versus-earlier performance groups.",
+    "Headphone reviews may differ in audience intent and format; a shared category does not establish fair performance comparability.",
+    "A single user-reviewed case does not validate grouping across channels.",
+    "Missing captions are not evidence that videos are unrelated. No retries or block bypass were used."
+  ]
+}

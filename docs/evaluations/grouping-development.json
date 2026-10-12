@@ -1,0 +1,186 @@
+{
+  "provenance": "Assistant-authored synthetic development cases, including constructed vocabulary bags and natural-language paraphrases. No real channels, independent human labels, video-format labels or performance ground truth.",
+  "fixture_sha256": "102489a417b0ec75f3ff0bb70685ffb69516918ab61671d3514e585d0677e831",
+  "engine_sha256": "4b659af5e85689e14951922fb0226c605b3bce1949f5e0dc28419b4c9ba354c6",
+  "case_count": 8,
+  "counts": {
+    "true_accepts": 2,
+    "false_accepts": 1,
+    "missed_groups": 1,
+    "true_abstentions": 4
+  },
+  "cases": [
+    {
+      "id": "finance-vocabulary",
+      "expected": "allow",
+      "observed": "allow",
+      "agrees": true,
+      "selected_ids": [
+        "finance-vocabulary-0",
+        "finance-vocabulary-1",
+        "finance-vocabulary-2",
+        "finance-vocabulary-3",
+        "finance-vocabulary-4",
+        "finance-vocabulary-5"
+      ],
+      "coverage": {
+        "supplied": 6,
+        "usable": 6,
+        "overlapSkipped": 0
+      },
+      "diagnostics": {
+        "distinct": 6,
+        "largestMatchSet": 6,
+        "bestEarlierCount": 3,
+        "referenceVideoId": "finance-vocabulary-0"
+      }
+    },
+    {
+      "id": "fitness-paraphrases",
+      "expected": "allow",
+      "observed": "abstain",
+      "agrees": false,
+      "selected_ids": [],
+      "coverage": {
+        "supplied": 6,
+        "usable": 2,
+        "overlapSkipped": 0
+      },
+      "diagnostics": {
+        "distinct": 2,
+        "largestMatchSet": 1,
+        "bestEarlierCount": 0,
+        "referenceVideoId": null
+      }
+    },
+    {
+      "id": "misleading-generic-vocabulary",
+      "expected": "abstain",
+      "observed": "allow",
+      "agrees": false,
+      "selected_ids": [
+        "misleading-generic-vocabulary-0",
+        "misleading-generic-vocabulary-1",
+        "misleading-generic-vocabulary-3",
+        "misleading-generic-vocabulary-4",
+        "misleading-generic-vocabulary-5"
+      ],
+      "coverage": {
+        "supplied": 6,
+        "usable": 6,
+        "overlapSkipped": 0
+      },
+      "diagnostics": {
+        "distinct": 6,
+        "largestMatchSet": 5,
+        "bestEarlierCount": 2,
+        "referenceVideoId": "misleading-generic-vocabulary-0"
+      }
+    },
+    {
+      "id": "hindi-vocabulary",
+      "expected": "allow",
+      "observed": "allow",
+      "agrees": true,
+      "selected_ids": [
+        "hindi-vocabulary-0",
+        "hindi-vocabulary-1",
+        "hindi-vocabulary-2",
+        "hindi-vocabulary-3",
+        "hindi-vocabulary-4",
+        "hindi-vocabulary-5"
+      ],
+      "coverage": {
+        "supplied": 6,
+        "usable": 6,
+        "overlapSkipped": 0
+      },
+      "diagnostics": {
+        "distinct": 6,
+        "largestMatchSet": 6,
+        "bestEarlierCount": 3,
+        "referenceVideoId": "hindi-vocabulary-0"
+      }
+    },
+    {
+      "id": "different-languages",
+      "expected": "abstain",
+      "observed": "abstain",
+      "agrees": true,
+      "selected_ids": [],
+      "coverage": {
+        "supplied": 6,
+        "usable": 6,
+        "overlapSkipped": 0
+      },
+      "diagnostics": {
+        "distinct": 6,
+        "largestMatchSet": 3,
+        "bestEarlierCount": 0,
+        "referenceVideoId": null
+      }
+    },
+    {
+      "id": "same-script",
+      "expected": "abstain",
+      "observed": "abstain",
+      "agrees": true,
+      "selected_ids": [],
+      "coverage": {
+        "supplied": 6,
+        "usable": 0,
+        "overlapSkipped": 0
+      },
+      "diagnostics": {
+        "distinct": 0,
+        "largestMatchSet": 0,
+        "bestEarlierCount": 0,
+        "referenceVideoId": null
+      }
+    },
+    {
+      "id": "sparse-captions",
+      "expected": "abstain",
+      "observed": "abstain",
+      "agrees": true,
+      "selected_ids": [],
+      "coverage": {
+        "supplied": 2,
+        "usable": 2,
+        "overlapSkipped": 0
+      },
+      "diagnostics": {
+        "distinct": 2,
+        "largestMatchSet": 2,
+        "bestEarlierCount": 0,
+        "referenceVideoId": null
+      }
+    },
+    {
+      "id": "date-ties",
+      "expected": "abstain",
+      "observed": "abstain",
+      "agrees": true,
+      "selected_ids": [],
+      "coverage": {
+        "supplied": 6,
+        "usable": 6,
+        "overlapSkipped": 0
+      },
+      "diagnostics": {
+        "distinct": 6,
+        "largestMatchSet": 6,
+        "bestEarlierCount": 0,
+        "referenceVideoId": null
+      }
+    }
+  ],
+  "rollout_decision": "not_validated_for_general_content_grouping",
+  "limitations": [
+    "These cases expose implementation behavior, not accuracy across real channels.",
+    "Synthetic expected labels are authored development expectations, not independent ground truth.",
+    "No caption retrieval requests occurred. Missing evidence coverage on real channels remains unmeasured.",
+    "Shared words, measured durations and title labels cannot establish semantic identity, format or independent footage.",
+    "No thresholds were tuned using these results. A separately reviewed held-out corpus is required."
+  ]
+}

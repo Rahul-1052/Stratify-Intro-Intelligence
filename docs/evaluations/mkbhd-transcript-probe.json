@@ -1,0 +1,84 @@
+{
+  "case_id": "mkbhd-headphones-versus-laptop",
+  "evaluation_status": "transcripts_retrieved_lexical_probe_completed",
+  "fetched_at": "2026-10-12T06:54:42.057824+00:00",
+  "reviewer_statement": "1 and 2 are headphones and 3 is laptop reviews",
+  "review_provenance": "Rahul supplied labels before this successful retrieval. Assistant content review is separate and not blinded to these labels.",
+  "caption_evidence": [
+    {
+      "video_id": "GB0b6KFZVq0",
+      "source_url": "https://www.youtube.com/watch?v=GB0b6KFZVq0",
+      "language": "en",
+      "is_generated": false,
+      "segments": 296,
+      "text_sha256": "9a217063301561fedb08a86adeac6667f6e1df8218e35b23f449700a3bca4c96",
+      "source": "public_caption_unverified"
+    },
+    {
+      "video_id": "rayrrXot17M",
+      "source_url": "https://www.youtube.com/watch?v=rayrrXot17M",
+      "language": "en",
+      "is_generated": false,
+      "segments": 413,
+      "text_sha256": "ff3ab96aa6943af82bc183893173c318668584bcfc95e8d62d38921bbf6e9bd7",
+      "source": "public_caption_unverified"
+    },
+    {
+      "video_id": "kBX5WH9b4M4",
+      "source_url": "https://www.youtube.com/watch?v=kBX5WH9b4M4",
+      "language": "en",
+      "is_generated": true,
+      "segments": 251,
+      "text_sha256": "c52a7b51a670a29084fe3b69fac99e11d8963daac13bb5d221ecbbd6202473b8",
+      "source": "public_caption_unverified"
+    }
+  ],
+  "lexical_probe": {
+    "method": "Whole-transcript weighted unique-word cosine; diagnostic only, not the production grouping function or a semantic model. Includes all retrieved text, including sponsorships.",
+    "pairs": [
+      {
+        "left": "GB0b6KFZVq0",
+        "right": "rayrrXot17M",
+        "weighted_vocabulary_cosine": 0.24819690155287777,
+        "shared_unique_terms": 249
+      },
+      {
+        "left": "GB0b6KFZVq0",
+        "right": "kBX5WH9b4M4",
+        "weighted_vocabulary_cosine": 0.1970687433471142,
+        "shared_unique_terms": 180
+      },
+      {
+        "left": "rayrrXot17M",
+        "right": "kBX5WH9b4M4",
+        "weighted_vocabulary_cosine": 0.18587261621402204,
+        "shared_unique_terms": 186
+      }
+    ],
+    "expected_pair_ranks_first": true
+  },
+  "assistant_content_review": [
+    {
+      "video_id": "GB0b6KFZVq0",
+      "observation": "Discusses earbuds, fit, sound, noise cancellation, battery and workout-related features."
+    },
+    {
+      "video_id": "rayrrXot17M",
+      "observation": "Discusses over-ear headphones, design, sound and equalization, noise cancellation, controls and carrying case."
+    },
+    {
+      "video_id": "kBX5WH9b4M4",
+      "observation": "Discusses a laptop, processor, memory, ports, display, price and student positioning; describes limited hands-on time rather than completed extensive testing."
+    }
+  ],
+  "semantic_model_result": null,
+  "rollout_decision": "not_promoted",
+  "limitations": [
+    "Captions are unverified and may contain transcription errors.",
+    "This is one user-reviewed ranking case, not validated accuracy across channels.",
+    "The lexical diagnostic does not run production grouping; three videos cannot satisfy its minimum five-video groups.",
+    "Broad headphone category similarity does not establish same format, intent, independent footage or fair performance comparability.",
+    "No semantic model was run or added to the product. No thresholds were tuned.",
+    "Full third-party transcripts are omitted from the committed report."
+  ]
+}

@@ -1,0 +1,116 @@
+{
+  "packet": {
+    "created_at": "2026-10-12T07:21:18.442451+00:00",
+    "purpose": "Collect human topical relationship reviews before computing model predictions. Not a fair-performance grouping benchmark.",
+    "labels_present": false,
+    "model_predictions_present": false,
+    "cases": [
+      {
+        "id": "review-fitness-01",
+        "channel": "Jeff Nippard",
+        "language_hint": "en",
+        "language_hint_unverified": true,
+        "anchor": {
+          "video_id": "vcBig73ojpE",
+          "source_url": "https://www.youtube.com/watch?v=vcBig73ojpE",
+          "title": "How To Get A Huge Bench Press with Perfect Technique",
+          "metadata_source": "youtube_search_page",
+          "author_name": "Jeff Nippard",
+          "caption_status": "available",
+          "caption_language": "en",
+          "caption_text_sha256": "b4ac1ac1a33cbed6359a5f9f9f44c1b4f4b134492bcb1d3e6257181b43b772a9",
+          "source": "public_caption_unverified"
+        },
+        "candidate_b": {
+          "video_id": "Pok0Jg2JAkE",
+          "source_url": "https://www.youtube.com/watch?v=Pok0Jg2JAkE",
+          "title": "The Smartest Way To Use Protein To Build Muscle (Science Explained)",
+          "metadata_source": "youtube_search_page",
+          "author_name": "Jeff Nippard",
+          "caption_status": "available",
+          "caption_language": "en",
+          "caption_text_sha256": "05adf207d5d5ac89083780db9537e0262a81125804c18ef80fc83d890c7af4a2",
+          "source": "public_caption_unverified"
+        },
+        "candidate_c": {
+          "video_id": "hWbUlkb5Ms4",
+          "source_url": "https://www.youtube.com/watch?v=hWbUlkb5Ms4",
+          "title": "How To Bench Press With Perfect Technique (5 Steps)",
+          "metadata_source": "youtube_search_page",
+          "author_name": "Jeff Nippard",
+          "caption_status": "available",
+          "caption_language": "en",
+          "caption_text_sha256": "4499fcba3ddf8c272ceca145ad529a0136ebbd05367562dadb7dbf4c14a88a11",
+          "source": "public_caption_unverified"
+        },
+        "review": {
+          "reviewer": "Rahul",
+          "reviewer_kind": "user",
+          "choice": "c",
+          "reason": "coz they both are realted to bench press and b is related to building muscles",
+          "review_basis": "partial_videos",
+          "understands_language": null,
+          "recorded_at": "2026-10-12T07:30:23.025696+00:00",
+          "provenance": "Human-reported, not independently authenticated by this tool.",
+          "viewing_method": "User reported: ive fast forwarded them and seen it"
+        },
+        "model_result": null,
+        "status": "review_recorded_no_strict_ranking",
+        "development_video_overlap": false,
+        "format": "unknown",
+        "independent_footage": "unknown"
+      },
+      {
+        "id": "review-cooking-01",
+        "channel": "CookingShooking Hindi",
+        "language_hint": "hi",
+        "language_hint_unverified": true,
+        "anchor": {
+          "video_id": "B3H2RDSW9V8",
+          "source_url": "https://www.youtube.com/watch?v=B3H2RDSW9V8",
+          "title": "शाही पनीर बनाने की विधि - होटल स्टाइल shahi paneer recipe hindi cookingshooking",
+          "metadata_source": "youtube_oembed",
+          "author_name": "CookingShooking Hindi",
+          "caption_status": "blocked",
+          "caption_language": null,
+          "caption_text_sha256": null,
+          "source": "public_caption_unverified"
+        },
+        "candidate_b": {
+          "video_id": "bCTFtG_gG5s",
+          "source_url": "https://www.youtube.com/watch?v=bCTFtG_gG5s",
+          "title": "बिस्कुट चॉकलेट केक बनाने की रेसिपी -  cookingshooking hindi 3 ingredient chocolate cake recipe",
+          "metadata_source": "youtube_oembed",
+          "author_name": "CookingShooking Hindi",
+          "caption_status": "not_attempted",
+          "caption_language": null,
+          "caption_text_sha256": null,
+          "source": "public_caption_unverified"
+        },
+        "candidate_c": {
+          "video_id": "NwUNbuFK2Ro",
+          "source_url": "https://www.youtube.com/watch?v=NwUNbuFK2Ro",
+          "title": "रुई जैसे सॉफ्ट पनीर पकोड़े और चटनी - secret soft paneer pakora recipe - cookingshooking hindi",
+          "metadata_source": "youtube_oembed",
+          "author_name": "CookingShooking Hindi",
+          "caption_status": "not_attempted",
+          "caption_language": null,
+          "caption_text_sha256": null,
+          "source": "public_caption_unverified"
+        },
+        "review": null,
+        "model_result": null,
+        "status": "pending_human_review",
+        "development_video_overlap": false,
+        "format": "unknown",
+        "independent_footage": "unknown"
+      }
+    ]
+  },
+  "ranking_case": null,
+  "limitations": [
+    "A human label is a topical judgment, not verified format, independent footage or performance comparability.",
+    "Both/neither/unsure, partial coverage and unsupported reviewer language do not become forced rankings.",
+    "A small reviewed packet is not a calibrated held-out accuracy benchmark."
+  ]
+}

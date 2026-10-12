@@ -1,0 +1,130 @@
+{
+  "case_id": "review-fitness-01",
+  "evaluation_kind": "exploratory_agreement_with_partial_view_feedback",
+  "human_choice": "c",
+  "review_basis": "partial_videos",
+  "source_review": "fitness-partial-human-review.json",
+  "retrieved_at": "2026-10-12T07:18:57.444000+00:00",
+  "caption_hashes": {
+    "vcBig73ojpE": "b4ac1ac1a33cbed6359a5f9f9f44c1b4f4b134492bcb1d3e6257181b43b772a9",
+    "Pok0Jg2JAkE": "05adf207d5d5ac89083780db9537e0262a81125804c18ef80fc83d890c7af4a2",
+    "hWbUlkb5Ms4": "4499fcba3ddf8c272ceca145ad529a0136ebbd05367562dadb7dbf4c14a88a11"
+  },
+  "models": [
+    {
+      "model": "sentence-transformers/all-MiniLM-L6-v2",
+      "anchor_to_b": 0.3520633577200068,
+      "anchor_to_c": 0.8554993625070489,
+      "c_ranks_closer": true,
+      "margin": 0.5034360047870421,
+      "coverage": [
+        {
+          "video_id": "vcBig73ojpE",
+          "status": "encoded",
+          "chunks": 12,
+          "source": "public_caption_unverified"
+        },
+        {
+          "video_id": "Pok0Jg2JAkE",
+          "status": "encoded",
+          "chunks": 10,
+          "source": "public_caption_unverified"
+        },
+        {
+          "video_id": "hWbUlkb5Ms4",
+          "status": "encoded",
+          "chunks": 1,
+          "source": "public_caption_unverified"
+        }
+      ],
+      "pairs": [
+        {
+          "left": "vcBig73ojpE",
+          "right": "hWbUlkb5Ms4",
+          "cosine_similarity": 0.8554993625070489
+        },
+        {
+          "left": "vcBig73ojpE",
+          "right": "Pok0Jg2JAkE",
+          "cosine_similarity": 0.3520633577200068
+        },
+        {
+          "left": "Pok0Jg2JAkE",
+          "right": "hWbUlkb5Ms4",
+          "cosine_similarity": 0.3063070016011501
+        }
+      ],
+      "model_assets": {
+        "models--qdrant--all-MiniLM-L6-v2-onnx/files_metadata.json": "c0fbb03d3ae82d65412e07b7f94827360aebf7ca3e2c127a867ebb3a5baa146d",
+        "models--qdrant--all-MiniLM-L6-v2-onnx/trees/d13954661f83248295ba75c1ed411eef3b7b936e.json": "bd96e5670f75057382a8c79e07fecb951c3ca673c5b62cad6b7831eebb2ca2ce",
+        "models--qdrant--all-MiniLM-L6-v2-onnx/snapshots/d13954661f83248295ba75c1ed411eef3b7b936e/config.json": "1b4d8e2a3988377ed8b519a31d8d31025a25f1c5f8606998e8014111438efcd7",
+        "models--qdrant--all-MiniLM-L6-v2-onnx/snapshots/d13954661f83248295ba75c1ed411eef3b7b936e/special_tokens_map.json": "5d5b662e421ea9fac075174bb0688ee0d9431699900b90662acd44b2a350503a",
+        "models--qdrant--all-MiniLM-L6-v2-onnx/snapshots/d13954661f83248295ba75c1ed411eef3b7b936e/model.onnx": "bbd7b466f6d58e646fdc2bd5fd67b2f5e93c0b687011bd4548c420f7bd46f0c5",
+        "models--qdrant--all-MiniLM-L6-v2-onnx/snapshots/d13954661f83248295ba75c1ed411eef3b7b936e/tokenizer_config.json": "abda01c8c14c5151ae498aceb30db406d6b91242c394fd88d3b6fd5a63a101e6",
+        "models--qdrant--all-MiniLM-L6-v2-onnx/snapshots/d13954661f83248295ba75c1ed411eef3b7b936e/tokenizer.json": "851ca67100d372ca3ae031a6abd168f53489eebfd7d89523f35c5c9b4d372c3c"
+      }
+    },
+    {
+      "model": "BAAI/bge-small-en-v1.5",
+      "anchor_to_b": 0.7797827091562078,
+      "anchor_to_c": 0.8800753711190389,
+      "c_ranks_closer": true,
+      "margin": 0.10029266196283104,
+      "coverage": [
+        {
+          "video_id": "vcBig73ojpE",
+          "status": "encoded",
+          "chunks": 12,
+          "source": "public_caption_unverified"
+        },
+        {
+          "video_id": "Pok0Jg2JAkE",
+          "status": "encoded",
+          "chunks": 10,
+          "source": "public_caption_unverified"
+        },
+        {
+          "video_id": "hWbUlkb5Ms4",
+          "status": "encoded",
+          "chunks": 1,
+          "source": "public_caption_unverified"
+        }
+      ],
+      "pairs": [
+        {
+          "left": "vcBig73ojpE",
+          "right": "hWbUlkb5Ms4",
+          "cosine_similarity": 0.8800753711190389
+        },
+        {
+          "left": "vcBig73ojpE",
+          "right": "Pok0Jg2JAkE",
+          "cosine_similarity": 0.7797827091562078
+        },
+        {
+          "left": "Pok0Jg2JAkE",
+          "right": "hWbUlkb5Ms4",
+          "cosine_similarity": 0.732631882160804
+        }
+      ],
+      "model_assets": {
+        "models--qdrant--bge-small-en-v1.5-onnx-q/files_metadata.json": "d08f50dd29a16023a9b1496b680addf0b4c01101429ed42b38814947960d0085",
+        "models--qdrant--bge-small-en-v1.5-onnx-q/trees/aa8f8b060edb00e03bfdd08813a2949946c8ba55.json": "4da434babbdfea1afb640c0792caf42f224e06c1cfc4fb152f7b3d27ed6f23c3",
+        "models--qdrant--bge-small-en-v1.5-onnx-q/snapshots/aa8f8b060edb00e03bfdd08813a2949946c8ba55/config.json": "13582bcf2effc85b7bf3d3f5532e686bc1c9ce86bb009d10f0ec33cbe92299dd",
+        "models--qdrant--bge-small-en-v1.5-onnx-q/snapshots/aa8f8b060edb00e03bfdd08813a2949946c8ba55/model_optimized.onnx": "51f1bd0addd6e859e42c2c8021a5e5461385bb676a649f4b269aa445449f2431",
+        "models--qdrant--bge-small-en-v1.5-onnx-q/snapshots/aa8f8b060edb00e03bfdd08813a2949946c8ba55/special_tokens_map.json": "5d5b662e421ea9fac075174bb0688ee0d9431699900b90662acd44b2a350503a",
+        "models--qdrant--bge-small-en-v1.5-onnx-q/snapshots/aa8f8b060edb00e03bfdd08813a2949946c8ba55/tokenizer_config.json": "0b29c7bfc889e53b36d9dd3e686dd4300f6525110eaa98c76a5dafceb2029f53",
+        "models--qdrant--bge-small-en-v1.5-onnx-q/snapshots/aa8f8b060edb00e03bfdd08813a2949946c8ba55/tokenizer.json": "d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66"
+      }
+    }
+  ],
+  "included_in_full_video_validation": false,
+  "rollout_decision": "not_promoted",
+  "limitations": [
+    "Human judgment was based on fast-forwarded partial viewing, not a complete independent review.",
+    "This is an exploratory relative text-similarity observation, not grouping accuracy or a calibrated probability.",
+    "All retrieved text chunks were processed, including introductions and sponsorship material.",
+    "Formats, source footage, audience intent and fair performance comparability remain unverified.",
+    "English-only models and their previously recorded diagnostic failures remain unchanged."
+  ]
+}

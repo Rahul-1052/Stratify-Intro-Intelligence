@@ -1,0 +1,7 @@
+{
+  "provenance": "Development ranking cases. User judgment and assistant transcript review remain separate; no independent held-out corpus exists.",
+  "cases": [
+    {"id":"mkbhd-audio-versus-laptop","channel":"MKBHD","anchor":"GB0b6KFZVq0","closer":"rayrrXot17M","different":"kBX5WH9b4M4","reviewer_kind":"user","reason":"Rahul labeled the first two videos headphones and the third a laptop before successful transcript retrieval. Broad topical category only."},
+    {"id":"3b1b-vectors-span-versus-network","channel":"3Blue1Brown","anchor":"fNk_zzaMoSs","closer":"k7RM-ot2NWY","different":"aircAruvnKk","reviewer_kind":"assistant","reason":"Creator-published complete transcripts describe vector coordinates, addition and scaling in the anchor; span/basis and linear combinations in the closer text; digit recognition, neural activations, weights and training in the different text. The neural-network lesson also uses linear algebra, so different means less direct topical overlap, not unrelated. Review recorded before model comparison; not independent human ground truth."}
+  ]
+}

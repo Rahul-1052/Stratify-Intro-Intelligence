@@ -1,0 +1,686 @@
+{
+  "provenance": "Assistant-authored synthetic development cases, including constructed vocabulary bags and natural-language paraphrases. No real channels, independent human labels, video-format labels or performance ground truth.",
+  "fetched_at": "2026-10-06T00:00:00Z",
+  "cases": [
+    {
+      "id": "finance-vocabulary",
+      "expected": "allow",
+      "videos": [
+        {
+          "video_id": "finance-vocabulary-0",
+          "title": "Unrelated naming style 0",
+          "source_url": "https://example.invalid/video/finance-vocabulary-0",
+          "published_at": "2026-09-28T00:00:00Z",
+          "duration": null,
+          "views": 0
+        },
+        {
+          "video_id": "finance-vocabulary-1",
+          "title": "Unrelated naming style 1",
+          "source_url": "https://example.invalid/video/finance-vocabulary-1",
+          "published_at": "2026-09-27T00:00:00Z",
+          "duration": null,
+          "views": 1000
+        },
+        {
+          "video_id": "finance-vocabulary-2",
+          "title": "Unrelated naming style 2",
+          "source_url": "https://example.invalid/video/finance-vocabulary-2",
+          "published_at": "2026-09-26T00:00:00Z",
+          "duration": null,
+          "views": 2000
+        },
+        {
+          "video_id": "finance-vocabulary-3",
+          "title": "Unrelated naming style 3",
+          "source_url": "https://example.invalid/video/finance-vocabulary-3",
+          "published_at": "2026-09-25T00:00:00Z",
+          "duration": null,
+          "views": 3000
+        },
+        {
+          "video_id": "finance-vocabulary-4",
+          "title": "Unrelated naming style 4",
+          "source_url": "https://example.invalid/video/finance-vocabulary-4",
+          "published_at": "2026-09-24T00:00:00Z",
+          "duration": null,
+          "views": 4000
+        },
+        {
+          "video_id": "finance-vocabulary-5",
+          "title": "Unrelated naming style 5",
+          "source_url": "https://example.invalid/video/finance-vocabulary-5",
+          "published_at": "2026-09-23T00:00:00Z",
+          "duration": null,
+          "views": 5000
+        }
+      ],
+      "captions": [
+        {
+          "videoId": "finance-vocabulary-0",
+          "source": "creator_caption_unverified",
+          "languageCode": "en",
+          "text": "budget detail0section0 expenses detail0section0 savings detail0section0 income detail0section0 spending detail0section0 planning detail0section0 debt detail0section0 loans detail0section0 cash detail0section0 reserve detail0section0 goals detail0section0 strategy detail0section0 monthly detail0section0 balance detail0section0 costs detail0section0 payments detail0section0 invest detail0section0 accounts detail0section0 emergency detail0section0 needs detail0section0 expenses detail0section1 savings detail0section1 income detail0section1 spending detail0section1 planning detail0section1 debt detail0section1 loans detail0section1 cash detail0section1 reserve detail0section1 goals detail0section1 strategy detail0section1 monthly detail0section1 balance detail0section1 costs detail0section1 payments detail0section1 invest detail0section1 accounts detail0section1 emergency detail0section1 needs detail0section1 budget detail0section1 savings detail0section2 income detail0section2 spending detail0section2 planning detail0section2 debt detail0section2 loans detail0section2 cash detail0section2 reserve detail0section2 goals detail0section2 strategy detail0section2 monthly detail0section2 balance detail0section2 costs detail0section2 payments detail0section2 invest detail0section2 accounts detail0section2 emergency detail0section2 needs detail0section2 budget detail0section2 expenses detail0section2"
+        },
+        {
+          "videoId": "finance-vocabulary-1",
+          "source": "creator_caption_unverified",
+          "languageCode": "en",
+          "text": "budget detail1section0 income detail1section0 debt detail1section0 reserve detail1section0 monthly detail1section0 payments detail1section0 emergency detail1section0 expenses detail1section0 spending detail1section0 loans detail1section0 goals detail1section0 balance detail1section0 invest detail1section0 needs detail1section0 savings detail1section0 planning detail1section0 cash detail1section0 strategy detail1section0 costs detail1section0 accounts detail1section0 expenses detail1section1 spending detail1section1 loans detail1section1 goals detail1section1 balance detail1section1 invest detail1section1 needs detail1section1 savings detail1section1 planning detail1section1 cash detail1section1 strategy detail1section1 costs detail1section1 accounts detail1section1 budget detail1section1 income detail1section1 debt detail1section1 reserve detail1section1 monthly detail1section1 payments detail1section1 emergency detail1section1 savings detail1section2 planning detail1section2 cash detail1section2 strategy detail1section2 costs detail1section2 accounts detail1section2 budget detail1section2 income detail1section2 debt detail1section2 reserve detail1section2 monthly detail1section2 payments detail1section2 emergency detail1section2 expenses detail1section2 spending detail1section2 loans detail1section2 goals detail1section2 balance detail1section2 invest detail1section2 needs detail1section2"
+        },
+        {
+          "videoId": "finance-vocabulary-2",
+          "source": "creator_caption_unverified",
+          "languageCode": "en",
+          "text": "budget detail2section0 planning detail2section0 goals detail2section0 payments detail2section0 budget detail2section0 planning detail2section0 goals detail2section0 payments detail2section0 budget detail2section0 planning detail2section0 goals detail2section0 payments detail2section0 budget detail2section0 planning detail2section0 goals detail2section0 payments detail2section0 budget detail2section0 planning detail2section0 goals detail2section0 payments detail2section0 expenses detail2section1 debt detail2section1 strategy detail2section1 invest detail2section1 expenses detail2section1 debt detail2section1 strategy detail2section1 invest detail2section1 expenses detail2section1 debt detail2section1 strategy detail2section1 invest detail2section1 expenses detail2section1 debt detail2section1 strategy detail2section1 invest detail2section1 expenses detail2section1 debt detail2section1 strategy detail2section1 invest detail2section1 savings detail2section2 loans detail2section2 monthly detail2section2 accounts detail2section2 savings detail2section2 loans detail2section2 monthly detail2section2 accounts detail2section2 savings detail2section2 loans detail2section2 monthly detail2section2 accounts detail2section2 savings detail2section2 loans detail2section2 monthly detail2section2 accounts detail2section2 savings detail2section2 loans detail2section2 monthly detail2section2 accounts detail2section2"
+        },
+        {
+          "videoId": "finance-vocabulary-3",
+          "source": "creator_caption_unverified",
+          "languageCode": "en",
+          "text": "budget detail3section0 loans detail3section0 costs detail3section0 expenses detail3section0 cash detail3section0 payments detail3section0 savings detail3section0 reserve detail3section0 invest detail3section0 income detail3section0 goals detail3section0 accounts detail3section0 spending detail3section0 strategy detail3section0 emergency detail3section0 planning detail3section0 monthly detail3section0 needs detail3section0 debt detail3section0 balance detail3section0 expenses detail3section1 cash detail3section1 payments detail3section1 savings detail3section1 reserve detail3section1 invest detail3section1 income detail3section1 goals detail3section1 accounts detail3section1 spending detail3section1 strategy detail3section1 emergency detail3section1 planning detail3section1 monthly detail3section1 needs detail3section1 debt detail3section1 balance detail3section1 budget detail3section1 loans detail3section1 costs detail3section1 savings detail3section2 reserve detail3section2 invest detail3section2 income detail3section2 goals detail3section2 accounts detail3section2 spending detail3section2 strategy detail3section2 emergency detail3section2 planning detail3section2 monthly detail3section2 needs detail3section2 debt detail3section2 balance detail3section2 budget detail3section2 loans detail3section2 costs detail3section2 expenses detail3section2 cash detail3section2 payments detail3section2"
+        },
+        {
+          "videoId": "finance-vocabulary-4",
+          "source": "creator_caption_unverified",
+          "languageCode": "en",
+          "text": "budget detail4section0 reserve detail4section0 emergency detail4section0 loans detail4section0 invest detail4section0 planning detail4section0 costs detail4section0 income detail4section0 monthly detail4section0 expenses detail4section0 goals detail4section0 needs detail4section0 cash detail4section0 accounts detail4section0 debt detail4section0 payments detail4section0 spending detail4section0 balance detail4section0 savings detail4section0 strategy detail4section0 expenses detail4section1 goals detail4section1 needs detail4section1 cash detail4section1 accounts detail4section1 debt detail4section1 payments detail4section1 spending detail4section1 balance detail4section1 savings detail4section1 strategy detail4section1 budget detail4section1 reserve detail4section1 emergency detail4section1 loans detail4section1 invest detail4section1 planning detail4section1 costs detail4section1 income detail4section1 monthly detail4section1 savings detail4section2 strategy detail4section2 budget detail4section2 reserve detail4section2 emergency detail4section2 loans detail4section2 invest detail4section2 planning detail4section2 costs detail4section2 income detail4section2 monthly detail4section2 expenses detail4section2 goals detail4section2 needs detail4section2 cash detail4section2 accounts detail4section2 debt detail4section2 payments detail4section2 spending detail4section2 balance detail4section2"
+        },
+        {
+          "videoId": "finance-vocabulary-5",
+          "source": "creator_caption_unverified",
+          "languageCode": "en",
+          "text": "budget detail5section0 strategy detail5section0 savings detail5section0 balance detail5section0 spending detail5section0 payments detail5section0 debt detail5section0 accounts detail5section0 cash detail5section0 needs detail5section0 goals detail5section0 expenses detail5section0 monthly detail5section0 income detail5section0 costs detail5section0 planning detail5section0 invest detail5section0 loans detail5section0 emergency detail5section0 reserve detail5section0 expenses detail5section1 monthly detail5section1 income detail5section1 costs detail5section1 planning detail5section1 invest detail5section1 loans detail5section1 emergency detail5section1 reserve detail5section1 budget detail5section1 strategy detail5section1 savings detail5section1 balance detail5section1 spending detail5section1 payments detail5section1 debt detail5section1 accounts detail5section1 cash detail5section1 needs detail5section1 goals detail5section1 savings detail5section2 balance detail5section2 spending detail5section2 payments detail5section2 debt detail5section2 accounts detail5section2 cash detail5section2 needs detail5section2 goals detail5section2 expenses detail5section2 monthly detail5section2 income detail5section2 costs detail5section2 planning detail5section2 invest detail5section2 loans detail5section2 emergency detail5section2 reserve detail5section2 budget detail5section2 strategy detail5section2"
+        }
+      ]
+    },
+    {
+      "id": "fitness-paraphrases",
+      "expected": "allow",
+      "videos": [
+        {
+          "video_id": "fitness-paraphrases-0",
+          "title": "Unrelated naming style 0",
+          "source_url": "https://example.invalid/video/fitness-paraphrases-0",
+          "published_at": "2026-09-28T00:00:00Z",
+          "duration": null,
+          "views": 0
+        },
+        {
+          "video_id": "fitness-paraphrases-1",
+          "title": "Unrelated naming style 1",
+          "source_url": "https://example.invalid/video/fitness-paraphrases-1",
+          "published_at": "2026-09-27T00:00:00Z",
+          "duration": null,
+          "views": 1000
+        },
+        {
+          "video_id": "fitness-paraphrases-2",
+          "title": "Unrelated naming style 2",
+          "source_url": "https://example.invalid/video/fitness-paraphrases-2",
+          "published_at": "2026-09-26T00:00:00Z",
+          "duration": null,
+          "views": 2000
+        },
+        {
+          "video_id": "fitness-paraphrases-3",
+          "title": "Unrelated naming style 3",
+          "source_url": "https://example.invalid/video/fitness-paraphrases-3",
+          "published_at": "2026-09-25T00:00:00Z",
+          "duration": null,
+          "views": 3000
+        },
+        {
+          "video_id": "fitness-paraphrases-4",
+          "title": "Unrelated naming style 4",
+          "source_url": "https://example.invalid/video/fitness-paraphrases-4",
+          "published_at": "2026-09-24T00:00:00Z",
+          "duration": null,
+          "views": 4000
+        },
+        {
+          "video_id": "fitness-paraphrases-5",
+          "title": "Unrelated naming style 5",
+          "source_url": "https://example.invalid/video/fitness-paraphrases-5",
+          "published_at": "2026-09-23T00:00:00Z",
+          "duration": null,
+          "views": 5000
+        }
+      ],
+      "captions": [
+        {
+          "videoId": "fitness-paraphrases-0",
+          "source": "creator_caption_unverified",
+          "languageCode": "en",
+          "text": "Building strength starts with challenging your muscles consistently. Pick movements you can repeat safely, add resistance gradually, and leave enough recovery between sessions. Record the loads you use and how hard each set feels. Sleep and adequate meals support adaptation. A sustainable routine beats an exhausting schedule you cannot maintain."
+        },
+        {
+          "videoId": "fitness-paraphrases-1",
+          "source": "creator_caption_unverified",
+          "languageCode": "en",
+          "text": "To become stronger, practice lifting weights regularly rather than chasing soreness. Squats, presses, and rows provide a useful foundation. Increase difficulty in small steps while protecting good technique. Rest allows tissues to adapt after training. Track progress over several weeks and avoid treating a single disappointing workout as failure."
+        },
+        {
+          "videoId": "fitness-paraphrases-2",
+          "source": "creator_caption_unverified",
+          "languageCode": "en",
+          "text": "Resistance exercise helps develop force production through repeated practice and progressive challenge. Choose a manageable plan, perform demanding sets with controlled movement, then recover before repeating them. Nutrition and sleep influence adaptation alongside activity. Beginners benefit from consistency more than constant novelty or copying an advanced athlete’s demanding weekly schedule."
+        },
+        {
+          "videoId": "fitness-paraphrases-3",
+          "source": "creator_caption_unverified",
+          "languageCode": "en",
+          "text": "Getting more powerful requires giving the body a reason to adapt. Use external load or difficult bodyweight movements, practice them on a regular schedule, and make the task harder as capacity improves. Allow rest days. Keep a notebook to distinguish real progress from daily fluctuations in energy and motivation."
+        },
+        {
+          "videoId": "fitness-paraphrases-4",
+          "source": "creator_caption_unverified",
+          "languageCode": "en",
+          "text": "A successful gym programme combines repeated movement practice with increasing demands. Do not replace every lift each week. Learn technique, select weights you can control, and progress thoughtfully. Fatigue is not the goal. Recovery, food, and sufficient bedtime matter because the changes you want develop between sessions as well."
+        },
+        {
+          "videoId": "fitness-paraphrases-5",
+          "source": "creator_caption_unverified",
+          "languageCode": "en",
+          "text": "Developing muscular capacity is a long process of challenge followed by repair. Start with a few basic patterns and repeat them reliably. Raise the workload when it becomes manageable, preserving safe execution. Evaluate trends across a month. Balance activity with rest and nourishment rather than assuming more effort always helps."
+        }
+      ]
+    },
+    {
+      "id": "misleading-generic-vocabulary",
+      "expected": "abstain",
+      "videos": [
+        {
+          "video_id": "misleading-generic-vocabulary-0",
+          "title": "Unrelated naming style 0",
+          "source_url": "https://example.invalid/video/misleading-generic-vocabulary-0",
+          "published_at": "2026-09-28T00:00:00Z",
+          "duration": null,
+          "views": 0
+        },
+        {
+          "video_id": "misleading-generic-vocabulary-1",
+          "title": "Unrelated naming style 1",
+          "source_url": "https://example.invalid/video/misleading-generic-vocabulary-1",
+          "published_at": "2026-09-27T00:00:00Z",
+          "duration": null,
+          "views": 1000
+        },
+        {
+          "video_id": "misleading-generic-vocabulary-2",
+          "title": "Unrelated naming style 2",
+          "source_url": "https://example.invalid/video/misleading-generic-vocabulary-2",
+          "published_at": "2026-09-26T00:00:00Z",
+          "duration": null,
+          "views": 2000
+        },
+        {
+          "video_id": "misleading-generic-vocabulary-3",
+          "title": "Unrelated naming style 3",
+          "source_url": "https://example.invalid/video/misleading-generic-vocabulary-3",
+          "published_at": "2026-09-25T00:00:00Z",
+          "duration": null,
+          "views": 3000
+        },
+        {
+          "video_id": "misleading-generic-vocabulary-4",
+          "title": "Unrelated naming style 4",
+          "source_url": "https://example.invalid/video/misleading-generic-vocabulary-4",
+          "published_at": "2026-09-24T00:00:00Z",
+          "duration": null,
+          "views": 4000
+        },
+        {
+          "video_id": "misleading-generic-vocabulary-5",
+          "title": "Unrelated naming style 5",
+          "source_url": "https://example.invalid/video/misleading-generic-vocabulary-5",
+          "published_at": "2026-09-23T00:00:00Z",
+          "duration": null,
+          "views": 5000
+        }
+      ],
+      "captions": [
+        {
+          "videoId": "misleading-generic-vocabulary-0",
+          "source": "creator_caption_unverified",
+          "languageCode": "en",
+          "text": "today detail0section0 people detail0section0 important detail0section0 simple detail0section0 understanding detail0section0 different detail0section0 examples detail0section0 questions detail0section0 learning detail0section0 working detail0section0 process detail0section0 results detail0section0 approach detail0section0 changes detail0section0 choices detail0section0 explain detail0section0 think detail0section0 things detail0section0 useful detail0section0 practice detail0section0 people detail0section1 important detail0section1 simple detail0section1 understanding detail0section1 different detail0section1 examples detail0section1 questions detail0section1 learning detail0section1 working detail0section1 process detail0section1 results detail0section1 approach detail0section1 changes detail0section1 choices detail0section1 explain detail0section1 think detail0section1 things detail0section1 useful detail0section1 practice detail0section1 today detail0section1 important detail0section2 simple detail0section2 understanding detail0section2 different detail0section2 examples detail0section2 questions detail0section2 learning detail0section2 working detail0section2 process detail0section2 results detail0section2 approach detail0section2 changes detail0section2 choices detail0section2 explain detail0section2 think detail0section2 things detail0section2 useful detail0section2 practice detail0section2 today detail0section2 people detail0section2 cookingspecific0 cookingspecific1 cookingspecific2 cookingspecific3 cookingspecific4 cookingspecific5 cookingspecific6 cookingspecific7 cookingspecific8 cookingspecific9 cookingspecific10 cookingspecific11"
+        },
+        {
+          "videoId": "misleading-generic-vocabulary-1",
+          "source": "creator_caption_unverified",
+          "languageCode": "en",
+          "text": "today detail1section0 simple detail1section0 examples detail1section0 working detail1section0 approach detail1section0 explain detail1section0 useful detail1section0 people detail1section0 understanding detail1section0 questions detail1section0 process detail1section0 changes detail1section0 think detail1section0 practice detail1section0 important detail1section0 different detail1section0 learning detail1section0 results detail1section0 choices detail1section0 things detail1section0 people detail1section1 understanding detail1section1 questions detail1section1 process detail1section1 changes detail1section1 think detail1section1 practice detail1section1 important detail1section1 different detail1section1 learning detail1section1 results detail1section1 choices detail1section1 things detail1section1 today detail1section1 simple detail1section1 examples detail1section1 working detail1section1 approach detail1section1 explain detail1section1 useful detail1section1 important detail1section2 different detail1section2 learning detail1section2 results detail1section2 choices detail1section2 things detail1section2 today detail1section2 simple detail1section2 examples detail1section2 working detail1section2 approach detail1section2 explain detail1section2 useful detail1section2 people detail1section2 understanding detail1section2 questions detail1section2 process detail1section2 changes detail1section2 think detail1section2 practice detail1section2 cyclingspecific0 cyclingspecific1 cyclingspecific2 cyclingspecific3 cyclingspecific4 cyclingspecific5 cyclingspecific6 cyclingspecific7 cyclingspecific8 cyclingspecific9 cyclingspecific10 cyclingspecific11"
+        },
+        {
+          "videoId": "misleading-generic-vocabulary-2",
+          "source": "creator_caption_unverified",
+          "languageCode": "en",
+          "text": "today detail2section0 different detail2section0 process detail2section0 explain detail2section0 today detail2section0 different detail2section0 process detail2section0 explain detail2section0 today detail2section0 different detail2section0 process detail2section0 explain detail2section0 today detail2section0 different detail2section0 process detail2section0 explain detail2section0 today detail2section0 different detail2section0 process detail2section0 explain detail2section0 people detail2section1 examples detail2section1 results detail2section1 think detail2section1 people detail2section1 examples detail2section1 results detail2section1 think detail2section1 people detail2section1 examples detail2section1 results detail2section1 think detail2section1 people detail2section1 examples detail2section1 results detail2section1 think detail2section1 people detail2section1 examples detail2section1 results detail2section1 think detail2section1 important detail2section2 questions detail2section2 approach detail2section2 things detail2section2 important detail2section2 questions detail2section2 approach detail2section2 things detail2section2 important detail2section2 questions detail2section2 approach detail2section2 things detail2section2 important detail2section2 questions detail2section2 approach detail2section2 things detail2section2 important detail2section2 questions detail2section2 approach detail2section2 things detail2section2 paintingspecific0 paintingspecific1 paintingspecific2 paintingspecific3 paintingspecific4 paintingspecific5 paintingspecific6 paintingspecific7 paintingspecific8 paintingspecific9 paintingspecific10 paintingspecific11"
+        },
+        {
+          "videoId": "misleading-generic-vocabulary-3",
+          "source": "creator_caption_unverified",
+          "languageCode": "en",
+          "text": "today detail3section0 questions detail3section0 choices detail3section0 people detail3section0 learning detail3section0 explain detail3section0 important detail3section0 working detail3section0 think detail3section0 simple detail3section0 process detail3section0 things detail3section0 understanding detail3section0 results detail3section0 useful detail3section0 different detail3section0 approach detail3section0 practice detail3section0 examples detail3section0 changes detail3section0 people detail3section1 learning detail3section1 explain detail3section1 important detail3section1 working detail3section1 think detail3section1 simple detail3section1 process detail3section1 things detail3section1 understanding detail3section1 results detail3section1 useful detail3section1 different detail3section1 approach detail3section1 practice detail3section1 examples detail3section1 changes detail3section1 today detail3section1 questions detail3section1 choices detail3section1 important detail3section2 working detail3section2 think detail3section2 simple detail3section2 process detail3section2 things detail3section2 understanding detail3section2 results detail3section2 useful detail3section2 different detail3section2 approach detail3section2 practice detail3section2 examples detail3section2 changes detail3section2 today detail3section2 questions detail3section2 choices detail3section2 people detail3section2 learning detail3section2 explain detail3section2 bankingspecific0 bankingspecific1 bankingspecific2 bankingspecific3 bankingspecific4 bankingspecific5 bankingspecific6 bankingspecific7 bankingspecific8 bankingspecific9 bankingspecific10 bankingspecific11"
+        },
+        {
+          "videoId": "misleading-generic-vocabulary-4",
+          "source": "creator_caption_unverified",
+          "languageCode": "en",
+          "text": "today detail4section0 working detail4section0 useful detail4section0 questions detail4section0 think detail4section0 different detail4section0 choices detail4section0 simple detail4section0 approach detail4section0 people detail4section0 process detail4section0 practice detail4section0 learning detail4section0 things detail4section0 examples detail4section0 explain detail4section0 understanding detail4section0 changes detail4section0 important detail4section0 results detail4section0 people detail4section1 process detail4section1 practice detail4section1 learning detail4section1 things detail4section1 examples detail4section1 explain detail4section1 understanding detail4section1 changes detail4section1 important detail4section1 results detail4section1 today detail4section1 working detail4section1 useful detail4section1 questions detail4section1 think detail4section1 different detail4section1 choices detail4section1 simple detail4section1 approach detail4section1 important detail4section2 results detail4section2 today detail4section2 working detail4section2 useful detail4section2 questions detail4section2 think detail4section2 different detail4section2 choices detail4section2 simple detail4section2 approach detail4section2 people detail4section2 process detail4section2 practice detail4section2 learning detail4section2 things detail4section2 examples detail4section2 explain detail4section2 understanding detail4section2 changes detail4section2 gardeningspecific0 gardeningspecific1 gardeningspecific2 gardeningspecific3 gardeningspecific4 gardeningspecific5 gardeningspecific6 gardeningspecific7 gardeningspecific8 gardeningspecific9 gardeningspecific10 gardeningspecific11"
+        },
+        {
+          "videoId": "misleading-generic-vocabulary-5",
+          "source": "creator_caption_unverified",
+          "languageCode": "en",
+          "text": "today detail5section0 results detail5section0 important detail5section0 changes detail5section0 understanding detail5section0 explain detail5section0 examples detail5section0 things detail5section0 learning detail5section0 practice detail5section0 process detail5section0 people detail5section0 approach detail5section0 simple detail5section0 choices detail5section0 different detail5section0 think detail5section0 questions detail5section0 useful detail5section0 working detail5section0 people detail5section1 approach detail5section1 simple detail5section1 choices detail5section1 different detail5section1 think detail5section1 questions detail5section1 useful detail5section1 working detail5section1 today detail5section1 results detail5section1 important detail5section1 changes detail5section1 understanding detail5section1 explain detail5section1 examples detail5section1 things detail5section1 learning detail5section1 practice detail5section1 process detail5section1 important detail5section2 changes detail5section2 understanding detail5section2 explain detail5section2 examples detail5section2 things detail5section2 learning detail5section2 practice detail5section2 process detail5section2 people detail5section2 approach detail5section2 simple detail5section2 choices detail5section2 different detail5section2 think detail5section2 questions detail5section2 useful detail5section2 working detail5section2 today detail5section2 results detail5section2 astronomyspecific0 astronomyspecific1 astronomyspecific2 astronomyspecific3 astronomyspecific4 astronomyspecific5 astronomyspecific6 astronomyspecific7 astronomyspecific8 astronomyspecific9 astronomyspecific10 astronomyspecific11"
+        }
+      ]
+    },
+    {
+      "id": "hindi-vocabulary",
+      "expected": "allow",
+      "videos": [
+        {
+          "video_id": "hindi-vocabulary-0",
+          "title": "Unrelated naming style 0",
+          "source_url": "https://example.invalid/video/hindi-vocabulary-0",
+          "published_at": "2026-09-28T00:00:00Z",
+          "duration": null,
+          "views": 0
+        },
+        {
+          "video_id": "hindi-vocabulary-1",
+          "title": "Unrelated naming style 1",
+          "source_url": "https://example.invalid/video/hindi-vocabulary-1",
+          "published_at": "2026-09-27T00:00:00Z",
+          "duration": null,
+          "views": 1000
+        },
+        {
+          "video_id": "hindi-vocabulary-2",
+          "title": "Unrelated naming style 2",
+          "source_url": "https://example.invalid/video/hindi-vocabulary-2",
+          "published_at": "2026-09-26T00:00:00Z",
+          "duration": null,
+          "views": 2000
+        },
+        {
+          "video_id": "hindi-vocabulary-3",
+          "title": "Unrelated naming style 3",
+          "source_url": "https://example.invalid/video/hindi-vocabulary-3",
+          "published_at": "2026-09-25T00:00:00Z",
+          "duration": null,
+          "views": 3000
+        },
+        {
+          "video_id": "hindi-vocabulary-4",
+          "title": "Unrelated naming style 4",
+          "source_url": "https://example.invalid/video/hindi-vocabulary-4",
+          "published_at": "2026-09-24T00:00:00Z",
+          "duration": null,
+          "views": 4000
+        },
+        {
+          "video_id": "hindi-vocabulary-5",
+          "title": "Unrelated naming style 5",
+          "source_url": "https://example.invalid/video/hindi-vocabulary-5",
+          "published_at": "2026-09-23T00:00:00Z",
+          "duration": null,
+          "views": 5000
+        }
+      ],
+      "captions": [
+        {
+          "videoId": "hindi-vocabulary-0",
+          "source": "creator_caption_unverified",
+          "languageCode": "hi",
+          "text": "बजट detail0section0 खर्च detail0section0 बचत detail0section0 आय detail0section0 योजना detail0section0 कर्ज detail0section0 नकदी detail0section0 लक्ष्य detail0section0 रणनीति detail0section0 मासिक detail0section0 संतुलन detail0section0 भुगतान detail0section0 निवेश detail0section0 खाते detail0section0 आपातकाल detail0section0 जरूरत detail0section0 धन detail0section0 सुरक्षा detail0section0 भविष्य detail0section0 व्यापार detail0section0 खर्च detail0section1 बचत detail0section1 आय detail0section1 योजना detail0section1 कर्ज detail0section1 नकदी detail0section1 लक्ष्य detail0section1 रणनीति detail0section1 मासिक detail0section1 संतुलन detail0section1 भुगतान detail0section1 निवेश detail0section1 खाते detail0section1 आपातकाल detail0section1 जरूरत detail0section1 धन detail0section1 सुरक्षा detail0section1 भविष्य detail0section1 व्यापार detail0section1 बजट detail0section1 बचत detail0section2 आय detail0section2 योजना detail0section2 कर्ज detail0section2 नकदी detail0section2 लक्ष्य detail0section2 रणनीति detail0section2 मासिक detail0section2 संतुलन detail0section2 भुगतान detail0section2 निवेश detail0section2 खाते detail0section2 आपातकाल detail0section2 जरूरत detail0section2 धन detail0section2 सुरक्षा detail0section2 भविष्य detail0section2 व्यापार detail0section2 बजट detail0section2 खर्च detail0section2"
+        },
+        {
+          "videoId": "hindi-vocabulary-1",
+          "source": "creator_caption_unverified",
+          "languageCode": "hi",
+          "text": "बजट detail1section0 आय detail1section0 नकदी detail1section0 मासिक detail1section0 निवेश detail1section0 जरूरत detail1section0 भविष्य detail1section0 खर्च detail1section0 योजना detail1section0 लक्ष्य detail1section0 संतुलन detail1section0 खाते detail1section0 धन detail1section0 व्यापार detail1section0 बचत detail1section0 कर्ज detail1section0 रणनीति detail1section0 भुगतान detail1section0 आपातकाल detail1section0 सुरक्षा detail1section0 खर्च detail1section1 योजना detail1section1 लक्ष्य detail1section1 संतुलन detail1section1 खाते detail1section1 धन detail1section1 व्यापार detail1section1 बचत detail1section1 कर्ज detail1section1 रणनीति detail1section1 भुगतान detail1section1 आपातकाल detail1section1 सुरक्षा detail1section1 बजट detail1section1 आय detail1section1 नकदी detail1section1 मासिक detail1section1 निवेश detail1section1 जरूरत detail1section1 भविष्य detail1section1 बचत detail1section2 कर्ज detail1section2 रणनीति detail1section2 भुगतान detail1section2 आपातकाल detail1section2 सुरक्षा detail1section2 बजट detail1section2 आय detail1section2 नकदी detail1section2 मासिक detail1section2 निवेश detail1section2 जरूरत detail1section2 भविष्य detail1section2 खर्च detail1section2 योजना detail1section2 लक्ष्य detail1section2 संतुलन detail1section2 खाते detail1section2 धन detail1section2 व्यापार detail1section2"
+        },
+        {
+          "videoId": "hindi-vocabulary-2",
+          "source": "creator_caption_unverified",
+          "languageCode": "hi",
+          "text": "बजट detail2section0 कर्ज detail2section0 संतुलन detail2section0 जरूरत detail2section0 बजट detail2section0 कर्ज detail2section0 संतुलन detail2section0 जरूरत detail2section0 बजट detail2section0 कर्ज detail2section0 संतुलन detail2section0 जरूरत detail2section0 बजट detail2section0 कर्ज detail2section0 संतुलन detail2section0 जरूरत detail2section0 बजट detail2section0 कर्ज detail2section0 संतुलन detail2section0 जरूरत detail2section0 खर्च detail2section1 नकदी detail2section1 भुगतान detail2section1 धन detail2section1 खर्च detail2section1 नकदी detail2section1 भुगतान detail2section1 धन detail2section1 खर्च detail2section1 नकदी detail2section1 भुगतान detail2section1 धन detail2section1 खर्च detail2section1 नकदी detail2section1 भुगतान detail2section1 धन detail2section1 खर्च detail2section1 नकदी detail2section1 भुगतान detail2section1 धन detail2section1 बचत detail2section2 लक्ष्य detail2section2 निवेश detail2section2 सुरक्षा detail2section2 बचत detail2section2 लक्ष्य detail2section2 निवेश detail2section2 सुरक्षा detail2section2 बचत detail2section2 लक्ष्य detail2section2 निवेश detail2section2 सुरक्षा detail2section2 बचत detail2section2 लक्ष्य detail2section2 निवेश detail2section2 सुरक्षा detail2section2 बचत detail2section2 लक्ष्य detail2section2 निवेश detail2section2 सुरक्षा detail2section2"
+        },
+        {
+          "videoId": "hindi-vocabulary-3",
+          "source": "creator_caption_unverified",
+          "languageCode": "hi",
+          "text": "बजट detail3section0 लक्ष्य detail3section0 आपातकाल detail3section0 खर्च detail3section0 रणनीति detail3section0 जरूरत detail3section0 बचत detail3section0 मासिक detail3section0 धन detail3section0 आय detail3section0 संतुलन detail3section0 सुरक्षा detail3section0 योजना detail3section0 भुगतान detail3section0 भविष्य detail3section0 कर्ज detail3section0 निवेश detail3section0 व्यापार detail3section0 नकदी detail3section0 खाते detail3section0 खर्च detail3section1 रणनीति detail3section1 जरूरत detail3section1 बचत detail3section1 मासिक detail3section1 धन detail3section1 आय detail3section1 संतुलन detail3section1 सुरक्षा detail3section1 योजना detail3section1 भुगतान detail3section1 भविष्य detail3section1 कर्ज detail3section1 निवेश detail3section1 व्यापार detail3section1 नकदी detail3section1 खाते detail3section1 बजट detail3section1 लक्ष्य detail3section1 आपातकाल detail3section1 बचत detail3section2 मासिक detail3section2 धन detail3section2 आय detail3section2 संतुलन detail3section2 सुरक्षा detail3section2 योजना detail3section2 भुगतान detail3section2 भविष्य detail3section2 कर्ज detail3section2 निवेश detail3section2 व्यापार detail3section2 नकदी detail3section2 खाते detail3section2 बजट detail3section2 लक्ष्य detail3section2 आपातकाल detail3section2 खर्च detail3section2 रणनीति detail3section2 जरूरत detail3section2"
+        },
+        {
+          "videoId": "hindi-vocabulary-4",
+          "source": "creator_caption_unverified",
+          "languageCode": "hi",
+          "text": "बजट detail4section0 मासिक detail4section0 भविष्य detail4section0 लक्ष्य detail4section0 धन detail4section0 कर्ज detail4section0 आपातकाल detail4section0 आय detail4section0 निवेश detail4section0 खर्च detail4section0 संतुलन detail4section0 व्यापार detail4section0 रणनीति detail4section0 सुरक्षा detail4section0 नकदी detail4section0 जरूरत detail4section0 योजना detail4section0 खाते detail4section0 बचत detail4section0 भुगतान detail4section0 खर्च detail4section1 संतुलन detail4section1 व्यापार detail4section1 रणनीति detail4section1 सुरक्षा detail4section1 नकदी detail4section1 जरूरत detail4section1 योजना detail4section1 खाते detail4section1 बचत detail4section1 भुगतान detail4section1 बजट detail4section1 मासिक detail4section1 भविष्य detail4section1 लक्ष्य detail4section1 धन detail4section1 कर्ज detail4section1 आपातकाल detail4section1 आय detail4section1 निवेश detail4section1 बचत detail4section2 भुगतान detail4section2 बजट detail4section2 मासिक detail4section2 भविष्य detail4section2 लक्ष्य detail4section2 धन detail4section2 कर्ज detail4section2 आपातकाल detail4section2 आय detail4section2 निवेश detail4section2 खर्च detail4section2 संतुलन detail4section2 व्यापार detail4section2 रणनीति detail4section2 सुरक्षा detail4section2 नकदी detail4section2 जरूरत detail4section2 योजना detail4section2 खाते detail4section2"
+        },
+        {
+          "videoId": "hindi-vocabulary-5",
+          "source": "creator_caption_unverified",
+          "languageCode": "hi",
+          "text": "बजट detail5section0 भुगतान detail5section0 बचत detail5section0 खाते detail5section0 योजना detail5section0 जरूरत detail5section0 नकदी detail5section0 सुरक्षा detail5section0 रणनीति detail5section0 व्यापार detail5section0 संतुलन detail5section0 खर्च detail5section0 निवेश detail5section0 आय detail5section0 आपातकाल detail5section0 कर्ज detail5section0 धन detail5section0 लक्ष्य detail5section0 भविष्य detail5section0 मासिक detail5section0 खर्च detail5section1 निवेश detail5section1 आय detail5section1 आपातकाल detail5section1 कर्ज detail5section1 धन detail5section1 लक्ष्य detail5section1 भविष्य detail5section1 मासिक detail5section1 बजट detail5section1 भुगतान detail5section1 बचत detail5section1 खाते detail5section1 योजना detail5section1 जरूरत detail5section1 नकदी detail5section1 सुरक्षा detail5section1 रणनीति detail5section1 व्यापार detail5section1 संतुलन detail5section1 बचत detail5section2 खाते detail5section2 योजना detail5section2 जरूरत detail5section2 नकदी detail5section2 सुरक्षा detail5section2 रणनीति detail5section2 व्यापार detail5section2 संतुलन detail5section2 खर्च detail5section2 निवेश detail5section2 आय detail5section2 आपातकाल detail5section2 कर्ज detail5section2 धन detail5section2 लक्ष्य detail5section2 भविष्य detail5section2 मासिक detail5section2 बजट detail5section2 भुगतान detail5section2"
+        }
+      ]
+    },
+    {
+      "id": "different-languages",
+      "expected": "abstain",
+      "videos": [
+        {
+          "video_id": "different-languages-0",
+          "title": "Unrelated naming style 0",
+          "source_url": "https://example.invalid/video/different-languages-0",
+          "published_at": "2026-09-28T00:00:00Z",
+          "duration": null,
+          "views": 0
+        },
+        {
+          "video_id": "different-languages-1",
+          "title": "Unrelated naming style 1",
+          "source_url": "https://example.invalid/video/different-languages-1",
+          "published_at": "2026-09-27T00:00:00Z",
+          "duration": null,
+          "views": 1000
+        },
+        {
+          "video_id": "different-languages-2",
+          "title": "Unrelated naming style 2",
+          "source_url": "https://example.invalid/video/different-languages-2",
+          "published_at": "2026-09-26T00:00:00Z",
+          "duration": null,
+          "views": 2000
+        },
+        {
+          "video_id": "different-languages-3",
+          "title": "Unrelated naming style 3",
+          "source_url": "https://example.invalid/video/different-languages-3",
+          "published_at": "2026-09-25T00:00:00Z",
+          "duration": null,
+          "views": 3000
+        },
+        {
+          "video_id": "different-languages-4",
+          "title": "Unrelated naming style 4",
+          "source_url": "https://example.invalid/video/different-languages-4",
+          "published_at": "2026-09-24T00:00:00Z",
+          "duration": null,
+          "views": 4000
+        },
+        {
+          "video_id": "different-languages-5",
+          "title": "Unrelated naming style 5",
+          "source_url": "https://example.invalid/video/different-languages-5",
+          "published_at": "2026-09-23T00:00:00Z",
+          "duration": null,
+          "views": 5000
+        }
+      ],
+      "captions": [
+        {
+          "videoId": "different-languages-0",
+          "source": "creator_caption_unverified",
+          "languageCode": "en",
+          "text": "budget detail0section0 expenses detail0section0 savings detail0section0 income detail0section0 spending detail0section0 planning detail0section0 debt detail0section0 loans detail0section0 cash detail0section0 reserve detail0section0 goals detail0section0 strategy detail0section0 monthly detail0section0 balance detail0section0 costs detail0section0 payments detail0section0 invest detail0section0 accounts detail0section0 emergency detail0section0 needs detail0section0 expenses detail0section1 savings detail0section1 income detail0section1 spending detail0section1 planning detail0section1 debt detail0section1 loans detail0section1 cash detail0section1 reserve detail0section1 goals detail0section1 strategy detail0section1 monthly detail0section1 balance detail0section1 costs detail0section1 payments detail0section1 invest detail0section1 accounts detail0section1 emergency detail0section1 needs detail0section1 budget detail0section1 savings detail0section2 income detail0section2 spending detail0section2 planning detail0section2 debt detail0section2 loans detail0section2 cash detail0section2 reserve detail0section2 goals detail0section2 strategy detail0section2 monthly detail0section2 balance detail0section2 costs detail0section2 payments detail0section2 invest detail0section2 accounts detail0section2 emergency detail0section2 needs detail0section2 budget detail0section2 expenses detail0section2"
+        },
+        {
+          "videoId": "different-languages-1",
+          "source": "creator_caption_unverified",
+          "languageCode": "en",
+          "text": "budget detail1section0 income detail1section0 debt detail1section0 reserve detail1section0 monthly detail1section0 payments detail1section0 emergency detail1section0 expenses detail1section0 spending detail1section0 loans detail1section0 goals detail1section0 balance detail1section0 invest detail1section0 needs detail1section0 savings detail1section0 planning detail1section0 cash detail1section0 strategy detail1section0 costs detail1section0 accounts detail1section0 expenses detail1section1 spending detail1section1 loans detail1section1 goals detail1section1 balance detail1section1 invest detail1section1 needs detail1section1 savings detail1section1 planning detail1section1 cash detail1section1 strategy detail1section1 costs detail1section1 accounts detail1section1 budget detail1section1 income detail1section1 debt detail1section1 reserve detail1section1 monthly detail1section1 payments detail1section1 emergency detail1section1 savings detail1section2 planning detail1section2 cash detail1section2 strategy detail1section2 costs detail1section2 accounts detail1section2 budget detail1section2 income detail1section2 debt detail1section2 reserve detail1section2 monthly detail1section2 payments detail1section2 emergency detail1section2 expenses detail1section2 spending detail1section2 loans detail1section2 goals detail1section2 balance detail1section2 invest detail1section2 needs detail1section2"
+        },
+        {
+          "videoId": "different-languages-2",
+          "source": "creator_caption_unverified",
+          "languageCode": "en",
+          "text": "budget detail2section0 planning detail2section0 goals detail2section0 payments detail2section0 budget detail2section0 planning detail2section0 goals detail2section0 payments detail2section0 budget detail2section0 planning detail2section0 goals detail2section0 payments detail2section0 budget detail2section0 planning detail2section0 goals detail2section0 payments detail2section0 budget detail2section0 planning detail2section0 goals detail2section0 payments detail2section0 expenses detail2section1 debt detail2section1 strategy detail2section1 invest detail2section1 expenses detail2section1 debt detail2section1 strategy detail2section1 invest detail2section1 expenses detail2section1 debt detail2section1 strategy detail2section1 invest detail2section1 expenses detail2section1 debt detail2section1 strategy detail2section1 invest detail2section1 expenses detail2section1 debt detail2section1 strategy detail2section1 invest detail2section1 savings detail2section2 loans detail2section2 monthly detail2section2 accounts detail2section2 savings detail2section2 loans detail2section2 monthly detail2section2 accounts detail2section2 savings detail2section2 loans detail2section2 monthly detail2section2 accounts detail2section2 savings detail2section2 loans detail2section2 monthly detail2section2 accounts detail2section2 savings detail2section2 loans detail2section2 monthly detail2section2 accounts detail2section2"
+        },
+        {
+          "videoId": "different-languages-3",
+          "source": "creator_caption_unverified",
+          "languageCode": "hi",
+          "text": "budget detail3section0 loans detail3section0 costs detail3section0 expenses detail3section0 cash detail3section0 payments detail3section0 savings detail3section0 reserve detail3section0 invest detail3section0 income detail3section0 goals detail3section0 accounts detail3section0 spending detail3section0 strategy detail3section0 emergency detail3section0 planning detail3section0 monthly detail3section0 needs detail3section0 debt detail3section0 balance detail3section0 expenses detail3section1 cash detail3section1 payments detail3section1 savings detail3section1 reserve detail3section1 invest detail3section1 income detail3section1 goals detail3section1 accounts detail3section1 spending detail3section1 strategy detail3section1 emergency detail3section1 planning detail3section1 monthly detail3section1 needs detail3section1 debt detail3section1 balance detail3section1 budget detail3section1 loans detail3section1 costs detail3section1 savings detail3section2 reserve detail3section2 invest detail3section2 income detail3section2 goals detail3section2 accounts detail3section2 spending detail3section2 strategy detail3section2 emergency detail3section2 planning detail3section2 monthly detail3section2 needs detail3section2 debt detail3section2 balance detail3section2 budget detail3section2 loans detail3section2 costs detail3section2 expenses detail3section2 cash detail3section2 payments detail3section2"
+        },
+        {
+          "videoId": "different-languages-4",
+          "source": "creator_caption_unverified",
+          "languageCode": "hi",
+          "text": "budget detail4section0 reserve detail4section0 emergency detail4section0 loans detail4section0 invest detail4section0 planning detail4section0 costs detail4section0 income detail4section0 monthly detail4section0 expenses detail4section0 goals detail4section0 needs detail4section0 cash detail4section0 accounts detail4section0 debt detail4section0 payments detail4section0 spending detail4section0 balance detail4section0 savings detail4section0 strategy detail4section0 expenses detail4section1 goals detail4section1 needs detail4section1 cash detail4section1 accounts detail4section1 debt detail4section1 payments detail4section1 spending detail4section1 balance detail4section1 savings detail4section1 strategy detail4section1 budget detail4section1 reserve detail4section1 emergency detail4section1 loans detail4section1 invest detail4section1 planning detail4section1 costs detail4section1 income detail4section1 monthly detail4section1 savings detail4section2 strategy detail4section2 budget detail4section2 reserve detail4section2 emergency detail4section2 loans detail4section2 invest detail4section2 planning detail4section2 costs detail4section2 income detail4section2 monthly detail4section2 expenses detail4section2 goals detail4section2 needs detail4section2 cash detail4section2 accounts detail4section2 debt detail4section2 payments detail4section2 spending detail4section2 balance detail4section2"
+        },
+        {
+          "videoId": "different-languages-5",
+          "source": "creator_caption_unverified",
+          "languageCode": "hi",
+          "text": "budget detail5section0 strategy detail5section0 savings detail5section0 balance detail5section0 spending detail5section0 payments detail5section0 debt detail5section0 accounts detail5section0 cash detail5section0 needs detail5section0 goals detail5section0 expenses detail5section0 monthly detail5section0 income detail5section0 costs detail5section0 planning detail5section0 invest detail5section0 loans detail5section0 emergency detail5section0 reserve detail5section0 expenses detail5section1 monthly detail5section1 income detail5section1 costs detail5section1 planning detail5section1 invest detail5section1 loans detail5section1 emergency detail5section1 reserve detail5section1 budget detail5section1 strategy detail5section1 savings detail5section1 balance detail5section1 spending detail5section1 payments detail5section1 debt detail5section1 accounts detail5section1 cash detail5section1 needs detail5section1 goals detail5section1 savings detail5section2 balance detail5section2 spending detail5section2 payments detail5section2 debt detail5section2 accounts detail5section2 cash detail5section2 needs detail5section2 goals detail5section2 expenses detail5section2 monthly detail5section2 income detail5section2 costs detail5section2 planning detail5section2 invest detail5section2 loans detail5section2 emergency detail5section2 reserve detail5section2 budget detail5section2 strategy detail5section2"
+        }
+      ]
+    },
+    {
+      "id": "same-script",
+      "expected": "abstain",
+      "videos": [
+        {
+          "video_id": "same-script-0",
+          "title": "Unrelated naming style 0",
+          "source_url": "https://example.invalid/video/same-script-0",
+          "published_at": "2026-09-28T00:00:00Z",
+          "duration": null,
+          "views": 0
+        },
+        {
+          "video_id": "same-script-1",
+          "title": "Unrelated naming style 1",
+          "source_url": "https://example.invalid/video/same-script-1",
+          "published_at": "2026-09-27T00:00:00Z",
+          "duration": null,
+          "views": 1000
+        },
+        {
+          "video_id": "same-script-2",
+          "title": "Unrelated naming style 2",
+          "source_url": "https://example.invalid/video/same-script-2",
+          "published_at": "2026-09-26T00:00:00Z",
+          "duration": null,
+          "views": 2000
+        },
+        {
+          "video_id": "same-script-3",
+          "title": "Unrelated naming style 3",
+          "source_url": "https://example.invalid/video/same-script-3",
+          "published_at": "2026-09-25T00:00:00Z",
+          "duration": null,
+          "views": 3000
+        },
+        {
+          "video_id": "same-script-4",
+          "title": "Unrelated naming style 4",
+          "source_url": "https://example.invalid/video/same-script-4",
+          "published_at": "2026-09-24T00:00:00Z",
+          "duration": null,
+          "views": 4000
+        },
+        {
+          "video_id": "same-script-5",
+          "title": "Unrelated naming style 5",
+          "source_url": "https://example.invalid/video/same-script-5",
+          "published_at": "2026-09-23T00:00:00Z",
+          "duration": null,
+          "views": 5000
+        }
+      ],
+      "captions": [
+        {
+          "videoId": "same-script-0",
+          "source": "creator_caption_unverified",
+          "languageCode": "en",
+          "text": "unique0 unique1 unique2 unique3 unique4 unique5 unique6 unique7 unique8 unique9 unique10 unique11 unique12 unique13 unique14 unique15 unique16 unique17 unique18 unique19 unique20 unique21 unique22 unique23 unique24 unique25 unique26 unique27 unique28 unique29 unique30 unique31 unique32 unique33 unique34 unique35 unique36 unique37 unique38 unique39 unique40 unique41 unique42 unique43 unique44 unique45 unique46 unique47 unique48 unique49 unique50 unique51 unique52 unique53 unique54 unique55 unique56 unique57 unique58 unique59 unique60 unique61 unique62 unique63 unique64 unique65 unique66 unique67 unique68 unique69 unique70 unique71 unique72 unique73 unique74 unique75 unique76 unique77 unique78 unique79 unique80 unique81 unique82 unique83 unique84 unique85 unique86 unique87 unique88 unique89"
+        },
+        {
+          "videoId": "same-script-1",
+          "source": "creator_caption_unverified",
+          "languageCode": "en",
+          "text": "unique0 unique1 unique2 unique3 unique4 unique5 unique6 unique7 unique8 unique9 unique10 unique11 unique12 unique13 unique14 unique15 unique16 unique17 unique18 unique19 unique20 unique21 unique22 unique23 unique24 unique25 unique26 unique27 unique28 unique29 unique30 unique31 unique32 unique33 unique34 unique35 unique36 unique37 unique38 unique39 unique40 unique41 unique42 unique43 unique44 unique45 unique46 unique47 unique48 unique49 unique50 unique51 unique52 unique53 unique54 unique55 unique56 unique57 unique58 unique59 unique60 unique61 unique62 unique63 unique64 unique65 unique66 unique67 unique68 unique69 unique70 unique71 unique72 unique73 unique74 unique75 unique76 unique77 unique78 unique79 unique80 unique81 unique82 unique83 unique84 unique85 unique86 unique87 unique88 unique89"
+        },
+        {
+          "videoId": "same-script-2",
+          "source": "creator_caption_unverified",
+          "languageCode": "en",
+          "text": "unique0 unique1 unique2 unique3 unique4 unique5 unique6 unique7 unique8 unique9 unique10 unique11 unique12 unique13 unique14 unique15 unique16 unique17 unique18 unique19 unique20 unique21 unique22 unique23 unique24 unique25 unique26 unique27 unique28 unique29 unique30 unique31 unique32 unique33 unique34 unique35 unique36 unique37 unique38 unique39 unique40 unique41 unique42 unique43 unique44 unique45 unique46 unique47 unique48 unique49 unique50 unique51 unique52 unique53 unique54 unique55 unique56 unique57 unique58 unique59 unique60 unique61 unique62 unique63 unique64 unique65 unique66 unique67 unique68 unique69 unique70 unique71 unique72 unique73 unique74 unique75 unique76 unique77 unique78 unique79 unique80 unique81 unique82 unique83 unique84 unique85 unique86 unique87 unique88 unique89"
+        },
+        {
+          "videoId": "same-script-3",
+          "source": "creator_caption_unverified",
+          "languageCode": "en",
+          "text": "unique0 unique1 unique2 unique3 unique4 unique5 unique6 unique7 unique8 unique9 unique10 unique11 unique12 unique13 unique14 unique15 unique16 unique17 unique18 unique19 unique20 unique21 unique22 unique23 unique24 unique25 unique26 unique27 unique28 unique29 unique30 unique31 unique32 unique33 unique34 unique35 unique36 unique37 unique38 unique39 unique40 unique41 unique42 unique43 unique44 unique45 unique46 unique47 unique48 unique49 unique50 unique51 unique52 unique53 unique54 unique55 unique56 unique57 unique58 unique59 unique60 unique61 unique62 unique63 unique64 unique65 unique66 unique67 unique68 unique69 unique70 unique71 unique72 unique73 unique74 unique75 unique76 unique77 unique78 unique79 unique80 unique81 unique82 unique83 unique84 unique85 unique86 unique87 unique88 unique89"
+        },
+        {
+          "videoId": "same-script-4",
+          "source": "creator_caption_unverified",
+          "languageCode": "en",
+          "text": "unique0 unique1 unique2 unique3 unique4 unique5 unique6 unique7 unique8 unique9 unique10 unique11 unique12 unique13 unique14 unique15 unique16 unique17 unique18 unique19 unique20 unique21 unique22 unique23 unique24 unique25 unique26 unique27 unique28 unique29 unique30 unique31 unique32 unique33 unique34 unique35 unique36 unique37 unique38 unique39 unique40 unique41 unique42 unique43 unique44 unique45 unique46 unique47 unique48 unique49 unique50 unique51 unique52 unique53 unique54 unique55 unique56 unique57 unique58 unique59 unique60 unique61 unique62 unique63 unique64 unique65 unique66 unique67 unique68 unique69 unique70 unique71 unique72 unique73 unique74 unique75 unique76 unique77 unique78 unique79 unique80 unique81 unique82 unique83 unique84 unique85 unique86 unique87 unique88 unique89"
+        },
+        {
+          "videoId": "same-script-5",
+          "source": "creator_caption_unverified",
+          "languageCode": "en",
+          "text": "unique0 unique1 unique2 unique3 unique4 unique5 unique6 unique7 unique8 unique9 unique10 unique11 unique12 unique13 unique14 unique15 unique16 unique17 unique18 unique19 unique20 unique21 unique22 unique23 unique24 unique25 unique26 unique27 unique28 unique29 unique30 unique31 unique32 unique33 unique34 unique35 unique36 unique37 unique38 unique39 unique40 unique41 unique42 unique43 unique44 unique45 unique46 unique47 unique48 unique49 unique50 unique51 unique52 unique53 unique54 unique55 unique56 unique57 unique58 unique59 unique60 unique61 unique62 unique63 unique64 unique65 unique66 unique67 unique68 unique69 unique70 unique71 unique72 unique73 unique74 unique75 unique76 unique77 unique78 unique79 unique80 unique81 unique82 unique83 unique84 unique85 unique86 unique87 unique88 unique89"
+        }
+      ]
+    },
+    {
+      "id": "sparse-captions",
+      "expected": "abstain",
+      "videos": [
+        {
+          "video_id": "sparse-captions-0",
+          "title": "Unrelated naming style 0",
+          "source_url": "https://example.invalid/video/sparse-captions-0",
+          "published_at": "2026-09-28T00:00:00Z",
+          "duration": null,
+          "views": 0
+        },
+        {
+          "video_id": "sparse-captions-1",
+          "title": "Unrelated naming style 1",
+          "source_url": "https://example.invalid/video/sparse-captions-1",
+          "published_at": "2026-09-27T00:00:00Z",
+          "duration": null,
+          "views": 1000
+        }
+      ],
+      "captions": [
+        {
+          "videoId": "sparse-captions-0",
+          "source": "creator_caption_unverified",
+          "languageCode": "en",
+          "text": "budget detail0section0 expenses detail0section0 savings detail0section0 income detail0section0 spending detail0section0 planning detail0section0 debt detail0section0 loans detail0section0 cash detail0section0 reserve detail0section0 goals detail0section0 strategy detail0section0 monthly detail0section0 balance detail0section0 costs detail0section0 payments detail0section0 invest detail0section0 accounts detail0section0 emergency detail0section0 needs detail0section0 expenses detail0section1 savings detail0section1 income detail0section1 spending detail0section1 planning detail0section1 debt detail0section1 loans detail0section1 cash detail0section1 reserve detail0section1 goals detail0section1 strategy detail0section1 monthly detail0section1 balance detail0section1 costs detail0section1 payments detail0section1 invest detail0section1 accounts detail0section1 emergency detail0section1 needs detail0section1 budget detail0section1 savings detail0section2 income detail0section2 spending detail0section2 planning detail0section2 debt detail0section2 loans detail0section2 cash detail0section2 reserve detail0section2 goals detail0section2 strategy detail0section2 monthly detail0section2 balance detail0section2 costs detail0section2 payments detail0section2 invest detail0section2 accounts detail0section2 emergency detail0section2 needs detail0section2 budget detail0section2 expenses detail0section2"
+        },
+        {
+          "videoId": "sparse-captions-1",
+          "source": "creator_caption_unverified",
+          "languageCode": "en",
+          "text": "budget detail1section0 income detail1section0 debt detail1section0 reserve detail1section0 monthly detail1section0 payments detail1section0 emergency detail1section0 expenses detail1section0 spending detail1section0 loans detail1section0 goals detail1section0 balance detail1section0 invest detail1section0 needs detail1section0 savings detail1section0 planning detail1section0 cash detail1section0 strategy detail1section0 costs detail1section0 accounts detail1section0 expenses detail1section1 spending detail1section1 loans detail1section1 goals detail1section1 balance detail1section1 invest detail1section1 needs detail1section1 savings detail1section1 planning detail1section1 cash detail1section1 strategy detail1section1 costs detail1section1 accounts detail1section1 budget detail1section1 income detail1section1 debt detail1section1 reserve detail1section1 monthly detail1section1 payments detail1section1 emergency detail1section1 savings detail1section2 planning detail1section2 cash detail1section2 strategy detail1section2 costs detail1section2 accounts detail1section2 budget detail1section2 income detail1section2 debt detail1section2 reserve detail1section2 monthly detail1section2 payments detail1section2 emergency detail1section2 expenses detail1section2 spending detail1section2 loans detail1section2 goals detail1section2 balance detail1section2 invest detail1section2 needs detail1section2"
+        }
+      ]
+    },
+    {
+      "id": "date-ties",
+      "expected": "abstain",
+      "videos": [
+        {
+          "video_id": "date-ties-0",
+          "title": "Unrelated naming style 0",
+          "source_url": "https://example.invalid/video/date-ties-0",
+          "published_at": "2026-09-01T00:00:00Z",
+          "duration": null,
+          "views": 0
+        },
+        {
+          "video_id": "date-ties-1",
+          "title": "Unrelated naming style 1",
+          "source_url": "https://example.invalid/video/date-ties-1",
+          "published_at": "2026-09-01T00:00:00Z",
+          "duration": null,
+          "views": 1000
+        },
+        {
+          "video_id": "date-ties-2",
+          "title": "Unrelated naming style 2",
+          "source_url": "https://example.invalid/video/date-ties-2",
+          "published_at": "2026-09-01T00:00:00Z",
+          "duration": null,
+          "views": 2000
+        },
+        {
+          "video_id": "date-ties-3",
+          "title": "Unrelated naming style 3",
+          "source_url": "https://example.invalid/video/date-ties-3",
+          "published_at": "2026-09-01T00:00:00Z",
+          "duration": null,
+          "views": 3000
+        },
+        {
+          "video_id": "date-ties-4",
+          "title": "Unrelated naming style 4",
+          "source_url": "https://example.invalid/video/date-ties-4",
+          "published_at": "2026-09-01T00:00:00Z",
+          "duration": null,
+          "views": 4000
+        },
+        {
+          "video_id": "date-ties-5",
+          "title": "Unrelated naming style 5",
+          "source_url": "https://example.invalid/video/date-ties-5",
+          "published_at": "2026-09-01T00:00:00Z",
+          "duration": null,
+          "views": 5000
+        }
+      ],
+      "captions": [
+        {
+          "videoId": "date-ties-0",
+          "source": "creator_caption_unverified",
+          "languageCode": "en",
+          "text": "budget detail0section0 expenses detail0section0 savings detail0section0 income detail0section0 spending detail0section0 planning detail0section0 debt detail0section0 loans detail0section0 cash detail0section0 reserve detail0section0 goals detail0section0 strategy detail0section0 monthly detail0section0 balance detail0section0 costs detail0section0 payments detail0section0 invest detail0section0 accounts detail0section0 emergency detail0section0 needs detail0section0 expenses detail0section1 savings detail0section1 income detail0section1 spending detail0section1 planning detail0section1 debt detail0section1 loans detail0section1 cash detail0section1 reserve detail0section1 goals detail0section1 strategy detail0section1 monthly detail0section1 balance detail0section1 costs detail0section1 payments detail0section1 invest detail0section1 accounts detail0section1 emergency detail0section1 needs detail0section1 budget detail0section1 savings detail0section2 income detail0section2 spending detail0section2 planning detail0section2 debt detail0section2 loans detail0section2 cash detail0section2 reserve detail0section2 goals detail0section2 strategy detail0section2 monthly detail0section2 balance detail0section2 costs detail0section2 payments detail0section2 invest detail0section2 accounts detail0section2 emergency detail0section2 needs detail0section2 budget detail0section2 expenses detail0section2"
+        },
+        {
+          "videoId": "date-ties-1",
+          "source": "creator_caption_unverified",
+          "languageCode": "en",
+          "text": "budget detail1section0 income detail1section0 debt detail1section0 reserve detail1section0 monthly detail1section0 payments detail1section0 emergency detail1section0 expenses detail1section0 spending detail1section0 loans detail1section0 goals detail1section0 balance detail1section0 invest detail1section0 needs detail1section0 savings detail1section0 planning detail1section0 cash detail1section0 strategy detail1section0 costs detail1section0 accounts detail1section0 expenses detail1section1 spending detail1section1 loans detail1section1 goals detail1section1 balance detail1section1 invest detail1section1 needs detail1section1 savings detail1section1 planning detail1section1 cash detail1section1 strategy detail1section1 costs detail1section1 accounts detail1section1 budget detail1section1 income detail1section1 debt detail1section1 reserve detail1section1 monthly detail1section1 payments detail1section1 emergency detail1section1 savings detail1section2 planning detail1section2 cash detail1section2 strategy detail1section2 costs detail1section2 accounts detail1section2 budget detail1section2 income detail1section2 debt detail1section2 reserve detail1section2 monthly detail1section2 payments detail1section2 emergency detail1section2 expenses detail1section2 spending detail1section2 loans detail1section2 goals detail1section2 balance detail1section2 invest detail1section2 needs detail1section2"
+        },
+        {
+          "videoId": "date-ties-2",
+          "source": "creator_caption_unverified",
+          "languageCode": "en",
+          "text": "budget detail2section0 planning detail2section0 goals detail2section0 payments detail2section0 budget detail2section0 planning detail2section0 goals detail2section0 payments detail2section0 budget detail2section0 planning detail2section0 goals detail2section0 payments detail2section0 budget detail2section0 planning detail2section0 goals detail2section0 payments detail2section0 budget detail2section0 planning detail2section0 goals detail2section0 payments detail2section0 expenses detail2section1 debt detail2section1 strategy detail2section1 invest detail2section1 expenses detail2section1 debt detail2section1 strategy detail2section1 invest detail2section1 expenses detail2section1 debt detail2section1 strategy detail2section1 invest detail2section1 expenses detail2section1 debt detail2section1 strategy detail2section1 invest detail2section1 expenses detail2section1 debt detail2section1 strategy detail2section1 invest detail2section1 savings detail2section2 loans detail2section2 monthly detail2section2 accounts detail2section2 savings detail2section2 loans detail2section2 monthly detail2section2 accounts detail2section2 savings detail2section2 loans detail2section2 monthly detail2section2 accounts detail2section2 savings detail2section2 loans detail2section2 monthly detail2section2 accounts detail2section2 savings detail2section2 loans detail2section2 monthly detail2section2 accounts detail2section2"
+        },
+        {
+          "videoId": "date-ties-3",
+          "source": "creator_caption_unverified",
+          "languageCode": "en",
+          "text": "budget detail3section0 loans detail3section0 costs detail3section0 expenses detail3section0 cash detail3section0 payments detail3section0 savings detail3section0 reserve detail3section0 invest detail3section0 income detail3section0 goals detail3section0 accounts detail3section0 spending detail3section0 strategy detail3section0 emergency detail3section0 planning detail3section0 monthly detail3section0 needs detail3section0 debt detail3section0 balance detail3section0 expenses detail3section1 cash detail3section1 payments detail3section1 savings detail3section1 reserve detail3section1 invest detail3section1 income detail3section1 goals detail3section1 accounts detail3section1 spending detail3section1 strategy detail3section1 emergency detail3section1 planning detail3section1 monthly detail3section1 needs detail3section1 debt detail3section1 balance detail3section1 budget detail3section1 loans detail3section1 costs detail3section1 savings detail3section2 reserve detail3section2 invest detail3section2 income detail3section2 goals detail3section2 accounts detail3section2 spending detail3section2 strategy detail3section2 emergency detail3section2 planning detail3section2 monthly detail3section2 needs detail3section2 debt detail3section2 balance detail3section2 budget detail3section2 loans detail3section2 costs detail3section2 expenses detail3section2 cash detail3section2 payments detail3section2"
+        },
+        {
+          "videoId": "date-ties-4",
+          "source": "creator_caption_unverified",
+          "languageCode": "en",
+          "text": "budget detail4section0 reserve detail4section0 emergency detail4section0 loans detail4section0 invest detail4section0 planning detail4section0 costs detail4section0 income detail4section0 monthly detail4section0 expenses detail4section0 goals detail4section0 needs detail4section0 cash detail4section0 accounts detail4section0 debt detail4section0 payments detail4section0 spending detail4section0 balance detail4section0 savings detail4section0 strategy detail4section0 expenses detail4section1 goals detail4section1 needs detail4section1 cash detail4section1 accounts detail4section1 debt detail4section1 payments detail4section1 spending detail4section1 balance detail4section1 savings detail4section1 strategy detail4section1 budget detail4section1 reserve detail4section1 emergency detail4section1 loans detail4section1 invest detail4section1 planning detail4section1 costs detail4section1 income detail4section1 monthly detail4section1 savings detail4section2 strategy detail4section2 budget detail4section2 reserve detail4section2 emergency detail4section2 loans detail4section2 invest detail4section2 planning detail4section2 costs detail4section2 income detail4section2 monthly detail4section2 expenses detail4section2 goals detail4section2 needs detail4section2 cash detail4section2 accounts detail4section2 debt detail4section2 payments detail4section2 spending detail4section2 balance detail4section2"
+        },
+        {
+          "videoId": "date-ties-5",
+          "source": "creator_caption_unverified",
+          "languageCode": "en",
+          "text": "budget detail5section0 strategy detail5section0 savings detail5section0 balance detail5section0 spending detail5section0 payments detail5section0 debt detail5section0 accounts detail5section0 cash detail5section0 needs detail5section0 goals detail5section0 expenses detail5section0 monthly detail5section0 income detail5section0 costs detail5section0 planning detail5section0 invest detail5section0 loans detail5section0 emergency detail5section0 reserve detail5section0 expenses detail5section1 monthly detail5section1 income detail5section1 costs detail5section1 planning detail5section1 invest detail5section1 loans detail5section1 emergency detail5section1 reserve detail5section1 budget detail5section1 strategy detail5section1 savings detail5section1 balance detail5section1 spending detail5section1 payments detail5section1 debt detail5section1 accounts detail5section1 cash detail5section1 needs detail5section1 goals detail5section1 savings detail5section2 balance detail5section2 spending detail5section2 payments detail5section2 debt detail5section2 accounts detail5section2 cash detail5section2 needs detail5section2 goals detail5section2 expenses detail5section2 monthly detail5section2 income detail5section2 costs detail5section2 planning detail5section2 invest detail5section2 loans detail5section2 emergency detail5section2 reserve detail5section2 budget detail5section2 strategy detail5section2"
+        }
+      ]
+    }
+  ]
+}

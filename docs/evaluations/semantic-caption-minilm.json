@@ -1,0 +1,243 @@
+{
+  "model": "sentence-transformers/all-MiniLM-L6-v2",
+  "benchmark_provenance": "Assistant-authored, manually inspected illustrative text triples. Not real-video transcripts or an independently annotated benchmark.",
+  "benchmark_sha256": "27d011f3b7b885e736f8f9cf2cb052f5b760dd3cfc909b4c326958f5aca198bb",
+  "cases": [
+    {
+      "id": "budget_paraphrase",
+      "positive_score": 0.594482448881413,
+      "negative_score": 0.6432356540494824,
+      "positive_ranks_first": false
+    },
+    {
+      "id": "learning_paraphrase",
+      "positive_score": 0.49288803453335017,
+      "negative_score": 0.33133513840169243,
+      "positive_ranks_first": true
+    },
+    {
+      "id": "thumbnail_intent",
+      "positive_score": 0.5522533839659571,
+      "negative_score": 0.2625650576806846,
+      "positive_ranks_first": true
+    },
+    {
+      "id": "audience_return",
+      "positive_score": 0.5585412873265065,
+      "negative_score": 0.36818764714750735,
+      "positive_ranks_first": true
+    },
+    {
+      "id": "negation_hard_case",
+      "positive_score": 0.5743365456945851,
+      "negative_score": 0.9323243229737063,
+      "positive_ranks_first": false
+    },
+    {
+      "id": "format_trap",
+      "positive_score": 0.5106645160168745,
+      "negative_score": 0.7427399383110712,
+      "positive_ranks_first": false
+    },
+    {
+      "id": "topic_shared_words",
+      "positive_score": 0.627228957506331,
+      "negative_score": 0.5387994138389142,
+      "positive_ranks_first": true
+    },
+    {
+      "id": "series_reuse_trap",
+      "positive_score": 0.29642863027581307,
+      "negative_score": 0.691902593970719,
+      "positive_ranks_first": false
+    },
+    {
+      "id": "branding_slow_start",
+      "positive_score": 0.5053387709741738,
+      "negative_score": 0.40808065903370144,
+      "positive_ranks_first": true
+    },
+    {
+      "id": "equal_window",
+      "positive_score": 0.4917718505413611,
+      "negative_score": 0.5563724813333173,
+      "positive_ranks_first": false
+    }
+  ],
+  "ranking_passes": 5,
+  "case_count": 10,
+  "rollout_decision": "not_promoted",
+  "limitations": [
+    "Illustrative fixtures are not independent real-video validation.",
+    "Semantic similarity cannot verify format or shared footage. No grouping threshold has been calibrated."
+  ],
+  "live_text_observations": {
+    "status": "experimental_text_observations",
+    "model": "sentence-transformers/all-MiniLM-L6-v2",
+    "coverage": [
+      {
+        "video_id": "5ddEDYTFWTc",
+        "status": "encoded",
+        "chunks": 3,
+        "source": "public_caption_unverified"
+      },
+      {
+        "video_id": "EJl6J3MFfb0",
+        "status": "encoded",
+        "chunks": 1,
+        "source": "public_caption_unverified"
+      },
+      {
+        "video_id": "EiKq-iUjHVw",
+        "status": "encoded",
+        "chunks": 4,
+        "source": "public_caption_unverified"
+      },
+      {
+        "video_id": "Mcoz8o3ZiTU",
+        "status": "encoded",
+        "chunks": 2,
+        "source": "public_caption_unverified"
+      },
+      {
+        "video_id": "JQF5JCwEJ64",
+        "status": "encoded",
+        "chunks": 3,
+        "source": "public_caption_unverified"
+      },
+      {
+        "video_id": "gjQwKJLN_EE",
+        "status": "encoded",
+        "chunks": 4,
+        "source": "public_caption_unverified"
+      },
+      {
+        "video_id": "zHDK-TZ4gLY",
+        "status": "encoded",
+        "chunks": 2,
+        "source": "public_caption_unverified"
+      }
+    ],
+    "pairs": [
+      {
+        "left": "5ddEDYTFWTc",
+        "right": "EiKq-iUjHVw",
+        "cosine_similarity": 0.8525772039234151
+      },
+      {
+        "left": "EJl6J3MFfb0",
+        "right": "EiKq-iUjHVw",
+        "cosine_similarity": 0.6793063435013773
+      },
+      {
+        "left": "JQF5JCwEJ64",
+        "right": "zHDK-TZ4gLY",
+        "cosine_similarity": 0.6532139845920136
+      },
+      {
+        "left": "JQF5JCwEJ64",
+        "right": "gjQwKJLN_EE",
+        "cosine_similarity": 0.6247095291880016
+      },
+      {
+        "left": "gjQwKJLN_EE",
+        "right": "zHDK-TZ4gLY",
+        "cosine_similarity": 0.6220428901223427
+      },
+      {
+        "left": "EiKq-iUjHVw",
+        "right": "zHDK-TZ4gLY",
+        "cosine_similarity": 0.6056185110015668
+      },
+      {
+        "left": "5ddEDYTFWTc",
+        "right": "zHDK-TZ4gLY",
+        "cosine_similarity": 0.5798641554928582
+      },
+      {
+        "left": "5ddEDYTFWTc",
+        "right": "JQF5JCwEJ64",
+        "cosine_similarity": 0.551669672411893
+      },
+      {
+        "left": "5ddEDYTFWTc",
+        "right": "EJl6J3MFfb0",
+        "cosine_similarity": 0.5413016690882331
+      },
+      {
+        "left": "EiKq-iUjHVw",
+        "right": "gjQwKJLN_EE",
+        "cosine_similarity": 0.536337395411281
+      },
+      {
+        "left": "5ddEDYTFWTc",
+        "right": "gjQwKJLN_EE",
+        "cosine_similarity": 0.5218128485209552
+      },
+      {
+        "left": "EiKq-iUjHVw",
+        "right": "JQF5JCwEJ64",
+        "cosine_similarity": 0.5098540871733757
+      },
+      {
+        "left": "EiKq-iUjHVw",
+        "right": "Mcoz8o3ZiTU",
+        "cosine_similarity": 0.4057877802607767
+      },
+      {
+        "left": "Mcoz8o3ZiTU",
+        "right": "JQF5JCwEJ64",
+        "cosine_similarity": 0.37979500912801983
+      },
+      {
+        "left": "Mcoz8o3ZiTU",
+        "right": "gjQwKJLN_EE",
+        "cosine_similarity": 0.37129227131093445
+      },
+      {
+        "left": "5ddEDYTFWTc",
+        "right": "Mcoz8o3ZiTU",
+        "cosine_similarity": 0.3569196538090957
+      },
+      {
+        "left": "EJl6J3MFfb0",
+        "right": "Mcoz8o3ZiTU",
+        "cosine_similarity": 0.3388781268297066
+      },
+      {
+        "left": "Mcoz8o3ZiTU",
+        "right": "zHDK-TZ4gLY",
+        "cosine_similarity": 0.294091790868587
+      },
+      {
+        "left": "EJl6J3MFfb0",
+        "right": "zHDK-TZ4gLY",
+        "cosine_similarity": 0.28730626796135195
+      },
+      {
+        "left": "EJl6J3MFfb0",
+        "right": "JQF5JCwEJ64",
+        "cosine_similarity": 0.2815122874740023
+      },
+      {
+        "left": "EJl6J3MFfb0",
+        "right": "gjQwKJLN_EE",
+        "cosine_similarity": 0.2284593786900698
+      }
+    ],
+    "limitations": [
+      "Scores are text-similarity observations, not calibrated probabilities or fair-comparison decisions.",
+      "Format, reused footage, creator intent and comparable viewing windows remain unverified.",
+      "All text chunks are processed; oversized text abstains rather than analyzing only the opening."
+    ]
+  },
+  "model_assets": {
+    "models--qdrant--all-MiniLM-L6-v2-onnx/files_metadata.json": "1487aa2141fb900520fab41e375833dc52bdbf7c0ebc4489d7228c7e6eb7ad03",
+    "models--qdrant--all-MiniLM-L6-v2-onnx/trees/d13954661f83248295ba75c1ed411eef3b7b936e.json": "bd96e5670f75057382a8c79e07fecb951c3ca673c5b62cad6b7831eebb2ca2ce",
+    "models--qdrant--all-MiniLM-L6-v2-onnx/snapshots/d13954661f83248295ba75c1ed411eef3b7b936e/model.onnx": "bbd7b466f6d58e646fdc2bd5fd67b2f5e93c0b687011bd4548c420f7bd46f0c5",
+    "models--qdrant--all-MiniLM-L6-v2-onnx/snapshots/d13954661f83248295ba75c1ed411eef3b7b936e/config.json": "1b4d8e2a3988377ed8b519a31d8d31025a25f1c5f8606998e8014111438efcd7",
+    "models--qdrant--all-MiniLM-L6-v2-onnx/snapshots/d13954661f83248295ba75c1ed411eef3b7b936e/special_tokens_map.json": "5d5b662e421ea9fac075174bb0688ee0d9431699900b90662acd44b2a350503a",
+    "models--qdrant--all-MiniLM-L6-v2-onnx/snapshots/d13954661f83248295ba75c1ed411eef3b7b936e/tokenizer_config.json": "abda01c8c14c5151ae498aceb30db406d6b91242c394fd88d3b6fd5a63a101e6",
+    "models--qdrant--all-MiniLM-L6-v2-onnx/snapshots/d13954661f83248295ba75c1ed411eef3b7b936e/tokenizer.json": "851ca67100d372ca3ae031a6abd168f53489eebfd7d89523f35c5c9b4d372c3c"
+  }
+}

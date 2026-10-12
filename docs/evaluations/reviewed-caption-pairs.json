@@ -1,0 +1,140 @@
+{
+  "provenance": "Assistant-reviewed complete public caption text from seven retrieved videos. Development cases, not independent human or video ground truth. Titles were not used as evidence for these labels.",
+  "review_scope": "Dialogue and passage relationships only. Format, identical footage, recording identity and fair performance comparability are unverified.",
+  "fixture_sha256": "fd6fdd10e475ba98f57003b786452a95f0cb15db2a77d54aa6d567fe5878ecf1",
+  "reviewed_pairs": [
+    {
+      "left": "5ddEDYTFWTc",
+      "right": "EiKq-iUjHVw",
+      "shared_dialogue": "observed",
+      "reason": "Both transcripts follow the same audience-name, height, care-work, interpreter, couple-meeting and first-date exchange, with transcription variations.",
+      "format": "unknown",
+      "shared_footage": "unknown",
+      "exact_overlap_flag": "no_large_exact_overlap_observed",
+      "fair_comparison": "not_established",
+      "ordered_alignment_flag": "possible_shared_dialogue"
+    },
+    {
+      "left": "EJl6J3MFfb0",
+      "right": "EiKq-iUjHVw",
+      "shared_dialogue": "observed",
+      "reason": "The shorter transcript follows the sign-language exchange occurring near the end of the longer transcript; captions differ in filler and speaker rendering.",
+      "format": "unknown",
+      "shared_footage": "unknown",
+      "exact_overlap_flag": "no_large_exact_overlap_observed",
+      "fair_comparison": "not_established",
+      "ordered_alignment_flag": "possible_shared_dialogue"
+    },
+    {
+      "left": "5ddEDYTFWTc",
+      "right": "EJl6J3MFfb0",
+      "shared_dialogue": "not_observed_in_available_text",
+      "reason": "The texts cover separate passages; recurring participants suggest a possible narrative connection, but do not verify one recording.",
+      "format": "unknown",
+      "shared_footage": "unknown",
+      "exact_overlap_flag": "no_large_exact_overlap_observed",
+      "fair_comparison": "not_established",
+      "ordered_alignment_flag": "no_large_ordered_alignment_observed"
+    },
+    {
+      "left": "JQF5JCwEJ64",
+      "right": "gjQwKJLN_EE",
+      "shared_dialogue": "not_observed_in_available_text",
+      "reason": "Both discuss a returning audience member and a jacket; the passages cover different exchanges. This supports possible related narrative, not verified shared footage.",
+      "format": "unknown",
+      "shared_footage": "unknown",
+      "exact_overlap_flag": "no_large_exact_overlap_observed",
+      "fair_comparison": "not_established",
+      "ordered_alignment_flag": "no_large_ordered_alignment_observed"
+    },
+    {
+      "left": "gjQwKJLN_EE",
+      "right": "zHDK-TZ4gLY",
+      "shared_dialogue": "not_observed_in_available_text",
+      "reason": "The second passage shifts from a drink interaction to a conversation about dogs with the same named participant. Continuity is possible, but recording identity is unverified.",
+      "format": "unknown",
+      "shared_footage": "unknown",
+      "exact_overlap_flag": "no_large_exact_overlap_observed",
+      "fair_comparison": "not_established",
+      "ordered_alignment_flag": "no_large_ordered_alignment_observed"
+    },
+    {
+      "left": "EiKq-iUjHVw",
+      "right": "Mcoz8o3ZiTU",
+      "shared_dialogue": "not_observed_in_available_text",
+      "reason": "One text concerns audience introductions and an interpreter; the other concerns an audience interruption and stage safety. Broad audience-interaction style does not establish matching topics or format.",
+      "format": "unknown",
+      "shared_footage": "unknown",
+      "exact_overlap_flag": "no_large_exact_overlap_observed",
+      "fair_comparison": "not_established",
+      "ordered_alignment_flag": "no_large_ordered_alignment_observed"
+    },
+    {
+      "left": "EiKq-iUjHVw",
+      "right": "gjQwKJLN_EE",
+      "shared_dialogue": "not_observed_in_available_text",
+      "reason": "The interpreter exchange and the returning-participant, jacket and drink exchange contain different dialogue despite common conversational vocabulary.",
+      "format": "unknown",
+      "shared_footage": "unknown",
+      "exact_overlap_flag": "no_large_exact_overlap_observed",
+      "fair_comparison": "not_established",
+      "ordered_alignment_flag": "no_large_ordered_alignment_observed"
+    }
+  ],
+  "shared_dialogue_cases": 2,
+  "shared_dialogue_cases_flagged_by_exact_overlap": 0,
+  "shared_dialogue_cases_flagged_by_ordered_alignment": 2,
+  "models": [
+    {
+      "model": "sentence-transformers/all-MiniLM-L6-v2",
+      "probes": [
+        {
+          "anchor": "EiKq-iUjHVw",
+          "closer_dialogue": "5ddEDYTFWTc",
+          "different_dialogue": "gjQwKJLN_EE",
+          "closer_score": 0.8525772039234151,
+          "different_score": 0.536337395411281,
+          "closer_ranks_first": true
+        },
+        {
+          "anchor": "EiKq-iUjHVw",
+          "closer_dialogue": "EJl6J3MFfb0",
+          "different_dialogue": "gjQwKJLN_EE",
+          "closer_score": 0.6793063435013773,
+          "different_score": 0.536337395411281,
+          "closer_ranks_first": true
+        }
+      ],
+      "passes": 2
+    },
+    {
+      "model": "BAAI/bge-small-en-v1.5",
+      "probes": [
+        {
+          "anchor": "EiKq-iUjHVw",
+          "closer_dialogue": "5ddEDYTFWTc",
+          "different_dialogue": "gjQwKJLN_EE",
+          "closer_score": 0.9624513969470787,
+          "different_score": 0.8483725381420839,
+          "closer_ranks_first": true
+        },
+        {
+          "anchor": "EiKq-iUjHVw",
+          "closer_dialogue": "EJl6J3MFfb0",
+          "different_dialogue": "gjQwKJLN_EE",
+          "closer_score": 0.8762054555419927,
+          "different_score": 0.8483725381420839,
+          "closer_ranks_first": true
+        }
+      ],
+      "passes": 2
+    }
+  ],
+  "rollout_decision": "not_promoted",
+  "limitations": [
+    "Seven development pairs from one channel are not independent held-out validation.",
+    "No verified video-format or shared-footage labels are available.",
+    "Ranking success is not a calibrated grouping decision. High scores occur for different dialogue.",
+    "Reports share the checked video inventory and original retrieval session. Semantic reports did not preserve caption hashes, so hash identity cannot be independently confirmed; no fresh retrieval is performed."
+  ]
+}
