@@ -27,6 +27,7 @@ def test_uncertainty_does_not_become_a_forced_ranking(choice):
 def test_title_only_partial_and_unfamiliar_language_cannot_supply_strict_labels():
     for basis in ['titles_only','partial_videos']:assert record(review_basis=basis)['ranking_case'] is None
     assert record(understands_language=False)['ranking_case'] is None
+    assert record(understands_language=None)['ranking_case'] is None
 
 
 def test_assistant_labels_blank_reasons_and_existing_or_exposed_reviews_are_rejected():

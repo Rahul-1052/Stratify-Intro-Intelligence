@@ -15,10 +15,10 @@ def main():
     p.add_argument('--choice',required=True,choices=['b','c','both','neither','unsure'])
     p.add_argument('--reason',required=True)
     p.add_argument('--basis',required=True,choices=['whole_videos','partial_videos','titles_only'])
-    p.add_argument('--language',required=True,choices=['understood','not_understood'])
+    p.add_argument('--language',required=True,choices=['understood','not_understood','not_confirmed'])
     p.add_argument('--output',required=True)
     args=p.parse_args()
-    result=record_content_review(json.loads(Path(args.packet).read_text()),args.case,reviewer=args.reviewer,reviewer_kind=args.reviewer_kind,choice=args.choice,reason=args.reason,review_basis=args.basis,understands_language=args.language=='understood')
+    result=record_content_review(json.loads(Path(args.packet).read_text()),args.case,reviewer=args.reviewer,reviewer_kind=args.reviewer_kind,choice=args.choice,reason=args.reason,review_basis=args.basis,understands_language=None if args.language=='not_confirmed' else args.language=='understood')
     with Path(args.output).open('x') as handle:json.dump(result,handle,indent=2,ensure_ascii=False);handle.write('\n')
     print(json.dumps({'status':result['packet']['cases'][[c['id'] for c in result['packet']['cases']].index(args.case)]['status'],'strict_ranking_available':result['ranking_case'] is not None}))
 

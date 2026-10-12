@@ -8,7 +8,7 @@ def record_content_review(packet, case_id, *, reviewer, reviewer_kind, choice, r
         raise ValueError('Name the human reviewer and their declared review source.')
     if choice not in {'b','c','both','neither','unsure'} or not isinstance(reason,str) or not reason.strip():
         raise ValueError('Record a choice and the reviewer’s own reason.')
-    if review_basis not in {'whole_videos','partial_videos','titles_only'} or not isinstance(understands_language,bool):
+    if review_basis not in {'whole_videos','partial_videos','titles_only'} or (understands_language is not None and not isinstance(understands_language,bool)):
         raise ValueError('Record review coverage and language understanding explicitly.')
     matches=[c for c in packet['cases'] if c['id']==case_id]
     if len(matches)!=1: raise ValueError('Select one uniquely identified review case.')
@@ -16,7 +16,7 @@ def record_content_review(packet, case_id, *, reviewer, reviewer_kind, choice, r
     if matches[0].get('model_result') is not None: raise ValueError('Model predictions must remain hidden until review is recorded.')
     result=copy.deepcopy(packet)
     case=next(c for c in result['cases'] if c['id']==case_id)
-    eligible=choice in {'b','c'} and review_basis=='whole_videos' and understands_language
+    eligible=choice in {'b','c'} and review_basis=='whole_videos' and understands_language is True
     case['review']={'reviewer':reviewer.strip(),'reviewer_kind':reviewer_kind,'choice':choice,'reason':reason.strip(),'review_basis':review_basis,'understands_language':understands_language,'recorded_at':datetime.now(timezone.utc).isoformat(),'provenance':'Human-reported, not independently authenticated by this tool.'}
     case['status']='review_recorded' if eligible else 'review_recorded_no_strict_ranking'
     ranking=None
