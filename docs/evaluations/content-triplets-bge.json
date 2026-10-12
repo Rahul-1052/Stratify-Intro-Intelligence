@@ -1,0 +1,620 @@
+{
+  "implementation_sha256": {
+    "tools/evaluate_content_triplets.py": "a852b49f4b3aef825ee88d1bf72bb5751b8cf28da1da003902542de83201e221",
+    "core/content_ranking_evaluation.py": "e63af13b5c69caa0cfd1f8d25010401db50a07c4055134ca3ed3088ef49b1187",
+    "core/semantic_caption_matching.py": "84ec20b47512d003fd71ec874a1af5810f53ff764d1a76e85db6f37768d2db8b",
+    "core/caption_comparison_checks.py": "16471fc40591adbb611a5f15d25c31b42ff5cafd0c6f28715ca59c0c5a3edb2c"
+  },
+  "case_sha256": "8453cf94d3b0b016ada41bbf9829c55b1130095891e523141f84ef43cb1f2e3c",
+  "semantic_model": "BAAI/bge-small-en-v1.5",
+  "runtime": {
+    "python": "3.12.14",
+    "packages": {
+      "fastembed": "0.7.4",
+      "numpy": "2.5.4",
+      "onnxruntime": "1.31.0",
+      "tokenizers": "0.23.3",
+      "huggingface-hub": "1.33.0"
+    }
+  },
+  "input_sources": [
+    {
+      "provider": "youtube-transcript-api",
+      "fetched_at": "2026-10-12T06:54:42.057824+00:00"
+    },
+    {
+      "provider": "creator_published_caption_repository",
+      "fetched_at": "2026-10-12T07:04:35.280147+00:00"
+    }
+  ],
+  "retrieval_coverage": [
+    {
+      "video_id": "GB0b6KFZVq0",
+      "status": "available",
+      "language_code": "en"
+    },
+    {
+      "video_id": "rayrrXot17M",
+      "status": "available",
+      "language_code": "en"
+    },
+    {
+      "video_id": "kBX5WH9b4M4",
+      "status": "available",
+      "language_code": "en"
+    },
+    {
+      "video_id": "fNk_zzaMoSs",
+      "status": "available",
+      "language_code": "en"
+    },
+    {
+      "video_id": "k7RM-ot2NWY",
+      "status": "available",
+      "language_code": "en"
+    },
+    {
+      "video_id": "aircAruvnKk",
+      "status": "available",
+      "language_code": "en"
+    }
+  ],
+  "caption_evidence": [
+    {
+      "video_id": "GB0b6KFZVq0",
+      "source": "public_caption_unverified",
+      "source_url": "https://www.youtube.com/watch?v=GB0b6KFZVq0",
+      "repository_commit": null,
+      "language_code": "en",
+      "is_generated": false,
+      "text_sha256": "9a217063301561fedb08a86adeac6667f6e1df8218e35b23f449700a3bca4c96"
+    },
+    {
+      "video_id": "rayrrXot17M",
+      "source": "public_caption_unverified",
+      "source_url": "https://www.youtube.com/watch?v=rayrrXot17M",
+      "repository_commit": null,
+      "language_code": "en",
+      "is_generated": false,
+      "text_sha256": "ff3ab96aa6943af82bc183893173c318668584bcfc95e8d62d38921bbf6e9bd7"
+    },
+    {
+      "video_id": "kBX5WH9b4M4",
+      "source": "public_caption_unverified",
+      "source_url": "https://www.youtube.com/watch?v=kBX5WH9b4M4",
+      "repository_commit": null,
+      "language_code": "en",
+      "is_generated": true,
+      "text_sha256": "c52a7b51a670a29084fe3b69fac99e11d8963daac13bb5d221ecbbd6202473b8"
+    },
+    {
+      "video_id": "fNk_zzaMoSs",
+      "source": "public_caption_unverified",
+      "source_url": "https://raw.githubusercontent.com/3b1b/captions/9aef876b0ed62ce4f099c0a2f0e7a52e8d1058c9/2016/vectors/english/transcript.txt",
+      "repository_commit": "9aef876b0ed62ce4f099c0a2f0e7a52e8d1058c9",
+      "language_code": "en",
+      "is_generated": null,
+      "text_sha256": "e8faf77a47688d387b323cb20a3472422d99fc7b56c5e57db0be7ecada87ac27"
+    },
+    {
+      "video_id": "k7RM-ot2NWY",
+      "source": "public_caption_unverified",
+      "source_url": "https://raw.githubusercontent.com/3b1b/captions/9aef876b0ed62ce4f099c0a2f0e7a52e8d1058c9/2016/span/english/transcript.txt",
+      "repository_commit": "9aef876b0ed62ce4f099c0a2f0e7a52e8d1058c9",
+      "language_code": "en",
+      "is_generated": null,
+      "text_sha256": "62b94565cdff6c5b1946497b8e888bb52251b06e51a9153e07623ac975c170d8"
+    },
+    {
+      "video_id": "aircAruvnKk",
+      "source": "public_caption_unverified",
+      "source_url": "https://raw.githubusercontent.com/3b1b/captions/9aef876b0ed62ce4f099c0a2f0e7a52e8d1058c9/2017/neural-networks/english/transcript.txt",
+      "repository_commit": "9aef876b0ed62ce4f099c0a2f0e7a52e8d1058c9",
+      "language_code": "en",
+      "is_generated": null,
+      "text_sha256": "4e3a3054bc229af3a0809c340d24aa5730ce78cd6ca701a54ba9a3a10ee77165"
+    }
+  ],
+  "semantic": {
+    "cases": [
+      {
+        "id": "mkbhd-audio-versus-laptop",
+        "channel": "MKBHD",
+        "anchor": "GB0b6KFZVq0",
+        "closer": "rayrrXot17M",
+        "different": "kBX5WH9b4M4",
+        "reviewer_kind": "user",
+        "reason": "Rahul labeled the first two videos headphones and the third a laptop before successful transcript retrieval. Broad topical category only.",
+        "status": "ranked",
+        "closer_score": 0.9407846956450906,
+        "different_score": 0.847459596074438,
+        "margin": 0.0933250995706526,
+        "closer_ranks_first": true,
+        "fair_performance_comparison": "not_established"
+      },
+      {
+        "id": "3b1b-vectors-span-versus-network",
+        "channel": "3Blue1Brown",
+        "anchor": "fNk_zzaMoSs",
+        "closer": "k7RM-ot2NWY",
+        "different": "aircAruvnKk",
+        "reviewer_kind": "assistant",
+        "reason": "Creator-published complete transcripts describe vector coordinates, addition and scaling in the anchor; span/basis and linear combinations in the closer text; digit recognition, neural activations, weights and training in the different text. The neural-network lesson also uses linear algebra, so different means less direct topical overlap, not unrelated. Review recorded before model comparison; not independent human ground truth.",
+        "status": "ranked",
+        "closer_score": 0.9523387795523427,
+        "different_score": 0.819912591225766,
+        "margin": 0.1324261883265767,
+        "closer_ranks_first": true,
+        "fair_performance_comparison": "not_established"
+      }
+    ],
+    "summary_by_review_source": {
+      "user": {
+        "cases": 1,
+        "ranked": 1,
+        "ranking_agreements": 1,
+        "pending": 0
+      },
+      "assistant": {
+        "cases": 1,
+        "ranked": 1,
+        "ranking_agreements": 1,
+        "pending": 0
+      },
+      "independent_human": {
+        "cases": 0,
+        "ranked": 0,
+        "ranking_agreements": 0,
+        "pending": 0
+      }
+    },
+    "rollout_decision": "not_promoted",
+    "limitations": [
+      "Ranking agreement is not a calibrated grouping decision or an accuracy estimate.",
+      "Assistant reviews are development labels, not independent held-out labels.",
+      "Format, audience intent, reused footage and equal viewing time remain unverified.",
+      "Missing or unsupported evidence does not count as a ranking error or disagreement."
+    ]
+  },
+  "lexical": {
+    "cases": [
+      {
+        "id": "mkbhd-audio-versus-laptop",
+        "channel": "MKBHD",
+        "anchor": "GB0b6KFZVq0",
+        "closer": "rayrrXot17M",
+        "different": "kBX5WH9b4M4",
+        "reviewer_kind": "user",
+        "reason": "Rahul labeled the first two videos headphones and the third a laptop before successful transcript retrieval. Broad topical category only.",
+        "status": "ranked",
+        "closer_score": 0.24937372809401717,
+        "different_score": 0.19702894107357005,
+        "margin": 0.05234478702044712,
+        "closer_ranks_first": true,
+        "fair_performance_comparison": "not_established"
+      },
+      {
+        "id": "3b1b-vectors-span-versus-network",
+        "channel": "3Blue1Brown",
+        "anchor": "fNk_zzaMoSs",
+        "closer": "k7RM-ot2NWY",
+        "different": "aircAruvnKk",
+        "reviewer_kind": "assistant",
+        "reason": "Creator-published complete transcripts describe vector coordinates, addition and scaling in the anchor; span/basis and linear combinations in the closer text; digit recognition, neural activations, weights and training in the different text. The neural-network lesson also uses linear algebra, so different means less direct topical overlap, not unrelated. Review recorded before model comparison; not independent human ground truth.",
+        "status": "ranked",
+        "closer_score": 0.2974719036920419,
+        "different_score": 0.1887889689402162,
+        "margin": 0.1086829347518257,
+        "closer_ranks_first": true,
+        "fair_performance_comparison": "not_established"
+      }
+    ],
+    "summary_by_review_source": {
+      "user": {
+        "cases": 1,
+        "ranked": 1,
+        "ranking_agreements": 1,
+        "pending": 0
+      },
+      "assistant": {
+        "cases": 1,
+        "ranked": 1,
+        "ranking_agreements": 1,
+        "pending": 0
+      },
+      "independent_human": {
+        "cases": 0,
+        "ranked": 0,
+        "ranking_agreements": 0,
+        "pending": 0
+      }
+    },
+    "rollout_decision": "not_promoted",
+    "limitations": [
+      "Ranking agreement is not a calibrated grouping decision or an accuracy estimate.",
+      "Assistant reviews are development labels, not independent held-out labels.",
+      "Format, audience intent, reused footage and equal viewing time remain unverified.",
+      "Missing or unsupported evidence does not count as a ranking error or disagreement."
+    ]
+  },
+  "independent_checks": [
+    {
+      "left": "GB0b6KFZVq0",
+      "right": "rayrrXot17M",
+      "overlap": {
+        "status": "no_large_exact_overlap_observed",
+        "shared_unique_eight_word_sequences": 0,
+        "fraction_of_smaller_set": 0.0
+      },
+      "format": {
+        "status": "unknown",
+        "source": null
+      },
+      "fair_comparison": "not_established",
+      "review_required": true,
+      "limitations": [
+        "Exact matching can miss paraphrased or differently transcribed reused material.",
+        "Shared scripts, quotations, and branding can produce overlap without shared footage.",
+        "No observed overlap does not prove independent recordings.",
+        "Format declarations are not verified; titles and duration do not determine format.",
+        "Topics, creator intent, publication windows and performance comparability still need review."
+      ]
+    },
+    {
+      "left": "GB0b6KFZVq0",
+      "right": "kBX5WH9b4M4",
+      "overlap": {
+        "status": "no_large_exact_overlap_observed",
+        "shared_unique_eight_word_sequences": 0,
+        "fraction_of_smaller_set": 0.0
+      },
+      "format": {
+        "status": "unknown",
+        "source": null
+      },
+      "fair_comparison": "not_established",
+      "review_required": true,
+      "limitations": [
+        "Exact matching can miss paraphrased or differently transcribed reused material.",
+        "Shared scripts, quotations, and branding can produce overlap without shared footage.",
+        "No observed overlap does not prove independent recordings.",
+        "Format declarations are not verified; titles and duration do not determine format.",
+        "Topics, creator intent, publication windows and performance comparability still need review."
+      ]
+    },
+    {
+      "left": "GB0b6KFZVq0",
+      "right": "fNk_zzaMoSs",
+      "overlap": {
+        "status": "no_large_exact_overlap_observed",
+        "shared_unique_eight_word_sequences": 0,
+        "fraction_of_smaller_set": 0.0
+      },
+      "format": {
+        "status": "unknown",
+        "source": null
+      },
+      "fair_comparison": "not_established",
+      "review_required": true,
+      "limitations": [
+        "Exact matching can miss paraphrased or differently transcribed reused material.",
+        "Shared scripts, quotations, and branding can produce overlap without shared footage.",
+        "No observed overlap does not prove independent recordings.",
+        "Format declarations are not verified; titles and duration do not determine format.",
+        "Topics, creator intent, publication windows and performance comparability still need review."
+      ]
+    },
+    {
+      "left": "GB0b6KFZVq0",
+      "right": "k7RM-ot2NWY",
+      "overlap": {
+        "status": "no_large_exact_overlap_observed",
+        "shared_unique_eight_word_sequences": 0,
+        "fraction_of_smaller_set": 0.0
+      },
+      "format": {
+        "status": "unknown",
+        "source": null
+      },
+      "fair_comparison": "not_established",
+      "review_required": true,
+      "limitations": [
+        "Exact matching can miss paraphrased or differently transcribed reused material.",
+        "Shared scripts, quotations, and branding can produce overlap without shared footage.",
+        "No observed overlap does not prove independent recordings.",
+        "Format declarations are not verified; titles and duration do not determine format.",
+        "Topics, creator intent, publication windows and performance comparability still need review."
+      ]
+    },
+    {
+      "left": "GB0b6KFZVq0",
+      "right": "aircAruvnKk",
+      "overlap": {
+        "status": "no_large_exact_overlap_observed",
+        "shared_unique_eight_word_sequences": 0,
+        "fraction_of_smaller_set": 0.0
+      },
+      "format": {
+        "status": "unknown",
+        "source": null
+      },
+      "fair_comparison": "not_established",
+      "review_required": true,
+      "limitations": [
+        "Exact matching can miss paraphrased or differently transcribed reused material.",
+        "Shared scripts, quotations, and branding can produce overlap without shared footage.",
+        "No observed overlap does not prove independent recordings.",
+        "Format declarations are not verified; titles and duration do not determine format.",
+        "Topics, creator intent, publication windows and performance comparability still need review."
+      ]
+    },
+    {
+      "left": "rayrrXot17M",
+      "right": "kBX5WH9b4M4",
+      "overlap": {
+        "status": "no_large_exact_overlap_observed",
+        "shared_unique_eight_word_sequences": 1,
+        "fraction_of_smaller_set": 0.0005733944954128441
+      },
+      "format": {
+        "status": "unknown",
+        "source": null
+      },
+      "fair_comparison": "not_established",
+      "review_required": true,
+      "limitations": [
+        "Exact matching can miss paraphrased or differently transcribed reused material.",
+        "Shared scripts, quotations, and branding can produce overlap without shared footage.",
+        "No observed overlap does not prove independent recordings.",
+        "Format declarations are not verified; titles and duration do not determine format.",
+        "Topics, creator intent, publication windows and performance comparability still need review."
+      ]
+    },
+    {
+      "left": "rayrrXot17M",
+      "right": "fNk_zzaMoSs",
+      "overlap": {
+        "status": "no_large_exact_overlap_observed",
+        "shared_unique_eight_word_sequences": 0,
+        "fraction_of_smaller_set": 0.0
+      },
+      "format": {
+        "status": "unknown",
+        "source": null
+      },
+      "fair_comparison": "not_established",
+      "review_required": true,
+      "limitations": [
+        "Exact matching can miss paraphrased or differently transcribed reused material.",
+        "Shared scripts, quotations, and branding can produce overlap without shared footage.",
+        "No observed overlap does not prove independent recordings.",
+        "Format declarations are not verified; titles and duration do not determine format.",
+        "Topics, creator intent, publication windows and performance comparability still need review."
+      ]
+    },
+    {
+      "left": "rayrrXot17M",
+      "right": "k7RM-ot2NWY",
+      "overlap": {
+        "status": "no_large_exact_overlap_observed",
+        "shared_unique_eight_word_sequences": 0,
+        "fraction_of_smaller_set": 0.0
+      },
+      "format": {
+        "status": "unknown",
+        "source": null
+      },
+      "fair_comparison": "not_established",
+      "review_required": true,
+      "limitations": [
+        "Exact matching can miss paraphrased or differently transcribed reused material.",
+        "Shared scripts, quotations, and branding can produce overlap without shared footage.",
+        "No observed overlap does not prove independent recordings.",
+        "Format declarations are not verified; titles and duration do not determine format.",
+        "Topics, creator intent, publication windows and performance comparability still need review."
+      ]
+    },
+    {
+      "left": "rayrrXot17M",
+      "right": "aircAruvnKk",
+      "overlap": {
+        "status": "no_large_exact_overlap_observed",
+        "shared_unique_eight_word_sequences": 0,
+        "fraction_of_smaller_set": 0.0
+      },
+      "format": {
+        "status": "unknown",
+        "source": null
+      },
+      "fair_comparison": "not_established",
+      "review_required": true,
+      "limitations": [
+        "Exact matching can miss paraphrased or differently transcribed reused material.",
+        "Shared scripts, quotations, and branding can produce overlap without shared footage.",
+        "No observed overlap does not prove independent recordings.",
+        "Format declarations are not verified; titles and duration do not determine format.",
+        "Topics, creator intent, publication windows and performance comparability still need review."
+      ]
+    },
+    {
+      "left": "kBX5WH9b4M4",
+      "right": "fNk_zzaMoSs",
+      "overlap": {
+        "status": "no_large_exact_overlap_observed",
+        "shared_unique_eight_word_sequences": 0,
+        "fraction_of_smaller_set": 0.0
+      },
+      "format": {
+        "status": "unknown",
+        "source": null
+      },
+      "fair_comparison": "not_established",
+      "review_required": true,
+      "limitations": [
+        "Exact matching can miss paraphrased or differently transcribed reused material.",
+        "Shared scripts, quotations, and branding can produce overlap without shared footage.",
+        "No observed overlap does not prove independent recordings.",
+        "Format declarations are not verified; titles and duration do not determine format.",
+        "Topics, creator intent, publication windows and performance comparability still need review."
+      ]
+    },
+    {
+      "left": "kBX5WH9b4M4",
+      "right": "k7RM-ot2NWY",
+      "overlap": {
+        "status": "no_large_exact_overlap_observed",
+        "shared_unique_eight_word_sequences": 0,
+        "fraction_of_smaller_set": 0.0
+      },
+      "format": {
+        "status": "unknown",
+        "source": null
+      },
+      "fair_comparison": "not_established",
+      "review_required": true,
+      "limitations": [
+        "Exact matching can miss paraphrased or differently transcribed reused material.",
+        "Shared scripts, quotations, and branding can produce overlap without shared footage.",
+        "No observed overlap does not prove independent recordings.",
+        "Format declarations are not verified; titles and duration do not determine format.",
+        "Topics, creator intent, publication windows and performance comparability still need review."
+      ]
+    },
+    {
+      "left": "kBX5WH9b4M4",
+      "right": "aircAruvnKk",
+      "overlap": {
+        "status": "no_large_exact_overlap_observed",
+        "shared_unique_eight_word_sequences": 0,
+        "fraction_of_smaller_set": 0.0
+      },
+      "format": {
+        "status": "unknown",
+        "source": null
+      },
+      "fair_comparison": "not_established",
+      "review_required": true,
+      "limitations": [
+        "Exact matching can miss paraphrased or differently transcribed reused material.",
+        "Shared scripts, quotations, and branding can produce overlap without shared footage.",
+        "No observed overlap does not prove independent recordings.",
+        "Format declarations are not verified; titles and duration do not determine format.",
+        "Topics, creator intent, publication windows and performance comparability still need review."
+      ]
+    },
+    {
+      "left": "fNk_zzaMoSs",
+      "right": "k7RM-ot2NWY",
+      "overlap": {
+        "status": "no_large_exact_overlap_observed",
+        "shared_unique_eight_word_sequences": 4,
+        "fraction_of_smaller_set": 0.0023995200959808036
+      },
+      "format": {
+        "status": "unknown",
+        "source": null
+      },
+      "fair_comparison": "not_established",
+      "review_required": true,
+      "limitations": [
+        "Exact matching can miss paraphrased or differently transcribed reused material.",
+        "Shared scripts, quotations, and branding can produce overlap without shared footage.",
+        "No observed overlap does not prove independent recordings.",
+        "Format declarations are not verified; titles and duration do not determine format.",
+        "Topics, creator intent, publication windows and performance comparability still need review."
+      ]
+    },
+    {
+      "left": "fNk_zzaMoSs",
+      "right": "aircAruvnKk",
+      "overlap": {
+        "status": "no_large_exact_overlap_observed",
+        "shared_unique_eight_word_sequences": 0,
+        "fraction_of_smaller_set": 0.0
+      },
+      "format": {
+        "status": "unknown",
+        "source": null
+      },
+      "fair_comparison": "not_established",
+      "review_required": true,
+      "limitations": [
+        "Exact matching can miss paraphrased or differently transcribed reused material.",
+        "Shared scripts, quotations, and branding can produce overlap without shared footage.",
+        "No observed overlap does not prove independent recordings.",
+        "Format declarations are not verified; titles and duration do not determine format.",
+        "Topics, creator intent, publication windows and performance comparability still need review."
+      ]
+    },
+    {
+      "left": "k7RM-ot2NWY",
+      "right": "aircAruvnKk",
+      "overlap": {
+        "status": "no_large_exact_overlap_observed",
+        "shared_unique_eight_word_sequences": 0,
+        "fraction_of_smaller_set": 0.0
+      },
+      "format": {
+        "status": "unknown",
+        "source": null
+      },
+      "fair_comparison": "not_established",
+      "review_required": true,
+      "limitations": [
+        "Exact matching can miss paraphrased or differently transcribed reused material.",
+        "Shared scripts, quotations, and branding can produce overlap without shared footage.",
+        "No observed overlap does not prove independent recordings.",
+        "Format declarations are not verified; titles and duration do not determine format.",
+        "Topics, creator intent, publication windows and performance comparability still need review."
+      ]
+    }
+  ],
+  "semantic_coverage": [
+    {
+      "video_id": "GB0b6KFZVq0",
+      "status": "encoded",
+      "chunks": 12,
+      "source": "public_caption_unverified"
+    },
+    {
+      "video_id": "rayrrXot17M",
+      "status": "encoded",
+      "chunks": 17,
+      "source": "public_caption_unverified"
+    },
+    {
+      "video_id": "kBX5WH9b4M4",
+      "status": "encoded",
+      "chunks": 10,
+      "source": "public_caption_unverified"
+    },
+    {
+      "video_id": "fNk_zzaMoSs",
+      "status": "encoded",
+      "chunks": 10,
+      "source": "public_caption_unverified"
+    },
+    {
+      "video_id": "k7RM-ot2NWY",
+      "status": "encoded",
+      "chunks": 9,
+      "source": "public_caption_unverified"
+    },
+    {
+      "video_id": "aircAruvnKk",
+      "status": "encoded",
+      "chunks": 17,
+      "source": "public_caption_unverified"
+    }
+  ],
+  "model_assets": {
+    "models--qdrant--bge-small-en-v1.5-onnx-q/files_metadata.json": "d08f50dd29a16023a9b1496b680addf0b4c01101429ed42b38814947960d0085",
+    "models--qdrant--bge-small-en-v1.5-onnx-q/trees/aa8f8b060edb00e03bfdd08813a2949946c8ba55.json": "4da434babbdfea1afb640c0792caf42f224e06c1cfc4fb152f7b3d27ed6f23c3",
+    "models--qdrant--bge-small-en-v1.5-onnx-q/snapshots/aa8f8b060edb00e03bfdd08813a2949946c8ba55/config.json": "13582bcf2effc85b7bf3d3f5532e686bc1c9ce86bb009d10f0ec33cbe92299dd",
+    "models--qdrant--bge-small-en-v1.5-onnx-q/snapshots/aa8f8b060edb00e03bfdd08813a2949946c8ba55/model_optimized.onnx": "51f1bd0addd6e859e42c2c8021a5e5461385bb676a649f4b269aa445449f2431",
+    "models--qdrant--bge-small-en-v1.5-onnx-q/snapshots/aa8f8b060edb00e03bfdd08813a2949946c8ba55/special_tokens_map.json": "5d5b662e421ea9fac075174bb0688ee0d9431699900b90662acd44b2a350503a",
+    "models--qdrant--bge-small-en-v1.5-onnx-q/snapshots/aa8f8b060edb00e03bfdd08813a2949946c8ba55/tokenizer_config.json": "0b29c7bfc889e53b36d9dd3e686dd4300f6525110eaa98c76a5dafceb2029f53",
+    "models--qdrant--bge-small-en-v1.5-onnx-q/snapshots/aa8f8b060edb00e03bfdd08813a2949946c8ba55/tokenizer.json": "d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66"
+  },
+  "rollout_decision": "not_promoted"
+}

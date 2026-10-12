@@ -1,0 +1,83 @@
+{
+  "model": "BAAI/bge-small-en-v1.5",
+  "benchmark_provenance": "Assistant-authored, manually inspected illustrative text triples. Not real-video transcripts or an independently annotated benchmark.",
+  "benchmark_sha256": "27d011f3b7b885e736f8f9cf2cb052f5b760dd3cfc909b4c326958f5aca198bb",
+  "cases": [
+    {
+      "id": "budget_paraphrase",
+      "positive_score": 0.7188487031990982,
+      "negative_score": 0.6982888833703484,
+      "positive_ranks_first": true
+    },
+    {
+      "id": "learning_paraphrase",
+      "positive_score": 0.7858360955692468,
+      "negative_score": 0.6623005076810152,
+      "positive_ranks_first": true
+    },
+    {
+      "id": "thumbnail_intent",
+      "positive_score": 0.7966343745516841,
+      "negative_score": 0.647254789739122,
+      "positive_ranks_first": true
+    },
+    {
+      "id": "audience_return",
+      "positive_score": 0.8066633846947366,
+      "negative_score": 0.6648713455770929,
+      "positive_ranks_first": true
+    },
+    {
+      "id": "negation_hard_case",
+      "positive_score": 0.7910541059653874,
+      "negative_score": 0.9239749936483803,
+      "positive_ranks_first": false
+    },
+    {
+      "id": "format_trap",
+      "positive_score": 0.8040671959072562,
+      "negative_score": 0.831008220870123,
+      "positive_ranks_first": false
+    },
+    {
+      "id": "topic_shared_words",
+      "positive_score": 0.8355253976621129,
+      "negative_score": 0.7535244779045308,
+      "positive_ranks_first": true
+    },
+    {
+      "id": "series_reuse_trap",
+      "positive_score": 0.6542012746057968,
+      "negative_score": 0.774793521514934,
+      "positive_ranks_first": false
+    },
+    {
+      "id": "branding_slow_start",
+      "positive_score": 0.6864628228571792,
+      "negative_score": 0.6126088490144246,
+      "positive_ranks_first": true
+    },
+    {
+      "id": "equal_window",
+      "positive_score": 0.7020824739314399,
+      "negative_score": 0.7610829174406738,
+      "positive_ranks_first": false
+    }
+  ],
+  "ranking_passes": 6,
+  "case_count": 10,
+  "rollout_decision": "not_promoted",
+  "limitations": [
+    "Illustrative fixtures are not independent real-video validation.",
+    "Semantic similarity cannot verify format or shared footage. No grouping threshold has been calibrated."
+  ],
+  "model_assets": {
+    "models--qdrant--bge-small-en-v1.5-onnx-q/files_metadata.json": "d08f50dd29a16023a9b1496b680addf0b4c01101429ed42b38814947960d0085",
+    "models--qdrant--bge-small-en-v1.5-onnx-q/trees/aa8f8b060edb00e03bfdd08813a2949946c8ba55.json": "4da434babbdfea1afb640c0792caf42f224e06c1cfc4fb152f7b3d27ed6f23c3",
+    "models--qdrant--bge-small-en-v1.5-onnx-q/snapshots/aa8f8b060edb00e03bfdd08813a2949946c8ba55/config.json": "13582bcf2effc85b7bf3d3f5532e686bc1c9ce86bb009d10f0ec33cbe92299dd",
+    "models--qdrant--bge-small-en-v1.5-onnx-q/snapshots/aa8f8b060edb00e03bfdd08813a2949946c8ba55/model_optimized.onnx": "51f1bd0addd6e859e42c2c8021a5e5461385bb676a649f4b269aa445449f2431",
+    "models--qdrant--bge-small-en-v1.5-onnx-q/snapshots/aa8f8b060edb00e03bfdd08813a2949946c8ba55/special_tokens_map.json": "5d5b662e421ea9fac075174bb0688ee0d9431699900b90662acd44b2a350503a",
+    "models--qdrant--bge-small-en-v1.5-onnx-q/snapshots/aa8f8b060edb00e03bfdd08813a2949946c8ba55/tokenizer_config.json": "0b29c7bfc889e53b36d9dd3e686dd4300f6525110eaa98c76a5dafceb2029f53",
+    "models--qdrant--bge-small-en-v1.5-onnx-q/snapshots/aa8f8b060edb00e03bfdd08813a2949946c8ba55/tokenizer.json": "d241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66"
+  }
+}
